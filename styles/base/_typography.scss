@@ -1,0 +1,161 @@
+@use "../abstracts/_variables.scss" as variables;
+
+// Icon
+.icon_48 {
+  font-size: 48px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.icon_36 {
+  font-size: 36px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.icon_24 {
+  font-size: 24px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.icon_14 {
+  font-size: 14px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+// Korean
+.kr_pc_title {
+  font-family: variables.$font_family_kr;
+  font-size: 32px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.kr_pc_title_b {
+  font-family: variables.$font_family_kr;
+  font-size: 32px;
+  font-weight: variables.$font_weight_bold;
+  line-height: 1.25;
+}
+
+.kr_pc_btn_text {
+  font-family: variables.$font_family_kr;
+  font-size: 20px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.kr_t_title {
+  font-family: variables.$font_family_kr;
+  font-size: 24px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.kr_m_btn_text {
+  font-family: variables.$font_family_kr;
+  font-size: 14px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.kr_m_title {
+  font-family: variables.$font_family_kr;
+  font-size: 20px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.kr_body {
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.kr_body_150 {
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1.5;
+}
+
+.kr_caption {
+  font-family: variables.$font_family_kr;
+  font-size: 12px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.kr_card_title {
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.kr_body_b {
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_bold;
+  line-height: 1;
+}
+
+// English
+.en_pc_title {
+  font-family: variables.$font_family_en;
+  font-size: 32px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.en_pc_btn_text {
+  font-family: variables.$font_family_en;
+  font-size: 20px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.en_t_title {
+  font-family: variables.$font_family_en;
+  font-size: 24px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.en_t_btn_text {
+  font-family: variables.$font_family_en;
+  font-size: 16px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.en_m_btn_text {
+  font-family: variables.$font_family_en;
+  font-size: 14px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.en_m_title {
+  font-family: variables.$font_family_en;
+  font-size: 20px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.en_body {
+  font-family: variables.$font_family_en;
+  font-size: 16px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
+
+.en_caption {
+  font-family: variables.$font_family_en;
+  font-size: 12px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
