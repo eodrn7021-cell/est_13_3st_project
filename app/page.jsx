@@ -1,25 +1,14 @@
-"use client";
-
-import Button from "@/components/common/Button/Button";
+import Link from "next/link";
+import QuickMenu from "@/components/home/QuickMenu/QuickMenu";
 
 const HomePage = () => {
-  const HandleClick = () => {
-    alert("버튼이 정상 작동합니다.");
-  };
-
   return (
     <main>
-      <Button variant="secondary" size="medium">
-        로그인
-      </Button>
+      <h1 className="kr_pc_title_b">메인 페이지</h1>
+      <p className="kr_body_150">나만의 캐릭터와 세계관을 기록해보세요.</p>
 
-      <Button variant="primary" size="large">
-        회원가입
-      </Button>
-
-      <Button variant="gradient" size="large" onClick={HandleClick}>
-        캐릭터 만들기
-      </Button>
+      <p className="en_pc_title">VisuLore</p>
+      <QuickMenu />
     </main>
   );
 };
