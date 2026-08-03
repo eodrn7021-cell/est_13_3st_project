@@ -1,0 +1,64 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+
+.header {
+  width: 100%;
+  background-color: colors.$color_background_deep;
+}
+
+.header_inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  max-width: 1200px;
+  height: 90px;
+  margin: 0 auto;
+  padding: 0 40px;
+
+  box-sizing: border-box;
+}
+
+.header_logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  flex-shrink: 0;
+
+  color: colors.$color_white;
+  text-decoration: none;
+}
+
+.header_actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header_buttons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header_account {
+  display: flex;
+  align-items: center;
+}
+
+.header_mobile_search {
+  display: none;
+}
+
+/* 태블릿·모바일은 세부 피그마 수치 확인 후 조정 */
+@media (max-width: 768px) {
+  .header_inner {
+    min-height: 72px;
+    height: auto;
+    padding: 0 40px;
+  }
+}
+
+@media (max-width: 480px) {
+}
