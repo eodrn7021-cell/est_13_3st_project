@@ -1,0 +1,73 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+
+.search_bar {
+  display: flex;
+  align-items: center;
+
+  width: 304px;
+  height: 60px;
+  padding: 0 16px;
+
+  background-color: colors.$color_background_surface;
+  border: 1px solid colors.$color_secondary;
+  border-radius: 10px;
+
+  box-sizing: border-box;
+}
+
+.search_input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+
+  color: colors.$color_white;
+
+  background-color: transparent;
+  border: 0;
+  outline: 0;
+
+  &::placeholder {
+    color: colors.$color_text_muted;
+    opacity: 1;
+  }
+
+  &::-webkit-search-cancel-button {
+    display: none;
+  }
+}
+
+.search_button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  padding: 0;
+
+  color: colors.$color_text_muted;
+  background-color: transparent;
+  border: 0;
+
+  cursor: pointer;
+}
+
+.search_icon {
+  color: colors.$color_text_muted;
+}
+
+/* 태블릿 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .search_bar {
+    width: min(688px, calc(100vw - 80px));
+    height: 40px;
+  }
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+  .search_bar {
+    width: min(400px, calc(100vw - 32px));
+    height: 40px;
+  }
+}

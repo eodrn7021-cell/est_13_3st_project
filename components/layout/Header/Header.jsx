@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-
 import Button from "@/components/common/Button/Button";
+import SearchBar from "@/components/common/SearchBar/SearchBar";
 import styles from "./Header.module.scss";
 
 const Header = ({ variant = "main", accountContent = null }) => {
@@ -18,11 +18,13 @@ const Header = ({ variant = "main", accountContent = null }) => {
         {/* 메인·캐릭터 목록 페이지 */}
         {variant === "main" && (
           <div className={styles.header_actions}>
-            {/* SearchBar 컴포넌트 완성 후 이 위치에 추가 */}
+            <div className={styles.header_pc_search}>
+              <SearchBar />
+            </div>
 
             <div className={styles.header_buttons}>
               <Button variant="secondary" size="medium">
-                로그인
+                <span className="kr_body">로그인</span>
               </Button>
 
               <Button variant="primary" size="large">
@@ -44,9 +46,12 @@ const Header = ({ variant = "main", accountContent = null }) => {
             )}
           </div>
         )}
-
-        {/* simple은 조건을 넣지 않아서 로고만 표시 */}
       </div>
+      {variant === "main" && (
+        <div className={styles.header_mobile_search}>
+          <SearchBar />
+        </div>
+      )}
     </header>
   );
 };
