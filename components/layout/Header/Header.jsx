@@ -26,7 +26,7 @@ const Header = ({ variant = "main", accountContent = null }) => {
               </Button>
 
               <Button variant="primary" size="large">
-                회원가입
+                <span className="kr_body">회원가입</span>
               </Button>
             </div>
           </div>
@@ -37,7 +37,9 @@ const Header = ({ variant = "main", accountContent = null }) => {
           <div className={styles.header_account}>
             {accountContent || (
               <Link href="/mypage" className={styles.header_mypage}>
-                마이페이지
+                <Button variant="primary" size="large">
+                  <span className="kr_body">마이페이지</span>
+                </Button>
               </Link>
             )}
           </div>

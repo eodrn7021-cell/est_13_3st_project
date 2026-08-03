@@ -23,7 +23,6 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-
   flex-shrink: 0;
 
   color: colors.$color_white;
@@ -45,6 +44,13 @@
 .header_account {
   display: flex;
   align-items: center;
+  margin-left: auto;
+}
+
+/* 마이페이지 버튼 */
+.header_mypage {
+  display: inline-flex;
+  text-decoration: none;
 }
 
 .header_mobile_search {

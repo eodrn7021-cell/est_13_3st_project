@@ -7,7 +7,7 @@ const HomePage = () => {
   return (
     <>
       <Header variant="main" />
-
+      <Header variant="account" />
       <main>
         <section className={styles.quick_menu_list}>
           <QuickMenu
