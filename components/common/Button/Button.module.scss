@@ -52,23 +52,45 @@
     z-index: 1;
   }
 }
+
 // 로그인 기본 버튼
 .button_secondary {
+  // 기본 상태
   background-color: colors.$color_background_surface;
   border-color: colors.$color_secondary;
+  color: colors.$color_white;
+
+  //자연스러운 전환
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+
+  &:hover:not(:disabled) {
+    //그라디언트 없이 단색
+    background-color: colors.$color_primary_dark;
+    border-color: colors.$color_primary;
+  }
+
+  &:active:not(:disabled) {
+    //클릭할 때 원래 위치로
+    transform: translateY(0);
+  }
 
   // 로그인 버튼 hover
   &:hover:not(:disabled) {
     background-color: colors.$color_primary_dark;
     border-color: colors.$color_secondary;
   }
-
-  // 그라디언트 버튼
-  .button_gradient {
-    color: colors.$color_white;
-    background: colors.$gradient_side;
-  }
 }
+
+// 그라디언트 버튼
+.button_gradient {
+  color: colors.$color_white;
+  background: colors.$gradient_side;
+}
+
 // 크기
 .button_small {
   min-width: 65px;
