@@ -1,4 +1,33 @@
+import localFont from "next/font/local";
+import { Lora } from "next/font/google";
 import "./globals.scss";
+
+const Pretendard = localFont({
+  src: [
+    {
+      path: "../public/fonts/Pretendard-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/Pretendard-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/Pretendard-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font_pretendard",
+});
+
+const LoraFont = Lora({
+  subsets: ["latin"],
+  variable: "--font_lora",
+  display: "swap",
+});
 
 export const metadata = {
   title: "VisuLore",
@@ -8,7 +37,7 @@ export const metadata = {
 const RootLayout = ({ children }) => {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body className={`${Pretendard.variable} ${LoraFont.variable}`}>{children}</body>
     </html>
   );
 };
