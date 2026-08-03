@@ -1,0 +1,81 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+@use "../../../styles/abstracts/_variables.scss" as variables;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid transparent;
+  border-radius: 10px;
+
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+// 종류
+
+// 회원가입 기본 버튼
+.button_primary {
+  background-color: colors.$color_primary_dark;
+  &:hover:not(:disabled) {
+    background: colors.$gradient_side;
+  }
+}
+
+// 로그인 기본 버튼
+.button_secondary {
+  background-color: colors.$color_background_surface;
+  border-color: colors.$color_secondary;
+
+  // 로그인 버튼 hover
+  &:hover:not(:disabled) {
+    background-color: colors.$color_primary_dark;
+    border-color: colors.$color_secondary;
+  }
+
+  // 그라디언트 버튼
+  .button_gradient {
+    color: colors.$color_white;
+    background: colors.$gradient_side;
+  }
+}
+// 크기
+.button_small {
+  min-width: 65px;
+  height: 32px;
+  padding: 0 16px;
+  font-size: 14px;
+  border-radius: 20px;
+}
+
+.button_medium {
+  min-width: 72px;
+  height: 60px;
+  padding: 0 20px;
+  font-size: 20px;
+}
+
+.button_large {
+  min-width: 88px;
+  height: 60px;
+  padding: 0 20px;
+  font-size: 24px;
+}
+
+.button_full_width {
+  width: 100%;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
