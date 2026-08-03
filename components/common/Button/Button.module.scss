@@ -25,12 +25,33 @@
 
 // 회원가입 기본 버튼
 .button_primary {
+  position: relative;
+  overflow: hidden;
+
   background-color: colors.$color_primary_dark;
-  &:hover:not(:disabled) {
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
     background: colors.$gradient_side;
+    opacity: 0;
+
+    transition: opacity 300ms ease-out;
+    pointer-events: none;
+  }
+
+  &:hover:not(:disabled)::before {
+    opacity: 1;
+  }
+
+  // 버튼 글자를 그라디언트보다 위로 올림
+  > * {
+    position: relative;
+    z-index: 1;
   }
 }
-
 // 로그인 기본 버튼
 .button_secondary {
   background-color: colors.$color_background_surface;
