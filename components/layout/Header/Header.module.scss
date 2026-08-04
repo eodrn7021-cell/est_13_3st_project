@@ -9,14 +9,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   width: 100%;
   max-width: 1200px;
   height: 90px;
   margin: 0 auto;
   padding: 0 40px;
-
   box-sizing: border-box;
+  position: relative;
 }
 
 .header_logo {
@@ -24,7 +23,6 @@
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
-
   color: colors.$color_white;
   text-decoration: none;
 }
@@ -56,18 +54,83 @@
   display: block;
 }
 
-.header_mobile_search {
+.header_menu_button {
   display: none;
 }
 
-/* 태블릿·모바일은 세부 피그마 수치 확인 후 조정 */
-@media (max-width: 768px) {
-  .header_inner {
-    min-height: 72px;
-    height: auto;
-    padding: 0 40px;
-  }
+.header_responsive_search {
+  display: none;
+}
+.header_menu_icon {
+  color: colors.$color_white;
 }
 
+/* 태블릿 */
+@media (max-width: 1024px) {
+  .header_inner {
+    height: 72px;
+    min-height: 72px;
+    padding: 0 40px;
+  }
+
+  /* 햄버거 버튼 표시 */
+  .header_menu_button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: colors.$color_white;
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+
+  /* 로고를 가운데 고정 */
+  .header_logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* PC 검색창 숨김 */
+  .header_pc_search {
+    display: none;
+  }
+
+  /* 로그인/회원가입 숨김 */
+  .header_buttons {
+    display: none;
+  }
+
+  /* PC 액션 영역 숨김 */
+  .header_actions {
+    display: none;
+  }
+
+  /* 아래 검색창 표시 */
+  .header_responsive_search {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: 0 40px 16px;
+    box-sizing: border-box;
+  }
+}
+/* 모바일 */
 @media (max-width: 480px) {
+  .header_inner {
+    height: 64px;
+    min-height: 64px;
+    padding: 0 16px;
+  }
+
+  .header_responsive_search {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: 0 16px 16px;
+    box-sizing: border-box;
+  }
 }
