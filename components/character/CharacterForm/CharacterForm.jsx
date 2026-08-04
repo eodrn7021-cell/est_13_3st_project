@@ -29,6 +29,9 @@ export default function CharacterForm({
   className = "",
   style,
 }) {
+  // 한 번에 하나의 셀렉트(아코디언)만 열리도록 활성화 ID 관리 ('race' | 'gender' | null)
+  const [activeSelect, setActiveSelect] = useState(null);
+
   const [formData, setFormData] = useState({
     name: initialValues.name || "",
     race: initialValues.race || "",
@@ -59,9 +62,16 @@ export default function CharacterForm({
 
   return (
     <form className={`${styles.formContainer} ${className}`.trim()} style={style} onSubmit={handleSubmit}>
-      <div className={styles.formGrid}>
-        {/* 1. 기본 정보 카드 (2열 그리드 중 1열 1행 배치) */}
-        <div className={styles.infoCard}>
+      {/* 
+        [1번 레이아웃]: 3열 2행 구조
+        - 1열 1~2행: 기본 정보 * (통합 카드)
+        - 2~3열 1행: 배경 스토리 * (2개 열 병합)
+        - 2열 2행: 외형적 특징 *
+        - 3열 2행: 성격 및 성향 *
+      */}
+      <div className={styles.sectionOne}>
+        {/* 기본 정보 카드 */}
+        <div className={styles.basicInfoCard}>
           <div className={styles.cardHeader}>
             <span className={styles.headerIcon}>
               <EditNoteIcon />
@@ -82,12 +92,16 @@ export default function CharacterForm({
               options={RACE_OPTIONS}
               value={formData.race}
               onChange={(val) => handleChange("race", val)}
+              isOpen={activeSelect === "race"}
+              onToggle={(nextState) => setActiveSelect(nextState ? "race" : null)}
             />
             <Select
               fieldTitle="성별"
               options={GENDER_OPTIONS}
               value={formData.gender}
               onChange={(val) => handleChange("gender", val)}
+              isOpen={activeSelect === "gender"}
+              onToggle={(nextState) => setActiveSelect(nextState ? "gender" : null)}
             />
             <SelectInput
               placeholder="나이"
@@ -102,45 +116,72 @@ export default function CharacterForm({
           </div>
         </div>
 
-        {/* 2. 배경 스토리 */}
-        <Textarea
-          title="배경 스토리 *"
-          placeholder="고요를 상징하며 지켜온 세상의 서쪽에 신비로운 성물 비추는..."
-          value={formData.backgroundStory}
-          onChange={(e) => handleChange("backgroundStory", e.target.value)}
-        />
+        {/* 배경 스토리 * */}
+        <div className={styles.backgroundStoryCard}>
+          <Textarea
+            title="배경 스토리 *"
+            placeholder="고요를 상징하며 지켜온 세상의 서쪽에 신비로운 성물 비추는..."
+            value={formData.backgroundStory}
+            onChange={(e) => handleChange("backgroundStory", e.target.value)}
+            containerStyle={{ height: "100%" }}
+            inputStyle={{ flex: 1 }}
+          />
+        </div>
 
-        {/* 3. 외형적 특징 */}
-        <Textarea
-          title="외형적 특징 *"
-          placeholder="마치 질풍처럼 짙게 흩날리는 검은 머리카락..."
-          value={formData.appearance}
-          onChange={(e) => handleChange("appearance", e.target.value)}
-        />
+        {/* 외형적 특징 * */}
+        <div className={styles.appearanceCard}>
+          <Textarea
+            title="외형적 특징 *"
+            placeholder="마치 질풍처럼 짙게 흩날리는 검은 머리카락..."
+            value={formData.appearance}
+            onChange={(e) => handleChange("appearance", e.target.value)}
+            containerStyle={{ height: "100%" }}
+            inputStyle={{ flex: 1 }}
+          />
+        </div>
 
-        {/* 4. 성격 및 성향 */}
-        <Textarea
-          title="성격 및 성향 *"
-          placeholder="캐릭터의 평소 성격이나 가치관, 행동패턴, 취향 등 몰입 등을 상세히 적어주세요."
-          value={formData.personality}
-          onChange={(e) => handleChange("personality", e.target.value)}
-        />
+        {/* 성격 및 성향 * */}
+        <div className={styles.personalityCard}>
+          <Textarea
+            title="성격 및 성향 *"
+            placeholder="캐릭터의 평소 성격이나 가치관, 행동패턴, 취향 등 몰입 등을 상세히 적어주세요."
+            value={formData.personality}
+            onChange={(e) => handleChange("personality", e.target.value)}
+            containerStyle={{ height: "100%" }}
+            inputStyle={{ flex: 1 }}
+          />
+        </div>
+      </div>
 
-        {/* 5. 능력치 */}
-        <Textarea
-          title="능력치"
-          placeholder="2,000년의 세월 동안 축적된 방대한 지식과 뛰어난 마법..."
-          value={formData.abilities}
-          onChange={(e) => handleChange("abilities", e.target.value)}
-        />
+      {/* 
+        [2번 레이아웃]: 2열 1행 (반반 50:50) 구조
+        - 1열 1행: 능력치
+        - 2열 1행: 관련 인물
+      */}
+      <div className={styles.sectionTwo}>
+        {/* 능력치 */}
+        <div className={styles.abilitiesCard}>
+          <Textarea
+            title="능력치"
+            placeholder="2,000년의 세월 동안 축적된 방대한 지식과 뛰어난 마법..."
+            value={formData.abilities}
+            onChange={(e) => handleChange("abilities", e.target.value)}
+            containerStyle={{ height: "100%" }}
+            inputStyle={{ flex: 1 }}
+          />
+        </div>
 
-        {/* 6. 관련 인물 */}
-        <Textarea
-          title="관련 인물"
-          placeholder="관련 캐릭터의 이름과 그 캐릭터와의 관계(가족, 조력자, 숙적 등), 두 사람 사이에 있었던 특별한 사건 등을 자유롭게 작성해주세요."
-          value={formData.relatedCharacters}
-          onChange={(e) => handleChange("relatedCharacters", e.target.value)}
-        />
+        {/* 관련 인물 */}
+        <div className={styles.relatedCharactersCard}>
+          <Textarea
+            title="관련 인물"
+            placeholder="관련 캐릭터의 이름과 그 캐릭터와의 관계(가족, 조력자, 숙적 등), 두 사람 사이에 있었던 특별한 사건 등을 자유롭게 작성해주세요."
+            value={formData.relatedCharacters}
+            onChange={(e) => handleChange("relatedCharacters", e.target.value)}
+            containerStyle={{ height: "100%" }}
+            inputStyle={{ flex: 1 }}
+          />
+        </div>
       </div>
     </form>
   );

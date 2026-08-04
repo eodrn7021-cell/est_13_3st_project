@@ -24,6 +24,7 @@ export default function Textarea({
   onChange,
   className = "",
   containerStyle,
+  inputStyle,
   ...props
 }) {
   const renderIcon = () => {
@@ -49,7 +50,7 @@ export default function Textarea({
         <span className={styles.titleText}>{title}</span>
       </div>
 
-      <div className={styles.input}>
+      <div className={styles.input} style={inputStyle}>
         <textarea
           className={styles.textarea}
           placeholder={placeholder}
