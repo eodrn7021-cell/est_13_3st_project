@@ -8,6 +8,17 @@ const Header = ({ variant = "main", accountContent = null }) => {
   return (
     <header className={styles.header}>
       <div className={styles.header_inner}>
+        {/* {태블릿·모바일 햄버거 버튼} */}
+        {variant === "main" && (
+          <button className={styles.header_menu_button} type="button" aria-label="메뉴 열기">
+            <span
+              className={`material-symbols-rounded icon_36 ${styles.header_menu_icon}`}
+              aria-hidden="true"
+            >
+              menu
+            </span>
+          </button>
+        )}
         {/* 공통 로고 */}
         <Link href="/" className={styles.header_logo}>
           <Image src="/images/icons/logo.png" alt="VisuLore 로고" width={48} height={48} priority />
@@ -39,16 +50,16 @@ const Header = ({ variant = "main", accountContent = null }) => {
           <div className={styles.header_account}>
             {accountContent || (
               <Link href="/mypage" className={styles.header_mypage}>
-                <Button variant="primary" size="large">
-                  <span className="kr_body">마이페이지</span>
-                </Button>
+                <span className="kr_body">마이페이지</span>
               </Link>
             )}
           </div>
         )}
       </div>
+
+      {/* 태블릿·모바일에서 아래로 내려오는 검색창 */}
       {variant === "main" && (
-        <div className={styles.header_mobile_search}>
+        <div className={styles.header_responsive_search}>
           <SearchBar />
         </div>
       )}
