@@ -2,23 +2,31 @@
 @use "../../../styles/abstracts/_variables.scss" as variables;
 
 .formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   width: 100%;
   box-sizing: border-box;
 }
 
-.formGrid {
+// 1번 레이아웃: 3열 2행 구조 (기본정보가 1열 1~2행, 배경스토리가 2~3열 1행, 외형/성격이 2열2행/3열2행)
+.sectionOne {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
   gap: 20px;
   width: 100%;
   box-sizing: border-box;
 
-  @media (max-width: 900px) {
+  @media (max-width: 1024px) {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
   }
 }
 
-.infoCard {
+.basicInfoCard {
+  grid-column: 1;
+  grid-row: 1 / span 2;
   display: flex;
   flex-direction: column;
   padding: 20px;
@@ -29,6 +37,70 @@
   border: 1px solid colors.$color_tag; // Tag Stroke (#242838)
   border-radius: 16px;
   color: colors.$color_white;
+
+  @media (max-width: 1024px) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+.backgroundStoryCard {
+  grid-column: 2 / span 2;
+  grid-row: 1;
+
+  @media (max-width: 1024px) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+.appearanceCard {
+  grid-column: 2;
+  grid-row: 2;
+
+  @media (max-width: 1024px) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+.personalityCard {
+  grid-column: 3;
+  grid-row: 2;
+
+  @media (max-width: 1024px) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+// 2번 레이아웃: 2열 1행 (반반 50:50 분할) 구조
+.sectionTwo {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.abilitiesCard {
+  grid-column: 1;
+
+  @media (max-width: 1024px) {
+    grid-column: auto;
+  }
+}
+
+.relatedCharactersCard {
+  grid-column: 2;
+
+  @media (max-width: 1024px) {
+    grid-column: auto;
+  }
 }
 
 .cardHeader {

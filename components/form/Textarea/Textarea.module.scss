@@ -17,10 +17,16 @@
 .inputTitle {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
   padding: 0;
   width: 100%;
-  justify-content: flex-start;
+}
+
+.titleLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 
   .icon {
     display: inline-flex;
@@ -52,12 +58,25 @@
   }
 }
 
+.titleRight {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: colors.$color_text_muted;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: colors.$color_white;
+  }
+}
+
 .input {
   display: flex;
   flex-direction: column;
   width: 100%;
   flex: 1;
-  min-height: 160px;
+  min-height: 130px;
   gap: 10px;
   padding: 14px 16px;
   box-sizing: border-box;
