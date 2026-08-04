@@ -1,0 +1,76 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+@use "../../../styles/abstracts/_variables.scss" as variables;
+
+.formContainer {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.infoCard {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: colors.$color_input_70; // 인풋컬러 70 (#191c2b / rgba(25, 28, 43, 0.7))
+  border: 1px solid colors.$color_tag; // Tag Stroke (#242838)
+  border-radius: 16px;
+  color: colors.$color_white;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+
+  .headerIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: colors.$color_white;
+    flex-shrink: 0;
+
+    svg {
+      width: 36px;
+      height: 36px;
+      fill: currentColor;
+    }
+  }
+
+  .headerTitle {
+    font-family: var(--font_lora), variables.$font_family_kr;
+    font-size: 16px; // KR/body B
+    font-weight: variables.$font_weight_bold;
+    color: colors.$color_white;
+    line-height: 1.4;
+    margin: 0;
+  }
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: colors.$color_secondary_dark;
+  margin: 2px 0 6px 0;
+}
+
+.fieldList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
