@@ -3,15 +3,12 @@
 .search_bar {
   display: flex;
   align-items: center;
-
   width: 304px;
   height: 60px;
   padding: 0 16px;
-
   background-color: colors.$color_background_surface;
   border: 1px solid colors.$color_secondary;
   border-radius: 10px;
-
   box-sizing: border-box;
 }
 
@@ -20,9 +17,7 @@
   min-width: 0;
   height: 100%;
   padding: 0;
-
   color: colors.$color_white;
-
   background-color: transparent;
   border: 0;
   outline: 0;
@@ -42,9 +37,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-
   padding: 0;
-
   color: colors.$color_text_muted;
   background-color: transparent;
   border: 0;
@@ -57,17 +50,17 @@
 }
 
 /* 태블릿 */
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (min-width: 481px) and (max-width: 1024px) {
   .search_bar {
-    width: min(688px, calc(100vw - 80px));
+    width: 100%;
     height: 40px;
   }
 }
 
 /* 모바일 */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
   .search_bar {
-    width: min(400px, calc(100vw - 32px));
+    width: 100%;
     height: 40px;
   }
 }
