@@ -1,15 +1,16 @@
 @use "../../../styles/abstracts/_colors.scss" as colors;
 @use "../../../styles/abstracts/_variables.scss" as variables;
 
+/* 3번 사진: 사이드바 최외각 오토레이아웃 (W: 285, H: 810 Fill, Gap: Auto, Padding X: 10, Y: 30, Background Surface, Corner radius: 10) */
 .sidebar {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-between; // Gap: Auto
   width: 285px;
   min-height: 810px;
   height: 100%;
-  align-self: stretch; // H: Fill (부모 바디 높이에 맞게 채움)
-  padding: 30px 10px;
+  align-self: stretch; // H: Fill (부모 높이에 맞게 채움)
+  padding: 30px 10px; // Padding X: 10, Padding Y: 30
   box-sizing: border-box;
   flex-shrink: 0;
 
@@ -42,10 +43,248 @@
   gap: 16px;
 }
 
+/* 
+  1번 피그마 사진 사양:
+  - _colors.scss 파일 수정 없이 Sidebar.module.scss에서 직접 90도 수평 그라디언트 적용
+  - 좌측 선명한 보라(colors.$color_primary), 우측 다크 네이비(#1f1b33)
+  - 우측 테두리 밀착, 좌측 10px 라운딩 (Corner radius: 10px 0 0 10px)
+*/
+.accordionButton {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 12px; // Gap: 12
+  width: calc(100% + 10px); // 우측 사이드바 테두리까지 밀착
+  margin-right: -10px;
+  height: 48px;
+  padding: 12px 20px; // Padding X: 20, Padding Y: 12
+  box-sizing: border-box;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px 0px 0px 10px; // Corner radius: Top-Left: 10, Bottom-Left: 10
+  color: colors.$color_white;
+  font-family: var(--font_lora), variables.$font_family_kr;
+  font-size: 15px;
+  font-weight: variables.$font_weight_bold;
+  cursor: pointer;
+  user-select: none;
+
+  // Button.module.scss 패턴 적용: ::before 수평 그라디언트 레이어
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, colors.$color_primary 0%, #1f1b33 100%);
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  &:hover:not(:disabled)::before {
+    opacity: 0.35;
+  }
+
+  &.active {
+    &::before {
+      opacity: 1; // 활성화 시 1번 사진 90도 수평 그라디언트 출력
+    }
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.accordionList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 20px;
+  margin-top: 4px;
+}
+
+/* 서브목록 항목 (1번 사진 90도 수평 그라디언트 적용) */
+.subItem {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 12px; // Gap: 12
+  padding: 5px 10px; // Padding X: 10, Padding Y: 5
+  width: calc(100% + 10px);
+  margin-right: -10px;
+  height: 34px;
+  box-sizing: border-box;
+  border-radius: 10px 0px 0px 10px; // Corner radius: Top-Left: 10, Bottom-Left: 10
+  color: colors.$color_white;
+  font-family: var(--font_lora), variables.$font_family_kr;
+  font-size: 14px;
+  font-weight: variables.$font_weight_medium;
+  cursor: pointer;
+  user-select: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, colors.$color_primary 0%, #1f1b33 100%);
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  &:hover:not(:disabled)::before {
+    opacity: 0.35;
+  }
+
+  &.active {
+    font-weight: variables.$font_weight_bold;
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.checklistSection {
+  margin-top: 24px;
+  padding: 0 10px;
+
+  .checklistTitle {
+    font-family: variables.$font_family_kr;
+    font-size: 14px;
+    font-weight: variables.$font_weight_regular;
+    color: colors.$color_text_muted;
+    margin-bottom: 12px;
+  }
+
+  .checklistItems {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .checkItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: variables.$font_family_kr;
+    font-size: 13px;
+    color: colors.$color_white;
+    cursor: pointer;
+    user-select: none;
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: colors.$color_primary;
+      cursor: pointer;
+    }
+  }
+}
+
+/* 바텀 컨텐츠 오토레이아웃 (W: 265 Fill, H: 150 Hug, Gap: 10, Padding X: 0, Y: 5) */
 .bottomSection {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  gap: 10px;
+  gap: 10px; // Gap: 10
+  padding: 5px 0; // Padding Y: 5, Padding X: 0
+  width: 100%; // W: Fill (265px)
+  height: auto; // H: Hug
   margin-top: auto;
+  box-sizing: border-box;
+}
+
+/* 
+  Button.module.scss (.button_primary) 스타일 구조 100% 동일 적용
+*/
+.sideButton {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px; // Gap: 5
+  width: 100%; // W: 265 Fill
+  height: 40px; // H: 40 Fixed
+  padding: 0 16px; // Padding X: 16, Padding Y: 0
+  box-sizing: border-box;
+  border-radius: 20px; // Corner radius: 20 (알약 형태)
+  font-family: var(--font_lora), variables.$font_family_kr;
+  font-size: 14px;
+  font-weight: variables.$font_weight_bold;
+  color: colors.$color_white;
+  cursor: pointer;
+  outline: none;
+
+  // 기본 상태: 다크 태그 배경 (#242838)
+  background-color: colors.$color_tag;
+  border: 1px solid colors.$color_tag;
+  user-select: none;
+
+  // Button.module.scss 와 동일한 ::before 그라디언트 레이어
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: colors.$gradient_side;
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  // Hover 시 ::before의 opacity를 1로 전환 (Smooth Gradient Fade In)
+  &:hover:not(:disabled)::before {
+    opacity: 1;
+  }
+
+  // 버튼 내부 글자와 아이콘을 그라디언트 레이어 위로 배치
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  // 활성화 상태 (저장 / 이미지 생성 버튼 등)
+  &.active,
+  &.primary {
+    border-color: transparent;
+
+    &::before {
+      opacity: 1; // 그라디언트 활성화
+    }
+
+    &:hover:not(:disabled) {
+      opacity: 0.92;
+    }
+  }
+}
+
+.buttonIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
+
+  .materialIcon {
+    font-family: 'Material Symbols Outlined', sans-serif !important;
+    font-size: 20px;
+    line-height: 1;
+    user-select: none;
+  }
 }
