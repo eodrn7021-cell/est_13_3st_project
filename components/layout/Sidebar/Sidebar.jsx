@@ -2,7 +2,9 @@
 
 import styles from "./Sidebar.module.scss";
 
-
+/**
+ * 어디서든 사용할 수 있는 공통 사이드바 컴포넌트
+ */
 export default function Sidebar({
   children,
   variant = "default",

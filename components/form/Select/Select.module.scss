@@ -188,22 +188,42 @@
   box-sizing: border-box;
 }
 
+/* 
+  옵션 박스:
+  한 번에 3개 항목만 보이도록 max-height: 125px 설정 및 
+  3개 초과 시 자동으로 스크롤(overflow-y: auto)되도록 구현 
+*/
 .optionsBox {
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-height: 125px; // 3개 아이템 높이 제한
+  overflow-y: auto; // 3개 초과 시 수직 스크롤
   border: 1px solid colors.$color_secondary_dark; // 세컨더리 다크 (내부 외곽선)
   border-radius: 10px;
-  overflow: hidden;
   box-sizing: border-box;
   background-color: rgba(0, 0, 0, 0.15);
+
+  /* 스크롤바 디자인 */
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: colors.$color_secondary_dark;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 .optionItem {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 12px 16px;
+  padding: 10px 16px;
   font-family: var(--font_lora), variables.$font_family_kr; // 영문 Lora 우선 적용
   font-size: 12px; // 내부 글자들 KR/caption
   font-weight: variables.$font_weight_regular;
@@ -214,6 +234,7 @@
   transition: background-color 0.2s ease, color 0.2s ease;
   box-sizing: border-box;
   user-select: none;
+  flex-shrink: 0;
 
   &:last-child {
     border-bottom: none;

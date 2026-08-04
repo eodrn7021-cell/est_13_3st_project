@@ -50,6 +50,8 @@ export default function Select({
   onChange,
   onSelect,
   defaultOpen = false,
+  isOpen: propIsOpen,
+  onToggle,
   className = "",
   containerStyle,
   disabled = false,
@@ -58,8 +60,10 @@ export default function Select({
   hasCard,
   ...props
 }) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [internalIsOpen, setInternalIsOpen] = useState(defaultOpen);
   const [internalValue, setInternalValue] = useState(defaultValue ?? "");
+
+  const isOpen = propIsOpen !== undefined ? propIsOpen : internalIsOpen;
 
   // If isInput flag is true, render SelectInput component directly
   if (isInput) {
@@ -97,7 +101,11 @@ export default function Select({
 
   const handleToggle = () => {
     if (disabled) return;
-    setIsOpen((prev) => !prev);
+    if (onToggle) {
+      onToggle(!isOpen);
+    } else {
+      setInternalIsOpen((prev) => !prev);
+    }
   };
 
   const handleSelectOption = (option) => {
@@ -114,6 +122,13 @@ export default function Select({
 
     if (onSelect) {
       onSelect(option);
+    }
+
+    // 옵션 선택 후 아코디언/드롭다운 닫기
+    if (onToggle) {
+      onToggle(false);
+    } else {
+      setInternalIsOpen(false);
     }
   };
 

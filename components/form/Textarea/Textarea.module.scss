@@ -17,16 +17,10 @@
 .inputTitle {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
   padding: 0;
   width: 100%;
-}
-
-.titleLeft {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  justify-content: flex-start;
 
   .icon {
     display: inline-flex;
@@ -55,19 +49,6 @@
     font-weight: variables.$font_weight_bold; // title KR/body B
     color: colors.$color_white; // 화이트 (글자색)
     line-height: 1.4;
-  }
-}
-
-.titleRight {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: colors.$color_text_muted;
-  cursor: pointer;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: colors.$color_white;
   }
 }
 

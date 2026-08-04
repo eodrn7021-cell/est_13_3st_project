@@ -11,11 +11,24 @@ export default function CreateCharacterPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: "#0f111a", // Deep Background ($color_background_deep)
+        color: "#ffffff",
+      }}
+    >
       {/* 상단 헤더 */}
       <Header variant="account" />
 
-      {/* 메인 바디 (Figma Dimensions: W 1200, H 870, Gap 20, Padding Y 30, Padding X 0) */}
+      {/* 
+        피그마 메인 바디 세팅:
+        - Dimensions: W 1200, H 870
+        - Auto layout: Flow Horizontal, Gap 20, Padding X 0, Padding Y 30
+        - Resizing: Sidebar -> H Fill (stretch), Form -> W Fill (flex 1)
+      */}
       <main
         style={{
           display: "flex",
@@ -31,11 +44,11 @@ export default function CreateCharacterPage() {
           alignItems: "stretch",
         }}
       >
-        {/* 좌측 사이드바 (variant="character" 전달 시 사이드바 내부 구성 자동 렌더링) */}
-        <Sidebar variant="character" />
+        {/* 좌측 사이드바 (H: 810px Fill) */}
+        <Sidebar />
 
-        {/* 우측 캐릭터 입력 폼 영역 */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        {/* 우측 캐릭터 입력 폼 영역 (H: 810px Fill) */}
+        <div style={{ flex: 1, minWidth: 0, height: "100%" }}>
           <CharacterForm onSubmit={handleSubmit} />
         </div>
       </main>

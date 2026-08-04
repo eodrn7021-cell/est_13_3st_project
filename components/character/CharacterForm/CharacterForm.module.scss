@@ -4,23 +4,27 @@
 .formContainer {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px; // 피그마 설정: 폼 카드 간 수직 갭 10
   width: 100%;
+  height: 100%;
+  min-height: 810px; // 피그마 세팅: H 810 Fill (사이드바와 동일한 810px 공간 차지)
   box-sizing: border-box;
 }
 
-// 1번 레이아웃: 3열 2행 구조 (기본정보가 1열 1~2행, 배경스토리가 2~3열 1행, 외형/성격이 2열2행/3열2행)
+// 1번 레이아웃: 3열 2행 구조 (피그마 세팅: H 550 Fill)
 .sectionOne {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: auto auto;
-  gap: 20px;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px; // 텍스트 에리어 사이 갭 10
   width: 100%;
+  height: 550px; // 피그마 1번 레이아웃 높이 550px
   box-sizing: border-box;
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
+    height: auto;
   }
 }
 
@@ -32,6 +36,7 @@
   padding: 20px;
   gap: 12px;
   width: 100%;
+  height: 100%;
   box-sizing: border-box;
   background-color: colors.$color_input_70; // 인풋컬러 70 (#191c2b / rgba(25, 28, 43, 0.7))
   border: 1px solid colors.$color_tag; // Tag Stroke (#242838)
@@ -47,6 +52,7 @@
 .backgroundStoryCard {
   grid-column: 2 / span 2;
   grid-row: 1;
+  height: 100%;
 
   @media (max-width: 1024px) {
     grid-column: auto;
@@ -57,6 +63,7 @@
 .appearanceCard {
   grid-column: 2;
   grid-row: 2;
+  height: 100%;
 
   @media (max-width: 1024px) {
     grid-column: auto;
@@ -67,6 +74,7 @@
 .personalityCard {
   grid-column: 3;
   grid-row: 2;
+  height: 100%;
 
   @media (max-width: 1024px) {
     grid-column: auto;
@@ -74,21 +82,24 @@
   }
 }
 
-// 2번 레이아웃: 2열 1행 (반반 50:50 분할) 구조
+// 2번 레이아웃: 2열 1행 (반반 50:50 분할) 구조 (피그마 세팅: H 250 Fill)
 .sectionTwo {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 10px; // 텍스트 에리어 사이 갭 10
   width: 100%;
+  height: 250px; // 피그마 2번 레이아웃 높이 250px
   box-sizing: border-box;
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
+    height: auto;
   }
 }
 
 .abilitiesCard {
   grid-column: 1;
+  height: 100%;
 
   @media (max-width: 1024px) {
     grid-column: auto;
@@ -97,6 +108,7 @@
 
 .relatedCharactersCard {
   grid-column: 2;
+  height: 100%;
 
   @media (max-width: 1024px) {
     grid-column: auto;

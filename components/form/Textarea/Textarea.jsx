@@ -19,7 +19,6 @@ function EditNoteIcon() {
 export default function Textarea({
   title = "Name",
   icon,
-  rightAction,
   placeholder = "Default message",
   value,
   onChange,
@@ -45,13 +44,10 @@ export default function Textarea({
   return (
     <div className={`${styles.container} ${className}`.trim()} style={containerStyle}>
       <div className={styles.inputTitle}>
-        <div className={styles.titleLeft}>
-          <span className={styles.icon}>
-            {renderIcon()}
-          </span>
-          <span className={styles.titleText}>{title}</span>
-        </div>
-        {rightAction && <div className={styles.titleRight}>{rightAction}</div>}
+        <span className={styles.icon}>
+          {renderIcon()}
+        </span>
+        <span className={styles.titleText}>{title}</span>
       </div>
 
       <div className={styles.input} style={inputStyle}>
