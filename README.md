@@ -18,7 +18,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ### 핵심 규칙
 
-- `main` 브랜치와 `deploy` 브랜치에 직접 push하지 않습니다.
+- `main` 브랜치에 직접 push하지 않습니다.
 - 작업은 `feat/`, `fix/`, `refactor/`, `chore/` 브랜치에서 진행합니다.
 - `next.js` + `javascript`
 - `CSS` 규칙 : `Sass`
@@ -28,7 +28,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## 기본 작업 흐름
 
 ```txt
-작업 브랜치 생성 → 기능 구현 → 자체 QA → PR 생성 → 코드 리뷰 → main 병합 → 작업 브랜치 삭제 → 안정화 확인 → 배포
+작업 브랜치 생성 → 기능 구현 → 자체 QA → PR 생성 → 코드 리뷰 → main 병합 → 작업 브랜치 삭제
 ```
 
 ### 1. 프로젝트 개요
@@ -205,6 +205,7 @@ gantt
 │  │  │  └─ Button.module.scss
 │  │  ├─ Modal
 │  │  ├─ Tag
+│  │  ├─ SearchBar                          // 검색
 │  │  └─ Loading
 │  │
 │  ├─ layout                                // 공통 레이아웃 컴포넌트
@@ -235,7 +236,8 @@ gantt
 │  ├─ abstracts                             // Sass 설정 및 유틸리티
 │  │  ├─ _variables.scss                    // 색상, 간격, 크기 변수
 │  │  ├─ _mixins.scss                       // 반응형, 말줄임 등 믹스인
-│  │  └─ _functions.scss                    // Sass 공통 함수
+│  │  ├─ _functions.scss                    // Sass 공통 함수
+│  │  └──_colors.scss
 │  │
 │  └─ base                                  // 기본 스타일
 │     ├─ _reset.scss                        // 브라우저 기본 스타일 초기화
