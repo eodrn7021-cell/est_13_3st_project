@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Input from "@/components/form/Input/Input";
 import Textarea from "@/components/form/Textarea/Textarea";
-import Select, { SelectInput } from "@/components/form/Select/Select";
+import Select from "@/components/form/Select/Select";
 import styles from "./CharacterForm.module.scss";
 
 const RACE_OPTIONS = ["인간", "엘프", "드워프", "수인", "마족"];
@@ -29,7 +30,6 @@ export default function CharacterForm({
   className = "",
   style,
 }) {
-  // 한 번에 하나의 셀렉트(아코디언)만 열리도록 활성화 ID 관리 ('race' | 'gender' | null)
   const [activeSelect, setActiveSelect] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -62,15 +62,7 @@ export default function CharacterForm({
 
   return (
     <form className={`${styles.formContainer} ${className}`.trim()} style={style} onSubmit={handleSubmit}>
-      {/* 
-        [1번 레이아웃]: 3열 2행 구조
-        - 1열 1~2행: 기본 정보 * (통합 카드)
-        - 2~3열 1행: 배경 스토리 * (2개 열 병합)
-        - 2열 2행: 외형적 특징 *
-        - 3열 2행: 성격 및 성향 *
-      */}
       <div className={styles.sectionOne}>
-        {/* 기본 정보 카드 */}
         <div className={styles.basicInfoCard}>
           <div className={styles.cardHeader}>
             <span className={styles.headerIcon}>
@@ -82,7 +74,7 @@ export default function CharacterForm({
           <div className={styles.divider} />
 
           <div className={styles.fieldList}>
-            <SelectInput
+            <Input
               placeholder="이름"
               value={formData.name}
               onChange={(e) => handleChange("name", e.target.value)}
@@ -103,12 +95,12 @@ export default function CharacterForm({
               isOpen={activeSelect === "gender"}
               onToggle={(nextState) => setActiveSelect(nextState ? "gender" : null)}
             />
-            <SelectInput
+            <Input
               placeholder="나이"
               value={formData.age}
               onChange={(e) => handleChange("age", e.target.value)}
             />
-            <SelectInput
+            <Input
               placeholder="직업"
               value={formData.job}
               onChange={(e) => handleChange("job", e.target.value)}
@@ -116,7 +108,6 @@ export default function CharacterForm({
           </div>
         </div>
 
-        {/* 배경 스토리 * */}
         <div className={styles.backgroundStoryCard}>
           <Textarea
             title="배경 스토리 *"
@@ -128,7 +119,6 @@ export default function CharacterForm({
           />
         </div>
 
-        {/* 외형적 특징 * */}
         <div className={styles.appearanceCard}>
           <Textarea
             title="외형적 특징 *"
@@ -140,7 +130,6 @@ export default function CharacterForm({
           />
         </div>
 
-        {/* 성격 및 성향 * */}
         <div className={styles.personalityCard}>
           <Textarea
             title="성격 및 성향 *"
@@ -153,13 +142,7 @@ export default function CharacterForm({
         </div>
       </div>
 
-      {/* 
-        [2번 레이아웃]: 2열 1행 (반반 50:50) 구조
-        - 1열 1행: 능력치
-        - 2열 1행: 관련 인물
-      */}
       <div className={styles.sectionTwo}>
-        {/* 능력치 */}
         <div className={styles.abilitiesCard}>
           <Textarea
             title="능력치"
@@ -171,7 +154,6 @@ export default function CharacterForm({
           />
         </div>
 
-        {/* 관련 인물 */}
         <div className={styles.relatedCharactersCard}>
           <Textarea
             title="관련 인물"
