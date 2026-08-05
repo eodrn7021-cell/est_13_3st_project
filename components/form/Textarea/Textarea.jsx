@@ -33,7 +33,7 @@ export default function Textarea({
     }
     if (typeof icon === "string") {
       return (
-        <span className={`material-symbols-outlined ${styles.materialIcon}`}>
+        <span className={`material-symbols-outlined icon_36 ${styles.materialIcon}`}>
           {icon}
         </span>
       );
@@ -47,12 +47,12 @@ export default function Textarea({
         <span className={styles.icon}>
           {renderIcon()}
         </span>
-        <span className={styles.titleText}>{title}</span>
+        <span className={`kr_body_b ${styles.titleText}`}>{title}</span>
       </div>
 
       <div className={styles.input} style={inputStyle}>
         <textarea
-          className={styles.textarea}
+          className={`kr_caption ${styles.textarea}`}
           placeholder={placeholder}
           value={value}
           onChange={onChange}

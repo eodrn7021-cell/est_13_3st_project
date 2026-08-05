@@ -9,7 +9,7 @@ import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
 
 function HelpOutlineIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24" aria-hidden="true">
       <path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z" />
     </svg>
   );
@@ -86,10 +86,10 @@ export default function CreateCharacterPage() {
                 className={`${sidebarStyles.accordionButton} ${activeNav === "world" ? sidebarStyles.active : ""}`}
                 onClick={handleSelectWorld}
               >
-                <span className="material-icons-outlined" style={{ fontSize: 20, display: "inline-flex", alignItems: "center" }}>
+                <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
                   history_edu
                 </span>
-                <span>고요한 성체</span>
+                <span className="kr_body_b">고요한 성체</span>
               </button>
 
               <div>
@@ -98,10 +98,10 @@ export default function CreateCharacterPage() {
                   className={sidebarStyles.accordionButton}
                   onClick={handleToggleCharacterAccordion}
                 >
-                  <span className="material-icons-outlined" style={{ fontSize: 20, display: "inline-flex", alignItems: "center" }}>
+                  <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
                     person
                   </span>
-                  <span>캐릭터</span>
+                  <span className="kr_body_b">캐릭터</span>
                 </button>
 
                 {isCharacterOpen && (
@@ -117,11 +117,11 @@ export default function CreateCharacterPage() {
                           tabIndex={0}
                         >
                           {isSelected && (
-                            <span className="material-icons-outlined" style={{ fontSize: 18, display: "inline-flex", alignItems: "center" }}>
+                            <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
                               auto_stories
                             </span>
                           )}
-                          <span>{charName}</span>
+                          <span className="kr_body_b">{charName}</span>
                         </div>
                       );
                     })}
@@ -130,7 +130,7 @@ export default function CreateCharacterPage() {
               </div>
 
               <div className={sidebarStyles.checklistSection}>
-                <div className={sidebarStyles.checklistTitle}>체크 리스트</div>
+                <div className={`kr_body_b ${sidebarStyles.checklistTitle}`}>체크 리스트</div>
                 <div className={sidebarStyles.checklistItems}>
                   <label className={sidebarStyles.checkItem}>
                     <input
@@ -138,7 +138,7 @@ export default function CreateCharacterPage() {
                       checked={isWorldCheckDone}
                       onChange={(e) => setIsWorldCheckDone(e.target.checked)}
                     />
-                    <span>세계관 필수 입력 사항 작성</span>
+                    <span className="kr_body_b">세계관 필수 입력 사항 작성</span>
                   </label>
                   <label className={sidebarStyles.checkItem}>
                     <input
@@ -146,7 +146,7 @@ export default function CreateCharacterPage() {
                       checked={isCharCheckDone}
                       onChange={(e) => setIsCharCheckDone(e.target.checked)}
                     />
-                    <span>캐릭터 필수 입력 사항 작성</span>
+                    <span className="kr_body_b">캐릭터 필수 입력 사항 작성</span>
                   </label>
                 </div>
               </div>
@@ -158,18 +158,18 @@ export default function CreateCharacterPage() {
                 <span className={sidebarStyles.buttonIcon}>
                   <HelpOutlineIcon />
                 </span>
-                <span>도움말</span>
+                <span className="kr_body_b">도움말</span>
               </button>
 
               <button
                 type="button"
                 className={`${sidebarStyles.sideButton} ${sidebarStyles.active}`}
               >
-                <span>저장 / 이미지 생성</span>
+                <span className="kr_body_b">저장 / 이미지 생성</span>
               </button>
 
               <button type="button" className={sidebarStyles.sideButton}>
-                <span>삭제</span>
+                <span className="kr_body_b">삭제</span>
               </button>
             </>
           }

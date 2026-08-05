@@ -33,7 +33,6 @@
     flex-shrink: 0;
 
     .materialIcon {
-      font-family: 'Material Symbols Outlined', sans-serif !important;
       font-size: 36px;
       line-height: 1;
       user-select: none;
@@ -47,9 +46,6 @@
   }
 
   .titleText {
-    font-family: var(--font_lora), variables.$font_family_kr;
-    font-size: 16px;
-    font-weight: variables.$font_weight_bold;
     color: colors.$color_white;
     line-height: 1.4;
   }
@@ -99,16 +95,9 @@
   border: none;
   outline: none;
   color: colors.$color_white;
-  font-family: var(--font_lora), variables.$font_family_kr;
-  font-size: 12px;
-  font-weight: variables.$font_weight_regular;
-  line-height: 1.4;
   padding: 0;
 
   &::placeholder {
     color: colors.$color_text_muted;
-    font-family: var(--font_lora), variables.$font_family_kr;
-    font-size: 12px;
-    font-weight: variables.$font_weight_regular;
   }
 }

@@ -68,7 +68,7 @@ export default function CharacterForm({
             <span className={styles.headerIcon}>
               <EditNoteIcon />
             </span>
-            <h3 className={styles.headerTitle}>기본 정보 *</h3>
+            <h3 className={`kr_body_b ${styles.headerTitle}`}>기본 정보 *</h3>
           </div>
 
           <div className={styles.divider} />
