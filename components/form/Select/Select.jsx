@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import styles from "./Select.module.scss";
-import SelectInput from "./SelectInput";
-
-export { SelectInput };
+import Input from "@/components/form/Input/Input";
 
 function EditNoteIcon() {
   return (
@@ -65,10 +63,9 @@ export default function Select({
 
   const isOpen = propIsOpen !== undefined ? propIsOpen : internalIsOpen;
 
-  // If isInput flag is true, render SelectInput component directly
   if (isInput) {
     return (
-      <SelectInput
+      <Input
         title={title}
         icon={icon}
         placeholder={placeholder}
@@ -124,7 +121,6 @@ export default function Select({
       onSelect(option);
     }
 
-    // 옵션 선택 후 아코디언/드롭다운 닫기
     if (onToggle) {
       onToggle(false);
     } else {
@@ -159,7 +155,6 @@ export default function Select({
         </div>
       )}
 
-      {/* Accordion Container */}
       <div className={`${styles.selectBox} ${isOpen ? styles.open : ""} ${disabled ? styles.disabled : ""}`}>
         <button
           type="button"
