@@ -57,7 +57,7 @@ export default function CreateCharacterPage() {
     <div className={createStyles.pageContainer}>
       <Header variant="account" />
 
-      {/* 모바일/태블릿 (< 1920px) 상단바: mainBody 밖에서 화면 100% 가득 참 */}
+      {/* 모바일/태블릿 (<= 1024px) 상단바: mainBody 밖에서 화면 100% 가득 참 */}
       <div className={createStyles.topNavSection}>
         <div className={createStyles.topNavContainer}>
           <button
@@ -71,16 +71,42 @@ export default function CreateCharacterPage() {
             <span className="kr_body_b">세계관</span>
           </button>
 
-          <button
-            type="button"
-            className={`${createStyles.topTabButton} ${activeNav === "character" ? createStyles.active : ""}`}
-            onClick={handleToggleCharacterAccordion}
-          >
-            <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
-              person
-            </span>
-            <span className="kr_body_b">캐릭터</span>
-          </button>
+          <div>
+            <button
+              type="button"
+              className={`${createStyles.topTabButton} ${activeNav === "character" ? createStyles.active : ""}`}
+              onClick={handleToggleCharacterAccordion}
+            >
+              <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+                person
+              </span>
+              <span className="kr_body_b">캐릭터</span>
+            </button>
+
+            {isCharacterOpen && (
+              <div className={createStyles.topAccordionList}>
+                {characterList.map((charName) => {
+                  const isSelected = activeNav === "character" && selectedCharacter === charName;
+                  return (
+                    <div
+                      key={charName}
+                      className={`${createStyles.topSubItem} ${isSelected ? createStyles.active : ""}`}
+                      onClick={() => handleSelectCharacterItem(charName)}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      {isSelected && (
+                        <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+                          auto_stories
+                        </span>
+                      )}
+                      <span className="kr_body_b">{charName}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

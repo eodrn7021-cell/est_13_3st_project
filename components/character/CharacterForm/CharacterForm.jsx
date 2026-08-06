@@ -35,12 +35,14 @@ export default function CharacterForm({
   const [isResponsive, setIsResponsive] = useState(false);
 
   useEffect(() => {
-    const checkWidth = () => {
-      setIsResponsive(window.innerWidth < 1920);
+    const mediaQuery = window.matchMedia("(max-width: 1024px)");
+    const handleChange = (e) => {
+      setIsResponsive(e.matches);
     };
-    checkWidth();
-    window.addEventListener("resize", checkWidth);
-    return () => window.removeEventListener("resize", checkWidth);
+    setIsResponsive(mediaQuery.matches);
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   const toggleCard = (cardName) => {

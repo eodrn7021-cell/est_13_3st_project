@@ -10,7 +10,7 @@
   min-height: 810px;
   box-sizing: border-box;
 
-  @media (max-width: 1919px) {
+  @media (max-width: 1024px) {
     min-height: auto;
   }
 }
@@ -23,7 +23,7 @@
   height: auto;
   box-sizing: border-box;
 
-  @media (min-width: 1920px) {
+  @media (min-width: 1025px) {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: 1fr 1fr;
@@ -49,7 +49,7 @@
     gap: 0;
   }
 
-  @media (min-width: 1920px) {
+  @media (min-width: 1025px) {
     grid-column: 1;
     grid-row: 1 / span 2;
   }
@@ -58,7 +58,7 @@
 .backgroundStoryCard {
   height: 100%;
 
-  @media (min-width: 1920px) {
+  @media (min-width: 1025px) {
     grid-column: 2 / span 2;
     grid-row: 1;
   }
@@ -67,7 +67,7 @@
 .appearanceCard {
   height: 100%;
 
-  @media (min-width: 1920px) {
+  @media (min-width: 1025px) {
     grid-column: 2;
     grid-row: 2;
   }
@@ -76,7 +76,7 @@
 .personalityCard {
   height: 100%;
 
-  @media (min-width: 1920px) {
+  @media (min-width: 1025px) {
     grid-column: 3;
     grid-row: 2;
   }
@@ -90,7 +90,7 @@
   height: auto;
   box-sizing: border-box;
 
-  @media (min-width: 1920px) {
+  @media (min-width: 1025px) {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     height: 250px;
@@ -100,7 +100,7 @@
 .abilitiesCard {
   height: 100%;
 
-  @media (min-width: 1920px) {
+  @media (min-width: 1025px) {
     grid-column: 1;
   }
 }
@@ -108,7 +108,7 @@
 .relatedCharactersCard {
   height: 100%;
 
-  @media (min-width: 1920px) {
+  @media (min-width: 1025px) {
     grid-column: 2;
   }
 }
