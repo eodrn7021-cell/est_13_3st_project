@@ -16,19 +16,23 @@ function HelpOutlineIcon() {
   );
 }
 
-export default function CreateCharacterPage() {
-  const [activeNav, setActiveNav] = useState("character");
-  const [isCharacterOpen, setIsCharacterOpen] = useState(true);
-  const [selectedCharacter, setSelectedCharacter] = useState("엘리안느");
+export default function CreateCharacterPage({ worldData, characterListData }) {
+  const worldTitle = worldData?.title || worldData?.name || "세계관";
+  const characterList =
+    characterListData && characterListData.length > 0
+      ? characterListData
+      : ["캐릭터"];
+
+  const [activeNav, setActiveNav] = useState("world");
+  const [isCharacterOpen, setIsCharacterOpen] = useState(false);
+  const [selectedCharacter, setSelectedCharacter] = useState(characterList[0]);
 
   const [isWorldCheckDone, setIsWorldCheckDone] = useState(false);
   const [isCharCheckDone, setIsCharCheckDone] = useState(false);
 
   const handleSubmit = (formData) => {
-    console.log("Character form submitted:", formData);
+    console.log("Form submitted:", formData);
   };
-
-  const characterList = ["엘리안느", "아리안나", "아리안느"];
 
   const handleSelectWorld = () => {
     setActiveNav("world");
@@ -40,8 +44,8 @@ export default function CreateCharacterPage() {
       const nextOpen = !prev;
       if (nextOpen) {
         setActiveNav("character");
-        if (!selectedCharacter) {
-          setSelectedCharacter("엘리안느");
+        if (!selectedCharacter && characterList.length > 0) {
+          setSelectedCharacter(characterList[0]);
         }
       }
       return nextOpen;
@@ -68,13 +72,13 @@ export default function CreateCharacterPage() {
             <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
               history_edu
             </span>
-            <span className="kr_body_b">세계관</span>
+            <span className="kr_body_b">{worldTitle}</span>
           </button>
 
           <div>
             <button
               type="button"
-              className={`${createStyles.topTabButton} ${activeNav === "character" ? createStyles.active : ""}`}
+              className={createStyles.topTabButton}
               onClick={handleToggleCharacterAccordion}
             >
               <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
@@ -123,7 +127,7 @@ export default function CreateCharacterPage() {
                 <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
                   history_edu
                 </span>
-                <span className="kr_body_b">고요한 성체</span>
+                <span className="kr_body_b">{worldTitle}</span>
               </button>
 
               <div>
@@ -210,7 +214,11 @@ export default function CreateCharacterPage() {
         />
 
         <div style={{ flex: 1, minWidth: 0, height: "100%" }}>
-          <CharacterForm id="characterForm" onSubmit={handleSubmit} />
+          <CharacterForm
+            id="characterForm"
+            mode={activeNav === "world" ? "world" : "character"}
+            onSubmit={handleSubmit}
+          />
         </div>
       </main>
 

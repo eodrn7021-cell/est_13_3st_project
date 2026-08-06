@@ -155,6 +155,7 @@
   width: 100%;
   box-sizing: border-box;
   background-color: colors.$color_background_surface;
+  border-radius: 10px;
 
   @media (max-width: 1024px) {
     display: flex;
@@ -175,7 +176,7 @@
   height: 80px;
   padding: 20px 0;
   background-color: transparent;
-  border-radius: 0;
+  border-radius: 10px;
   box-sizing: border-box;
   border: none;
 
@@ -183,7 +184,7 @@
     flex: 1;
     max-width: 220px;
     height: 44px;
-    border-radius: 22px;
+    border-radius: 10px;
     border: none;
     background: colors.$gradient_side;
     color: colors.$color_white;
@@ -199,7 +200,7 @@
     flex: 1;
     max-width: 220px;
     height: 44px;
-    border-radius: 22px;
+    border-radius: 10px;
     border: 1px solid colors.$color_tag;
     background-color: colors.$color_tag;
     color: colors.$color_white;
