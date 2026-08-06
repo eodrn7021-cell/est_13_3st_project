@@ -8,17 +8,16 @@ const Header = ({ variant = "main", accountContent = null }) => {
   return (
     <header className={styles.header}>
       <div className={styles.header_inner}>
-        {/* {태블릿·모바일 햄버거 버튼} */}
-        {variant === "main" && (
-          <button className={styles.header_menu_button} type="button" aria-label="메뉴 열기">
-            <span
-              className={`material-symbols-rounded icon_36 ${styles.header_menu_icon}`}
-              aria-hidden="true"
-            >
-              menu
-            </span>
-          </button>
-        )}
+        {/* 태블릿·모바일 햄버거 버튼 */}
+        <button className={styles.header_menu_button} type="button" aria-label="메뉴 열기">
+          <span
+            className={`material-symbols-rounded icon_36 ${styles.header_menu_icon}`}
+            aria-hidden="true"
+          >
+            menu
+          </span>
+        </button>
+
         {/* 공통 로고 */}
         <Link href="/" className={styles.header_logo}>
           <Image src="/images/icons/logo.png" alt="VisuLore 로고" width={48} height={48} priority />
