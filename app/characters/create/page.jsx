@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer/Footer";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
 import CharacterForm from "@/components/character/CharacterForm/CharacterForm";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
+import createStyles from "./create.module.scss";
 
 function HelpOutlineIcon() {
   return (
@@ -53,31 +54,38 @@ export default function CreateCharacterPage() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        backgroundColor: "#ffffff",
-      }}
-    >
+    <div className={createStyles.pageContainer}>
       <Header variant="account" />
 
-      <main
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          gap: "20px",
-          padding: "30px 0",
-          maxWidth: "1200px",
-          width: "100%",
-          minHeight: "870px",
-          margin: "0 auto",
-          boxSizing: "border-box",
-          flex: 1,
-          alignItems: "stretch",
-        }}
-      >
+      {/* 모바일/태블릿 (< 1920px) 상단바: mainBody 밖에서 화면 100% 가득 참 */}
+      <div className={createStyles.topNavSection}>
+        <div className={createStyles.topNavContainer}>
+          <button
+            type="button"
+            className={`${createStyles.topTabButton} ${activeNav === "world" ? createStyles.active : ""}`}
+            onClick={handleSelectWorld}
+          >
+            <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+              history_edu
+            </span>
+            <span className="kr_body_b">세계관</span>
+          </button>
+
+          <button
+            type="button"
+            className={`${createStyles.topTabButton} ${activeNav === "character" ? createStyles.active : ""}`}
+            onClick={handleToggleCharacterAccordion}
+          >
+            <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+              person
+            </span>
+            <span className="kr_body_b">캐릭터</span>
+          </button>
+        </div>
+      </div>
+
+      <main className={createStyles.mainBody}>
+        {/* 데스크톱 (>= 1920px) 사이드바 */}
         <Sidebar
           topContent={
             <>
@@ -176,9 +184,21 @@ export default function CreateCharacterPage() {
         />
 
         <div style={{ flex: 1, minWidth: 0, height: "100%" }}>
-          <CharacterForm onSubmit={handleSubmit} />
+          <CharacterForm id="characterForm" onSubmit={handleSubmit} />
         </div>
       </main>
+
+      {/* 모바일/태블릿 (< 1920px) 하단바: mainBody 밖에서 화면 100% 가득 참 */}
+      <div className={createStyles.bottomActionSection}>
+        <div className={createStyles.bottomActionContainer}>
+          <button type="submit" form="characterForm" className={createStyles.primaryBtn}>
+            <span className="kr_body_b">저장 / 이미지 생성</span>
+          </button>
+          <button type="button" className={createStyles.deleteBtn}>
+            <span className="kr_body_b">삭제</span>
+          </button>
+        </div>
+      </div>
 
       <Footer />
     </div>

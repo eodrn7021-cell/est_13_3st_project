@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import styles from "./Textarea.module.scss";
 
 function EditNoteIcon() {
@@ -25,8 +26,24 @@ export default function Textarea({
   className = "",
   containerStyle,
   inputStyle,
+  collapsible = false,
+  isOpen: propIsOpen,
+  defaultOpen = true,
+  onToggle,
   ...props
 }) {
+  const [internalIsOpen, setInternalIsOpen] = useState(defaultOpen);
+  const isOpen = propIsOpen !== undefined ? propIsOpen : internalIsOpen;
+
+  const handleTitleClick = () => {
+    if (!collapsible) return;
+    if (onToggle) {
+      onToggle(!isOpen);
+    } else {
+      setInternalIsOpen((prev) => !prev);
+    }
+  };
+
   const renderIcon = () => {
     if (!icon || icon === "edit_note") {
       return <EditNoteIcon />;
@@ -42,23 +59,39 @@ export default function Textarea({
   };
 
   return (
-    <div className={`${styles.container} ${className}`.trim()} style={containerStyle}>
-      <div className={styles.inputTitle}>
+    <div
+      className={`${styles.container} ${collapsible ? styles.collapsible : ""} ${isOpen ? styles.open : styles.closed} ${className}`.trim()}
+      style={containerStyle}
+    >
+      <div
+        className={`${styles.inputTitle} ${collapsible ? styles.clickable : ""}`}
+        onClick={handleTitleClick}
+        role={collapsible ? "button" : undefined}
+        tabIndex={collapsible ? 0 : undefined}
+        onKeyDown={(e) => {
+          if (collapsible && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault();
+            handleTitleClick();
+          }
+        }}
+      >
         <span className={styles.icon}>
           {renderIcon()}
         </span>
         <span className={`kr_body_b ${styles.titleText}`}>{title}</span>
       </div>
 
-      <div className={styles.input} style={inputStyle}>
-        <textarea
-          className={`kr_caption ${styles.textarea}`}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          {...props}
-        />
-      </div>
+      {(!collapsible || isOpen) && (
+        <div className={styles.input} style={inputStyle}>
+          <textarea
+            className={`kr_caption ${styles.textarea}`}
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+            {...props}
+          />
+        </div>
+      )}
     </div>
   );
 }

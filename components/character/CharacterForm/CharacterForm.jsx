@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Input from "@/components/form/Input/Input";
 import Textarea from "@/components/form/Textarea/Textarea";
 import Select from "@/components/form/Select/Select";
@@ -31,6 +31,21 @@ export default function CharacterForm({
   style,
 }) {
   const [activeSelect, setActiveSelect] = useState(null);
+  const [openCard, setOpenCard] = useState("backgroundStory");
+  const [isResponsive, setIsResponsive] = useState(false);
+
+  useEffect(() => {
+    const checkWidth = () => {
+      setIsResponsive(window.innerWidth < 1920);
+    };
+    checkWidth();
+    window.addEventListener("resize", checkWidth);
+    return () => window.removeEventListener("resize", checkWidth);
+  }, []);
+
+  const toggleCard = (cardName) => {
+    setOpenCard((prev) => (prev === cardName ? null : cardName));
+  };
 
   const [formData, setFormData] = useState({
     name: initialValues.name || "",
@@ -60,54 +75,64 @@ export default function CharacterForm({
     }
   };
 
+  const isBasicInfoOpen = !isResponsive || openCard === "basicInfo";
+
   return (
     <form className={`${styles.formContainer} ${className}`.trim()} style={style} onSubmit={handleSubmit}>
       <div className={styles.sectionOne}>
-        <div className={styles.basicInfoCard}>
-          <div className={styles.cardHeader}>
+        {/* 기본 정보 카드 */}
+        <div className={`${styles.basicInfoCard} ${isResponsive && !isBasicInfoOpen ? styles.closed : ""}`}>
+          <div
+            className={`${styles.cardHeader} ${isResponsive ? styles.clickable : ""}`}
+            onClick={() => isResponsive && toggleCard("basicInfo")}
+          >
             <span className={styles.headerIcon}>
               <EditNoteIcon />
             </span>
             <h3 className={`kr_body_b ${styles.headerTitle}`}>기본 정보 *</h3>
           </div>
 
-          <div className={styles.divider} />
-
-          <div className={styles.fieldList}>
-            <Input
-              placeholder="이름"
-              value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
-            />
-            <Select
-              fieldTitle="종족"
-              options={RACE_OPTIONS}
-              value={formData.race}
-              onChange={(val) => handleChange("race", val)}
-              isOpen={activeSelect === "race"}
-              onToggle={(nextState) => setActiveSelect(nextState ? "race" : null)}
-            />
-            <Select
-              fieldTitle="성별"
-              options={GENDER_OPTIONS}
-              value={formData.gender}
-              onChange={(val) => handleChange("gender", val)}
-              isOpen={activeSelect === "gender"}
-              onToggle={(nextState) => setActiveSelect(nextState ? "gender" : null)}
-            />
-            <Input
-              placeholder="나이"
-              value={formData.age}
-              onChange={(e) => handleChange("age", e.target.value)}
-            />
-            <Input
-              placeholder="직업"
-              value={formData.job}
-              onChange={(e) => handleChange("job", e.target.value)}
-            />
-          </div>
+          {isBasicInfoOpen && (
+            <>
+              <div className={styles.divider} />
+              <div className={styles.fieldList}>
+                <Input
+                  placeholder="이름"
+                  value={formData.name}
+                  onChange={(e) => handleChange("name", e.target.value)}
+                />
+                <Select
+                  fieldTitle="종족"
+                  options={RACE_OPTIONS}
+                  value={formData.race}
+                  onChange={(val) => handleChange("race", val)}
+                  isOpen={activeSelect === "race"}
+                  onToggle={(nextState) => setActiveSelect(nextState ? "race" : null)}
+                />
+                <Select
+                  fieldTitle="성별"
+                  options={GENDER_OPTIONS}
+                  value={formData.gender}
+                  onChange={(val) => handleChange("gender", val)}
+                  isOpen={activeSelect === "gender"}
+                  onToggle={(nextState) => setActiveSelect(nextState ? "gender" : null)}
+                />
+                <Input
+                  placeholder="나이"
+                  value={formData.age}
+                  onChange={(e) => handleChange("age", e.target.value)}
+                />
+                <Input
+                  placeholder="직업"
+                  value={formData.job}
+                  onChange={(e) => handleChange("job", e.target.value)}
+                />
+              </div>
+            </>
+          )}
         </div>
 
+        {/* 배경 스토리 * */}
         <div className={styles.backgroundStoryCard}>
           <Textarea
             title="배경 스토리 *"
@@ -116,9 +141,13 @@ export default function CharacterForm({
             onChange={(e) => handleChange("backgroundStory", e.target.value)}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
+            collapsible={isResponsive}
+            isOpen={!isResponsive || openCard === "backgroundStory"}
+            onToggle={() => toggleCard("backgroundStory")}
           />
         </div>
 
+        {/* 외형적 특징 * */}
         <div className={styles.appearanceCard}>
           <Textarea
             title="외형적 특징 *"
@@ -127,9 +156,13 @@ export default function CharacterForm({
             onChange={(e) => handleChange("appearance", e.target.value)}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
+            collapsible={isResponsive}
+            isOpen={!isResponsive || openCard === "appearance"}
+            onToggle={() => toggleCard("appearance")}
           />
         </div>
 
+        {/* 성격 및 성향 * */}
         <div className={styles.personalityCard}>
           <Textarea
             title="성격 및 성향 *"
@@ -138,11 +171,15 @@ export default function CharacterForm({
             onChange={(e) => handleChange("personality", e.target.value)}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
+            collapsible={isResponsive}
+            isOpen={!isResponsive || openCard === "personality"}
+            onToggle={() => toggleCard("personality")}
           />
         </div>
       </div>
 
       <div className={styles.sectionTwo}>
+        {/* 능력치 */}
         <div className={styles.abilitiesCard}>
           <Textarea
             title="능력치"
@@ -151,9 +188,13 @@ export default function CharacterForm({
             onChange={(e) => handleChange("abilities", e.target.value)}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
+            collapsible={isResponsive}
+            isOpen={!isResponsive || openCard === "abilities"}
+            onToggle={() => toggleCard("abilities")}
           />
         </div>
 
+        {/* 관련 인물 */}
         <div className={styles.relatedCharactersCard}>
           <Textarea
             title="관련 인물"
@@ -162,6 +203,9 @@ export default function CharacterForm({
             onChange={(e) => handleChange("relatedCharacters", e.target.value)}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
+            collapsible={isResponsive}
+            isOpen={!isResponsive || openCard === "relatedCharacters"}
+            onToggle={() => toggleCard("relatedCharacters")}
           />
         </div>
       </div>

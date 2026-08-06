@@ -19,10 +19,8 @@
 
   color: colors.$color_white;
 
-  @media (max-width: 900px) {
-    width: 100%;
-    min-height: auto;
-    align-self: auto;
+  @media (max-width: 1919px) {
+    display: none;
   }
 }
 
