@@ -1,0 +1,142 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+
+.hero {
+  width: 895px;
+  max-width: 100%;
+  height: 270px;
+  padding: 32px 50px;
+  color: colors.$color_white;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.7) 20%, rgba(0, 0, 0, 0) 100%),
+    url("/images/home/hero.png") center / cover no-repeat;
+  box-sizing: border-box;
+}
+
+.hero_button {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 129px;
+  height: 52px;
+  padding: 0 20px;
+
+  color: colors.$color_white;
+  text-decoration: none;
+
+  background-color: colors.$color_primary_dark;
+  border-radius: 10px;
+
+  overflow: hidden;
+  box-sizing: border-box;
+
+  &::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background: colors.$gradient_side;
+    opacity: 0;
+
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 3px;
+  }
+}
+
+.hero_content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: fit-content;
+  height: 100%;
+  gap: 20px;
+}
+
+.hero_title {
+  margin: 0;
+  color: colors.$color_white;
+}
+
+.hero_highlight {
+  color: colors.$color_primary;
+}
+
+.hero_description {
+  margin: 0;
+  color: colors.$color_white;
+  line-height: 1.3;
+}
+
+.hero_link {
+  display: inline-flex;
+  text-decoration: none;
+}
+
+.hero_button_text {
+  position: relative;
+  z-index: 1;
+
+  color: colors.$color_white;
+  white-space: nowrap;
+}
+
+/* 태블릿 */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .hero {
+    width: 100%;
+    height: 260px;
+    padding: 32px 50px;
+  }
+  .hero_content {
+    gap: 16px;
+  }
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+  .hero {
+    width: 100%;
+    height: 240px;
+    padding: 28px 40px;
+    background-position: 60% center;
+  }
+
+  .hero_content {
+    gap: 14px;
+  }
+
+  .hero_title {
+    font-size: 20px;
+    line-height: 1.1;
+  }
+
+  .hero_button {
+    min-width: 120px;
+    height: 48px;
+    padding: 0 16px;
+  }
+
+  .hero_description {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .hero_button_text {
+    font-size: 14px;
+    line-height: 1;
+  }
+}
