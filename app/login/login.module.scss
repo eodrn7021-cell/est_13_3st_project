@@ -1,4 +1,203 @@
-.page {
-  min-height: 100vh;
-  padding: 40px;
+@use "../../styles/abstracts/index" as *;
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: 1fr 460px;
+  align-items: center;
+  gap: 120px;
+}
+
+/* ---------------- Left ---------------- */
+
+.left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.logo {
+  width: 240px;
+  height: auto;
+
+  margin-bottom: 52px;
+}
+
+.title {
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1.3;
+
+  margin-bottom: 24px;
+
+  color: $text;
+}
+
+.description {
+  max-width: 470px;
+
+  color: $text-secondary;
+
+  font-size: 18px;
+
+  line-height: 1.8;
+}
+
+/* ---------------- Card ---------------- */
+
+.card {
+  width: 100%;
+
+  padding: 48px;
+
+  background: rgba(25, 28, 43, 0.7);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 20px;
+
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.cardTitle {
+  font-size: 30px;
+
+  font-weight: 700;
+
+  text-align: center;
+
+  margin-bottom: 36px;
+}
+
+/* ---------------- Form ---------------- */
+
+.form {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 22px;
+}
+
+.optionRow {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-top: -4px;
+
+  font-size: 14px;
+}
+
+.checkbox {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: $text-secondary;
+}
+
+.checkbox input {
+  accent-color: $primary;
+
+  width: 16px;
+
+  height: 16px;
+}
+
+.findPassword {
+  color: $text-secondary;
+
+  transition: 0.25s;
+
+  &:hover {
+    color: white;
+  }
+}
+
+/* ---------------- Divider ---------------- */
+
+.divider {
+  display: flex;
+
+  align-items: center;
+
+  gap: 16px;
+
+  color: rgba(255, 255, 255, 0.5);
+
+  font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+
+  flex: 1;
+
+  height: 1px;
+
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------------- Google ---------------- */
+
+.googleButton {
+  height: 56px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  background: white;
+
+  color: #191c2b;
+
+  font-weight: 600;
+
+  transition: 0.25s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* ---------------- Signup ---------------- */
+
+.signup {
+  text-align: center;
+
+  font-size: 14px;
+
+  color: $text-secondary;
+}
+
+.signup span {
+  color: $primary;
+
+  cursor: pointer;
+
+  font-weight: 600;
+}
+
+/* ---------------- Eye ---------------- */
+
+.eyeButton {
+  position: absolute;
+
+  right: 18px;
+
+  top: 58px;
+
+  color: $text-secondary;
 }

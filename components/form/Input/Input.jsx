@@ -2,9 +2,20 @@
 
 import styles from "./Input.module.scss";
 
-const Input = ({ label, type = "text", placeholder, name, value, onChange, icon, children }) => {
+const Input = ({
+  label,
+  type = "text",
+  placeholder,
+  name,
+  value,
+  onChange,
+  icon,
+  children,
+  className = "",
+  ...props
+}) => {
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${className}`}>
       {label && <label className={styles.label}>{label}</label>}
 
       <div className={styles.inputBox}>
@@ -15,6 +26,7 @@ const Input = ({ label, type = "text", placeholder, name, value, onChange, icon,
           name={name}
           value={value}
           onChange={onChange}
+          {...props}
         />
 
         {icon && <span className={styles.icon}>{icon}</span>}
