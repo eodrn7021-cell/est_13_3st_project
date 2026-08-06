@@ -140,8 +140,8 @@ export default function Select({
   };
 
   const selectedLabel = getSelectedLabel();
-  const isPlaceholder = !fieldTitle && !selectedLabel;
-  const displayLabel = fieldTitle || selectedLabel || placeholder;
+  const isPlaceholder = !selectedLabel && !fieldTitle;
+  const displayLabel = selectedLabel || fieldTitle || placeholder;
 
   return (
     <div
@@ -151,7 +151,7 @@ export default function Select({
       {title && (
         <div className={styles.inputTitle}>
           <span className={styles.icon}>{renderIcon()}</span>
-          <span className={styles.titleText}>{title}</span>
+          <span className={`kr_body_b ${styles.titleText}`}>{title}</span>
         </div>
       )}
 
@@ -163,7 +163,7 @@ export default function Select({
           disabled={disabled}
           aria-expanded={isOpen}
         >
-          <span className={`${styles.selectTitle} ${isPlaceholder ? styles.isPlaceholder : ""}`}>
+          <span className={`kr_caption ${styles.selectTitle} ${isPlaceholder ? styles.isPlaceholder : ""}`}>
             {displayLabel}
           </span>
           <span className={`${styles.iconWrapper} ${isOpen ? styles.expanded : ""}`}>
@@ -196,12 +196,12 @@ export default function Select({
                           }
                         }}
                       >
-                        <span className={styles.optionLabel}>{label}</span>
+                        <span className={`kr_caption ${styles.optionLabel}`}>{label}</span>
                       </div>
                     );
                   })
                 ) : (
-                  <div className={styles.emptyMessage}>선택 가능한 옵션이 없습니다.</div>
+                  <div className={`kr_caption ${styles.emptyMessage}`}>선택 가능한 옵션이 없습니다.</div>
                 )}
               </div>
             </div>

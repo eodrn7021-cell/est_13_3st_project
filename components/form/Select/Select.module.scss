@@ -7,12 +7,11 @@
   width: 100%;
   box-sizing: border-box;
 
-  // title(상단 제목)이 있는 단일 카드일 경우에만 외곽 카드 스타일 적용
   &.hasCard {
     padding: 20px;
     gap: 12px;
-    background-color: colors.$color_input_70; // 인풋컬러 70 (배경색)
-    border: 1px solid colors.$color_tag; // Tag Stroke (최상단 외곽선)
+    background-color: colors.$color_input_70;
+    border: 1px solid colors.$color_tag;
     border-radius: 16px;
     color: colors.$color_white;
   }
@@ -30,28 +29,24 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: colors.$color_white; // 화이트 (이모티콘)
+    color: colors.$color_white;
     flex-shrink: 0;
 
     .materialIcon {
-      font-family: 'Material Symbols Outlined', sans-serif !important;
-      font-size: 36px; // 아이콘 Icon 36
+      font-size: 36px;
       line-height: 1;
       user-select: none;
     }
 
     svg {
-      width: 36px; // 아이콘 Icon 36
+      width: 36px;
       height: 36px;
       fill: currentColor;
     }
   }
 
   .titleText {
-    font-family: var(--font_lora), variables.$font_family_kr; // 영문 Lora 우선 적용 (한글 Pretendard 자동 폴백)
-    font-size: 16px; // title KR/body B
-    font-weight: variables.$font_weight_bold; // title KR/body B
-    color: colors.$color_white; // 화이트 (글자색)
+    color: colors.$color_white;
     line-height: 1.4;
   }
 }
@@ -62,7 +57,7 @@
   width: 100%;
   box-sizing: border-box;
   background-color: transparent;
-  border: 1px solid colors.$color_secondary_dark; // 세컨더리 다크 (내부 글자 영역 외곽선)
+  border: 1px solid colors.$color_secondary_dark;
   border-radius: 12px;
   color: colors.$color_white;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -102,18 +97,11 @@
   background: transparent;
   border: none;
   outline: none;
-  color: colors.$color_white; // 화이트 (글자색)
-  font-family: var(--font_lora), variables.$font_family_kr; // 영문 Lora 우선 적용
-  font-size: 12px; // 내부 글자들 KR/caption
-  font-weight: variables.$font_weight_regular;
-  line-height: 1.4;
+  color: colors.$color_white;
   padding: 0;
 
   &::placeholder {
-    color: colors.$color_text_muted; // Text Muted (#acb2c4)
-    font-family: var(--font_lora), variables.$font_family_kr;
-    font-size: 12px; // 내부 글자들 KR/caption
-    font-weight: variables.$font_weight_regular;
+    color: colors.$color_text_muted;
   }
 }
 
@@ -126,10 +114,7 @@
   padding: 0 16px;
   background: transparent;
   border: none;
-  color: colors.$color_white; // 화이트 (글자색)
-  font-family: var(--font_lora), variables.$font_family_kr; // 영문 Lora 우선 적용
-  font-size: 12px; // 내부 글자들 KR/caption
-  font-weight: variables.$font_weight_regular;
+  color: colors.$color_white;
   cursor: pointer;
   text-align: left;
   outline: none;
@@ -141,14 +126,11 @@
 }
 
 .selectTitle {
-  font-family: var(--font_lora), variables.$font_family_kr; // 영문 Lora 우선 적용
-  font-size: 12px; // 내부 글자들 KR/caption
-  font-weight: variables.$font_weight_regular;
-  color: colors.$color_white; // 화이트
+  color: colors.$color_white;
   line-height: 1.4;
 
   &.isPlaceholder {
-    color: colors.$color_text_muted; // Text Muted (#acb2c4)
+    color: colors.$color_text_muted;
   }
 }
 
@@ -156,7 +138,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: colors.$color_white; // 화이트
+  color: colors.$color_white;
   transition: transform 0.3s ease;
 
   &.expanded {
@@ -179,7 +161,7 @@
   width: calc(100% - 32px);
   height: 1px;
   margin: 0 auto 12px auto;
-  background-color: colors.$color_secondary_dark; // 세컨더리 다크 (구분선)
+  background-color: colors.$color_secondary_dark;
 }
 
 .optionsWrapper {
@@ -188,23 +170,17 @@
   box-sizing: border-box;
 }
 
-/* 
-  옵션 박스:
-  한 번에 3개 항목만 보이도록 max-height: 125px 설정 및 
-  3개 초과 시 자동으로 스크롤(overflow-y: auto)되도록 구현 
-*/
 .optionsBox {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: 125px; // 3개 아이템 높이 제한
-  overflow-y: auto; // 3개 초과 시 수직 스크롤
-  border: 1px solid colors.$color_secondary_dark; // 세컨더리 다크 (내부 외곽선)
+  max-height: 125px;
+  overflow-y: auto;
+  border: 1px solid colors.$color_secondary_dark;
   border-radius: 10px;
   box-sizing: border-box;
   background-color: rgba(0, 0, 0, 0.15);
 
-  /* 스크롤바 디자인 */
   &::-webkit-scrollbar {
     width: 5px;
   }
@@ -224,10 +200,7 @@
   align-items: center;
   width: 100%;
   padding: 10px 16px;
-  font-family: var(--font_lora), variables.$font_family_kr; // 영문 Lora 우선 적용
-  font-size: 12px; // 내부 글자들 KR/caption
-  font-weight: variables.$font_weight_regular;
-  color: colors.$color_white; // 화이트
+  color: colors.$color_white;
   background: transparent;
   border-bottom: 1px solid colors.$color_secondary_dark;
   cursor: pointer;
@@ -246,22 +219,16 @@
 
   &.selected {
     background-color: rgba(134, 94, 244, 0.35);
-    font-weight: variables.$font_weight_bold;
     color: colors.$color_white;
   }
 }
 
 .optionLabel {
-  font-family: var(--font_lora), variables.$font_family_kr;
-  font-size: 12px; // 내부 글자들 KR/caption
-  font-weight: variables.$font_weight_regular;
   line-height: 1.4;
 }
 
 .emptyMessage {
   padding: 16px;
   text-align: center;
-  font-family: var(--font_lora), variables.$font_family_kr;
-  font-size: 12px;
-  color: colors.$color_text_muted; // Text Muted (#acb2c4)
+  color: colors.$color_text_muted;
 }

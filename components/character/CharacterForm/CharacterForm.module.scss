@@ -4,33 +4,34 @@
 .formContainer {
   display: flex;
   flex-direction: column;
-  gap: 10px; // 피그마 설정: 폼 카드 간 수직 갭 10
+  gap: 10px;
   width: 100%;
   height: 100%;
-  min-height: 810px; // 피그마 세팅: H 810 Fill (사이드바와 동일한 810px 공간 차지)
-  box-sizing: border-box;
-}
-
-// 1번 레이아웃: 3열 2행 구조 (피그마 세팅: H 550 Fill)
-.sectionOne {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: 1fr 1fr;
-  gap: 10px; // 텍스트 에리어 사이 갭 10
-  width: 100%;
-  height: 550px; // 피그마 1번 레이아웃 높이 550px
+  min-height: 810px;
   box-sizing: border-box;
 
   @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
-    height: auto;
+    min-height: auto;
+  }
+}
+
+.sectionOne {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+
+  @media (min-width: 1025px) {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr;
+    height: 550px;
   }
 }
 
 .basicInfoCard {
-  grid-column: 1;
-  grid-row: 1 / span 2;
   display: flex;
   flex-direction: column;
   padding: 20px;
@@ -38,80 +39,77 @@
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  background-color: colors.$color_input_70; // 인풋컬러 70 (#191c2b / rgba(25, 28, 43, 0.7))
-  border: 1px solid colors.$color_tag; // Tag Stroke (#242838)
+  background-color: colors.$color_input_70;
+  border: 1px solid colors.$color_tag;
   border-radius: 16px;
   color: colors.$color_white;
 
-  @media (max-width: 1024px) {
-    grid-column: auto;
-    grid-row: auto;
+  &.closed {
+    padding: 18px 20px;
+    gap: 0;
+  }
+
+  @media (min-width: 1025px) {
+    grid-column: 1;
+    grid-row: 1 / span 2;
   }
 }
 
 .backgroundStoryCard {
-  grid-column: 2 / span 2;
-  grid-row: 1;
   height: 100%;
 
-  @media (max-width: 1024px) {
-    grid-column: auto;
-    grid-row: auto;
+  @media (min-width: 1025px) {
+    grid-column: 2 / span 2;
+    grid-row: 1;
   }
 }
 
 .appearanceCard {
-  grid-column: 2;
-  grid-row: 2;
   height: 100%;
 
-  @media (max-width: 1024px) {
-    grid-column: auto;
-    grid-row: auto;
+  @media (min-width: 1025px) {
+    grid-column: 2;
+    grid-row: 2;
   }
 }
 
 .personalityCard {
-  grid-column: 3;
-  grid-row: 2;
   height: 100%;
 
-  @media (max-width: 1024px) {
-    grid-column: auto;
-    grid-row: auto;
+  @media (min-width: 1025px) {
+    grid-column: 3;
+    grid-row: 2;
   }
 }
 
-// 2번 레이아웃: 2열 1행 (반반 50:50 분할) 구조 (피그마 세팅: H 250 Fill)
 .sectionTwo {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px; // 텍스트 에리어 사이 갭 10
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   width: 100%;
-  height: 250px; // 피그마 2번 레이아웃 높이 250px
+  height: auto;
   box-sizing: border-box;
 
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-    height: auto;
+  @media (min-width: 1025px) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    height: 250px;
   }
 }
 
 .abilitiesCard {
-  grid-column: 1;
   height: 100%;
 
-  @media (max-width: 1024px) {
-    grid-column: auto;
+  @media (min-width: 1025px) {
+    grid-column: 1;
   }
 }
 
 .relatedCharactersCard {
-  grid-column: 2;
   height: 100%;
 
-  @media (max-width: 1024px) {
-    grid-column: auto;
+  @media (min-width: 1025px) {
+    grid-column: 2;
   }
 }
 
@@ -120,6 +118,11 @@
   align-items: center;
   gap: 10px;
   width: 100%;
+
+  &.clickable {
+    cursor: pointer;
+    user-select: none;
+  }
 
   .headerIcon {
     display: inline-flex;
@@ -136,9 +139,6 @@
   }
 
   .headerTitle {
-    font-family: var(--font_lora), variables.$font_family_kr;
-    font-size: 16px; // KR/body B
-    font-weight: variables.$font_weight_bold;
     color: colors.$color_white;
     line-height: 1.4;
     margin: 0;
@@ -157,4 +157,48 @@
   flex-direction: column;
   gap: 12px;
   width: 100%;
+}
+
+.mobileActionButtons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 20px;
+  background-color: colors.$color_input_70;
+  border: 1px solid colors.$color_tag;
+  border-radius: 16px;
+  box-sizing: border-box;
+  margin-top: 10px;
+
+  .primaryBtn {
+    flex: 1;
+    height: 44px;
+    border-radius: 22px;
+    border: none;
+    background: colors.$gradient_side;
+    color: colors.$color_white;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  .deleteBtn {
+    flex: 1;
+    height: 44px;
+    border-radius: 22px;
+    border: 1px solid colors.$color_tag;
+    background-color: colors.$color_tag;
+    color: colors.$color_white;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
 }

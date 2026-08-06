@@ -35,7 +35,7 @@ export default function Input({
     if (!icon || icon === "edit_note") return <EditNoteIcon />;
     if (typeof icon === "string") {
       return (
-        <span className={`material-symbols-outlined ${styles.materialIcon}`}>
+        <span className={`material-symbols-outlined icon_36 ${styles.materialIcon}`}>
           {icon}
         </span>
       );
@@ -51,7 +51,7 @@ export default function Input({
       {title && (
         <div className={styles.inputTitle}>
           <span className={styles.icon}>{renderIcon()}</span>
-          <span className={styles.titleText}>{title}</span>
+          <span className={`kr_body_b ${styles.titleText}`}>{title}</span>
         </div>
       )}
 
@@ -59,7 +59,7 @@ export default function Input({
         <div className={styles.inputWrapper}>
           <input
             type={type}
-            className={styles.inputField}
+            className={`kr_caption ${styles.inputField}`}
             placeholder={placeholder}
             value={value}
             onChange={onChange}
