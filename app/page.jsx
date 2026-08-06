@@ -20,6 +20,7 @@ const HomePage = () => {
                 스토리를 시작해보세요
               </>
             }
+            tabletDescription="새 캐릭터를 만들어보세요"
           />
 
           <QuickMenu
@@ -33,6 +34,7 @@ const HomePage = () => {
                 자유롭게 둘러보세요
               </>
             }
+            tabletDescription="다양한 캐릭터를 만나요"
           />
 
           <QuickMenu
@@ -46,6 +48,7 @@ const HomePage = () => {
                 편리하게 관리해보세요
               </>
             }
+            tabletDescription="내 캐릭터를 관리해보세요"
           />
         </section>
       </main>
