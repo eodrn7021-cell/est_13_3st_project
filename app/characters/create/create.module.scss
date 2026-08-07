@@ -185,11 +185,16 @@
     max-width: 220px;
     height: 44px;
     border-radius: 10px;
-    border: none;
-    background: colors.$gradient_side;
+    border: 1px solid colors.$color_tag;
+    background-color: colors.$color_tag;
     color: colors.$color_white;
     cursor: pointer;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+
+    &.active {
+      background: colors.$gradient_side;
+      border: none;
+    }
 
     &:hover {
       opacity: 0.9;
