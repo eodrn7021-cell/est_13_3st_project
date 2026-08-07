@@ -1,69 +1,30 @@
-@use "../../styles/abstracts/index" as *;
+@use "@/styles/abstracts/colors" as *;
+@use "@/styles/abstracts/variables" as *;
 
 .button {
   width: 100%;
   height: 56px;
 
+  border: none;
   border-radius: 14px;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: $color_primary;
+  color: $color_white;
 
-  gap: 10px;
-
+  font-family: $font_family_kr;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: $font_weight_medium;
 
   cursor: pointer;
 
-  transition:
-    background-color 0.25s,
-    transform 0.25s,
-    box-shadow 0.25s;
-}
+  transition: all 0.25s ease;
 
-/* ===============================
-   Primary
-================================ */
+  &:hover {
+    background: $color_primary_dark;
+  }
 
-.primary {
-  background: $primary;
-  color: $text;
-}
-
-.primary:hover {
-  background: $primary-hover;
-  transform: translateY(-2px);
-}
-
-.primary:active {
-  transform: translateY(0);
-}
-
-/* ===============================
-   Outline
-================================ */
-
-.outline {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: $text;
-}
-
-.outline:hover {
-  border-color: $primary;
-}
-
-/* ===============================
-   White
-================================ */
-
-.white {
-  background: white;
-  color: #191c2b;
-}
-
-.white:hover {
-  transform: translateY(-2px);
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
