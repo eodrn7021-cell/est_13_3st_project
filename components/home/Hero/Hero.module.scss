@@ -18,17 +18,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   min-width: 129px;
   height: 52px;
   padding: 0 20px;
-
   color: colors.$color_white;
   text-decoration: none;
-
   background-color: colors.$color_primary_dark;
   border-radius: 10px;
-
   overflow: hidden;
   box-sizing: border-box;
 
@@ -37,10 +33,8 @@
 
     position: absolute;
     inset: 0;
-
     background: colors.$gradient_side;
     opacity: 0;
-
     transition: opacity 0.3s ease;
     pointer-events: none;
   }
