@@ -1,0 +1,144 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+
+.home_sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.sidebar_nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar_link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 48px;
+  gap: 12px;
+  padding: 0 20px;
+  color: colors.$color_white;
+  text-decoration: none;
+  border-radius: 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+    background: colors.$gradient_main;
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+    pointer-events: none;
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    opacity: 0.5;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+  }
+}
+
+/* 현재 선택된 홈 메뉴 */
+.sidebar_link_active {
+  &::before {
+    opacity: 1;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+}
+
+.sidebar_icon {
+  flex-shrink: 0;
+  color: colors.$color_white;
+}
+
+.sidebar_divider {
+  width: calc(100% - 20px);
+  height: 1px;
+  margin: 20px auto;
+  background-color: colors.$color_text_muted;
+  opacity: 0.5;
+}
+
+.tag_section {
+  padding: 0 10px;
+}
+
+.tag_title {
+  margin: 0 0 12px;
+  color: colors.$color_white;
+}
+
+.tag_list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag_button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  color: colors.$color_white;
+  background-color: colors.$color_tag;
+  border: 0;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+
+  &:hover,
+  &:focus-visible {
+    background-color: colors.$color_primary_dark;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+  }
+}
+
+.more_tags {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 44px;
+  margin-top: 16px;
+  padding: 0 16px;
+  color: colors.$color_white;
+  text-decoration: none;
+  background-color: colors.$color_tag;
+  border-radius: 20px;
+  box-sizing: border-box;
+  transition: background-color 200ms ease;
+
+  &:hover,
+  &:focus-visible {
+    background-color: colors.$color_primary_dark;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+  }
+}

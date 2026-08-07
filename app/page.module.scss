@@ -1,22 +1,76 @@
-.quick_menu_list {
+@use "../styles/abstracts/_colors.scss" as colors;
+
+.home {
+  width: 100%;
+  min-height: 100vh;
+  background-color: colors.$color_background_deep;
+}
+
+.home_inner {
   display: flex;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   gap: 20px;
-  padding: 30px 20px;
+  box-sizing: border-box;
 }
 
-/*추천 캐릭터*/
-.recommended_section {
-  margin-top: 30px;
+.home_content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  width: 895px;
+  max-width: 895px;
+  gap: 30px;
 }
 
-/*주요기능*/
-@media (min-width: 481px) and (max-width: 1024px) {
+.quick_menu_list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+/* 태블릿 */
+@media (min-width: 481px) and (max-width: 1200px) {
+  .home_inner {
+    display: block;
+    width: 100%;
+    padding: 0 40px;
+    box-sizing: border-box;
+  }
+
+  .home_content {
+    width: 100%;
+    max-width: 895px;
+    margin: 0 auto;
+  }
+
   .quick_menu_list {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     width: 100%;
     gap: 12px;
-    padding: 24px 16px;
+  }
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+  .home_inner {
+    display: block;
+    width: 100%;
+    padding: 0 40px;
     box-sizing: border-box;
+  }
+
+  .home_content {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .quick_menu_list {
+    width: 100%;
+    gap: 12px;
   }
 }
