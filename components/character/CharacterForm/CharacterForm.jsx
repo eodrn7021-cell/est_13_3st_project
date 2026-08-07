@@ -70,7 +70,6 @@ export default function CharacterForm({
     title: initialValues.title || initialValues.name || "",
     theme: initialValues.theme || "",
     genre: initialValues.genre || "",
-    mood: initialValues.mood || "",
     myth_history: initialValues.myth_history || "",
     religion_culture: initialValues.religion_culture || "",
     social_structure: initialValues.social_structure || "",
@@ -140,11 +139,6 @@ export default function CharacterForm({
                       isOpen={activeSelect === "genre"}
                       onToggle={(nextState) => setActiveSelect(nextState ? "genre" : null)}
                     />
-                    <Input
-                      placeholder="분위기"
-                      value={formData.mood}
-                      onChange={(e) => handleChange("mood", e.target.value)}
-                    />
                   </>
                 ) : (
                   <>
@@ -192,7 +186,7 @@ export default function CharacterForm({
             title={isWorldMode ? "창조 신화 & 역사" : "배경 스토리 *"}
             placeholder={
               isWorldMode
-                ? "태초에 별빛과 심연이 부딪혀 탄생한 세계, '루미나리스'. 약 2,000년 전, 심연의 문이 열리며 마물들이 쏟아져 나온 대재앙 '황혼의 붕괴'가 일어났습니다. 당시 수많은 종족이 멸망의 위기에 처했으나, 젊은 엘프 마법사였던 엘리안느가 동족들의 희생을 발판 삼아 거대한 마력의 결계를 구축해 대륙을 구원했습니다. 이 사건을 계기로 그녀는 살아있는 전설이자 '성녀'로 추대되었고, 이후 2천 년의 세월 동안 봉인의 중심인 '고요한 성체'에 칩거하며 홀로 세상의 멸망을 막아내고 있는 슬프고도 위대한 역사를 지니고 있습니다."
+                ? "이 세계가 처음 어떻게 탄생했는지, 그리고 현재 시대에 이르기까지 가장 중요했던 전쟁이나 역사적 대사건을 적어주세요."
                 : "캐릭터가 살아온 삶의 궤적, 주요 사건, 현재 직면한 상황 등을 자세히 적어주세요."
             }
             value={isWorldMode ? formData.myth_history : formData.background_story}
@@ -211,7 +205,7 @@ export default function CharacterForm({
             title={isWorldMode ? "종교, 문화, 사상" : "외형적 특징 *"}
             placeholder={
               isWorldMode
-                ? "인격신을 믿지 않고, 세상을 구성하는 '은빛 마력의 흐름' 그 자체를 숭배하는 성류교(星流敎)가 대륙의 유일무이한 국교입니다. 오랜 세월을 사는 엘프들의 지배하에 있어, 감정의 성부른 동요는 곧 마력의 폭주(재앙)를 부른다고 믿습니다. 따라서 '극도의 이성과 침묵'을 최고의 미덕으로 삼으며,"
+                ? "사람들이 주로 믿는 신앙이나 종교, 특별한 명절과 축제, 혹은 사회를 지배하는 핵심 가치관이나 금기사항을 설명해 주세요."
                 : "키, 체형, 머리색, 눈동자 색, 흉터나 점, 즐겨 입는 옷차림 등 눈에 띄는 특징을 묘사해 주세요."
             }
             value={isWorldMode ? formData.religion_culture : formData.appearance}
@@ -230,7 +224,7 @@ export default function CharacterForm({
             title={isWorldMode ? "사회 구조 / 계층" : "성격 및 성향 *"}
             placeholder={
               isWorldMode
-                ? "신분 제도(예: 귀족과 평민), 정치 체제, 주요 권력 집단 등 사회가 어떤 시스템으로 구성되어 있는지 작성해 주세요."
+                ? "왕족, 귀족, 평민, 노예 등 신분 제도가 어떻게 나뉘어 있는지, 권력은 누가 쥐고 있으며 계층 간의 갈등은 어떠한지 적어주세요."
                 : "캐릭터의 평소 성격이나 가치관, 행동패턴, 취향 등 몰입 등을 상세히 적어주세요."
             }
             value={isWorldMode ? formData.social_structure : formData.personality}
@@ -251,7 +245,7 @@ export default function CharacterForm({
             title={isWorldMode ? "기후 특성 & 랜드 마크" : "능력치"}
             placeholder={
               isWorldMode
-                ? "전반적인 날씨와 지형적 특징, 그리고 이 세계를 대표하는 상징적인 장소나 거대한 건축물을 묘사해 주세요."
+                ? "사막, 빙하, 마법 오염 구역 등 독특한 자연환경과 기후를 묘사하고, 세계에서 가장 유명한 유적지나 상징적인 건축물(랜드마크)을 적어주세요."
                 : "다룰 수 있는 무기, 고유한 마법 능력, 뛰어난 지능 등 캐릭터의 특별한 전투적/비전투적 능력을 적어주세요."
             }
             value={isWorldMode ? formData.climate_landmarks : formData.abilities}
@@ -270,7 +264,7 @@ export default function CharacterForm({
             title={isWorldMode ? "자원 & 화폐" : "관련 인물"}
             placeholder={
               isWorldMode
-                ? "심연의 기운과 엘프의 마력이 부딪히며 생성된 마력의 결정체, '루나리움(보랏빛 영석)'이 가장 가치 있는 자원이자 핵심 화폐입니다. 이 광석은 상처를 치유하거나 강력한 마법을 증폭시키는 매개체로 사용되며, 순도가 높고 짙은 보랏빛을 띌수록 가치가 천정부지로 솟습니다. 하층민들은 철이나 구리 동전을 사용한다."
+                ? "마력석, 희귀 광물 등 이 세계에서 특별하게 취급되는 핵심 자원과, 사람들이 일상적으로 물건을 사고팔 때 사용하는 화폐 단위를 적어주세요."
                 : "가족, 친구, 라이벌, 스승 등 주변 인물들과의 관계와 짧은 서사를 적어주세요."
             }
             value={isWorldMode ? formData.resource_currency : formData.relationships}

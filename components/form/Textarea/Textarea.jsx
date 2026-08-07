@@ -30,6 +30,9 @@ export default function Textarea({
   isOpen: propIsOpen,
   defaultOpen = true,
   onToggle,
+  showActionButton = true,
+  actionButtonIcon = "auto_awesome",
+  onActionButtonClick,
   ...props
 }) {
   const [internalIsOpen, setInternalIsOpen] = useState(defaultOpen);
@@ -63,22 +66,42 @@ export default function Textarea({
       className={`${styles.container} ${collapsible ? styles.collapsible : ""} ${isOpen ? styles.open : styles.closed} ${className}`.trim()}
       style={containerStyle}
     >
-      <div
-        className={`${styles.inputTitle} ${collapsible ? styles.clickable : ""}`}
-        onClick={handleTitleClick}
-        role={collapsible ? "button" : undefined}
-        tabIndex={collapsible ? 0 : undefined}
-        onKeyDown={(e) => {
-          if (collapsible && (e.key === "Enter" || e.key === " ")) {
-            e.preventDefault();
-            handleTitleClick();
-          }
-        }}
-      >
-        <span className={styles.icon}>
-          {renderIcon()}
-        </span>
-        <span className={`kr_body_b ${styles.titleText}`}>{title}</span>
+      <div className={styles.header}>
+        <div
+          className={`${styles.inputTitle} ${collapsible ? styles.clickable : ""}`}
+          onClick={handleTitleClick}
+          role={collapsible ? "button" : undefined}
+          tabIndex={collapsible ? 0 : undefined}
+          onKeyDown={(e) => {
+            if (collapsible && (e.key === "Enter" || e.key === " ")) {
+              e.preventDefault();
+              handleTitleClick();
+            }
+          }}
+        >
+          <span className={styles.icon}>
+            {renderIcon()}
+          </span>
+          <span className={`kr_body_b ${styles.titleText}`}>{title}</span>
+        </div>
+
+        {showActionButton && (
+          <button
+            type="button"
+            className={styles.actionButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onActionButtonClick) {
+                onActionButtonClick(e);
+              }
+            }}
+            aria-label="자동 작성"
+          >
+            <span className="material-symbols-outlined icon_14">
+              {actionButtonIcon}
+            </span>
+          </button>
+        )}
       </div>
 
       {(!collapsible || isOpen) && (
