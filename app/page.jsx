@@ -40,7 +40,7 @@ const HomePage = () => {
           />
 
           <QuickMenu
-            href="/mypage"
+            href="/my-page"
             icon="manage_accounts"
             title="캐릭터 관리하기"
             description={
