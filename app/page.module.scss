@@ -1,18 +1,22 @@
 .quick_menu_list {
   display: flex;
   gap: 20px;
-
   padding: 30px 20px;
 }
+
+/*추천 캐릭터*/
+.recommended_section {
+  margin-top: 30px;
+}
+
+/*주요기능*/
 @media (min-width: 481px) and (max-width: 1024px) {
   .quick_menu_list {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-
     width: 100%;
     gap: 12px;
     padding: 24px 16px;
-
     box-sizing: border-box;
   }
 }
