@@ -1,5 +1,6 @@
 import Header from "@/components/layout/Header/Header";
 import Hero from "@/components/home/Hero/Hero";
+import RecommendedCharacters from "@/components/home/RecommendedCharacters/RecommendedCharacters";
 import QuickMenu from "@/components/home/QuickMenu/QuickMenu";
 import Footer from "@/components/layout/Footer/Footer";
 import styles from "./page.module.scss";
@@ -10,6 +11,7 @@ const HomePage = () => {
       <Header variant="main" />
       <main>
         <Hero />
+        <RecommendedCharacters />
         <section className={styles.quick_menu_list}>
           <QuickMenu
             href="/characters/create"

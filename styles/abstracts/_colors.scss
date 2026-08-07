@@ -26,9 +26,12 @@ $color_input_70: rgba(25, 28, 43, 0.7);
 
 // Gradient
 $gradient_tag: linear-gradient(90deg, #25293a 0%, #1b1f2e 100%);
-
 $gradient_main: linear-gradient(90deg, #562ec4 0%, #211d36 100%);
-
 $gradient_side: linear-gradient(180deg, #865ef4 0%, #562ec4 100%);
-
 $gradient_cover: linear-gradient(180deg, #ffffff 0%, rgba(0, 0, 0, 0.7) 70%, #000000 100%);
+$gradient_card: linear-gradient(
+  180deg,
+  rgba(255, 255, 255, 0) 0%,
+  rgba(0, 0, 0, 0.7) 70%,
+  rgba(0, 0, 0, 1) 100%
+);
