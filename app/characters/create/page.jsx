@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header/Header";
 import Footer from "@/components/layout/Footer/Footer";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
@@ -18,6 +19,7 @@ function HelpOutlineIcon() {
 }
 
 export default function CreateCharacterPage({ worldData, characterListData }) {
+  const router = useRouter();
   const worldTitle = worldData?.title || worldData?.name || "세계관";
   const characterList =
     characterListData && characterListData.length > 0
@@ -31,6 +33,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   const [formData, setFormData] = useState({});
   const [isWorldCheckDone, setIsWorldCheckDone] = useState(false);
   const [isCharCheckDone, setIsCharCheckDone] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isAllCheckDone = isWorldCheckDone && isCharCheckDone;
 
@@ -58,70 +61,35 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   };
 
   const handleSubmit = async (data) => {
-    const supabase = createClient();
-    let insertedWorld = null;
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     try {
-      // 1. 세계관(worlds) 테이블에 먼저 저장 후 ID 반환받기
-      const { data: worldRes, error: worldError } = await supabase
-        .from("worlds")
-        .insert({
-          name: data.title || data.name || "무제 세계관",
-          theme: data.theme || "",
-          genre: data.genre || "",
-          myth_history: data.myth_history || null,
-          religion_culture: data.religion_culture || null,
-          social_structure: data.social_structure || null,
-          climate_landmarks: data.climate_landmarks || null,
-          resource_currency: data.resource_currency || null,
-        })
-        .select()
-        .single();
+      // 서버 단 API Route (/api/characters/generate)로 데이터 전달
+      // DB 저장, 롤백 관리, 알란 AI 영문 번역, 이미지 생성 및 DB 업데이트를 모두 서버에서 안전하게 수행
+      const res = await fetch("/api/characters/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-      if (worldError) {
-        console.error("세계관 데이터 삽입 실패:", worldError);
-        alert("세계관 저장 중 오류가 발생했습니다: " + worldError.message);
+      const result = await res.json();
+
+      if (!res.ok || result.error) {
+        console.error("서버 처리 오류:", result.error);
+        alert(result.error || "캐릭터 생성 중 오류가 발생했습니다.");
+        setIsSubmitting(false);
         return;
       }
 
-      insertedWorld = worldRes;
-
-      // 2. 저장된 세계관의 id (world_id)를 외래키로 지정하여 캐릭터(characters) 테이블에 저장
-      const { data: insertedChar, error: charError } = await supabase
-        .from("characters")
-        .insert({
-          world_id: insertedWorld.id,
-          name: data.name || "무제 캐릭터",
-          race: data.race || null,
-          gender: data.gender || null,
-          age: data.age || null,
-          job_role: data.job_role || null,
-          background_story: data.background_story || "",
-          appearance: data.appearance || "",
-          personality: data.personality || null,
-          abilities: data.abilities || null,
-          raw_relationship_input: data.relationships || null,
-          image_url: data.image_url || null,
-        })
-        .select()
-        .single();
-
-      if (charError) {
-        console.error("캐릭터 데이터 삽입 실패. 저장된 세계관을 롤백(삭제)합니다:", charError);
-        // 트랜잭션 보장: 캐릭터 저장 실패 시 1단계에서 생성된 세계관 삭제
-        await supabase.from("worlds").delete().eq("id", insertedWorld.id);
-        alert("캐릭터 저장 중 오류가 발생하여 전체 저장을 취소(롤백)했습니다: " + charError.message);
-        return;
-      }
-
-      console.log("데이터 성공적으로 저장됨:", { insertedWorld, insertedChar });
-      alert("세계관과 캐릭터가 성공적으로 저장되었습니다!");
+      // 서버 처리가 완료되면 생성된 캐릭터 상세 페이지 (/characters/[id])로 이동
+      router.push(`/characters/${result.characterId}`);
     } catch (err) {
-      console.error("데이터 저장 중 예외 발생:", err);
-      if (insertedWorld?.id) {
-        await supabase.from("worlds").delete().eq("id", insertedWorld.id);
-      }
-      alert("저장 작업 처리 중 오류가 발생하여 전체 저장을 취소했습니다.");
+      console.error("서버 요청 중 예외 발생:", err);
+      alert("서버 연결 처리 중 오류가 발생했습니다.");
+      setIsSubmitting(false);
     }
   };
 
@@ -306,11 +274,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
                 className={`${sidebarStyles.sideButton} ${isAllCheckDone ? sidebarStyles.active : ""}`}
                 onClick={handleSaveClick}
               >
-                <span className="kr_body_b">저장 / 이미지 생성</span>
-              </button>
-
-              <button type="button" className={sidebarStyles.sideButton}>
-                <span className="kr_body_b">삭제</span>
+                <span className="kr_body_b">저장후 이미지생성</span>
               </button>
             </>
           }
@@ -334,10 +298,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
             className={`${createStyles.primaryBtn} ${isAllCheckDone ? createStyles.active : ""}`}
             onClick={handleSaveClick}
           >
-            <span className="kr_body_b">저장 / 이미지 생성</span>
-          </button>
-          <button type="button" className={createStyles.deleteBtn}>
-            <span className="kr_body_b">삭제</span>
+            <span className="kr_body_b">저장후 이미지생성</span>
           </button>
         </div>
       </div>

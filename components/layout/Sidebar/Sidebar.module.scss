@@ -178,10 +178,13 @@
     user-select: none;
 
     input[type="checkbox"] {
+      appearance: checkbox;
+      -webkit-appearance: checkbox;
       width: 16px;
       height: 16px;
       accent-color: colors.$color_primary;
       cursor: pointer;
+      flex-shrink: 0;
     }
   }
 }
