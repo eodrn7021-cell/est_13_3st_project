@@ -109,14 +109,11 @@
 
     // 수정: 왼쪽 브랜드 / 오른쪽 메뉴 영역으로 고정
     grid-template-columns: minmax(155px, 222px) max-content;
-
     align-items: flex-start;
     justify-content: space-between;
-
     width: 100%;
     max-width: 687px;
     min-height: 257px;
-
     padding: 38px 24px;
 
     // 수정: 좁아질수록 브랜드와 메뉴 사이만 줄어듦
@@ -136,24 +133,19 @@
   .footer_subtitle {
     font-size: 13px;
     line-height: 1.2;
-
     word-break: keep-all;
   }
 
   .footer_description {
     font-size: 11px;
     line-height: 1.4;
-
     word-break: keep-all;
   }
 
   .footer_nav {
     display: grid;
     grid-template-columns: repeat(3, max-content);
-
-    // 수정: 메뉴 묶음 사이는 계속 동일하게 유지
     column-gap: 20px;
-
     width: max-content;
   }
 
@@ -172,7 +164,6 @@
     a {
       font-size: 11px;
       line-height: 1.2;
-
       white-space: nowrap;
     }
   }
