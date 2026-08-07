@@ -1,8 +1,7 @@
 @use "../../../styles/abstracts/_colors.scss" as colors;
 
 .recommended {
-  width: 895px;
-  max-width: 100%;
+  width: 100%;
 }
 
 .recommended_list {
@@ -33,10 +32,11 @@
 }
 
 /* 태블릿 */
-@media (min-width: 481px) and (max-width: 1024px) {
+@media (min-width: 481px) and (max-width: 1200px) {
   .recommended {
-    width: 688px;
-    max-width: 100%;
+    width: 100%;
+    max-width: none;
+    margin: 0;
   }
 
   .recommended_list {
@@ -55,8 +55,14 @@
   }
 
   .recommended_list {
+    // 모바일에서는 카드 1장씩 강제
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    width: 100%;
     gap: 0;
     overflow-x: auto;
+    overflow-y: hidden;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
@@ -67,6 +73,7 @@
 
     > * {
       scroll-snap-align: start;
+      scroll-snap-stop: always;
     }
   }
 
