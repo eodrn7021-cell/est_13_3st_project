@@ -1,8 +1,8 @@
 import Image from "next/image";
-// import Tag from "@/components/common/Tag/Tag";
+import Tag from "@/components/common/Tag/Tag";
 import styles from "./RecommendedCharacterCard.module.scss";
 
-const RecommendedCharacterCard = ({ image, name, description, tags }) => {
+const RecommendedCharacterCard = ({ image, name, description, tags, isPriority = false }) => {
   return (
     <article className={styles.card} tabIndex={0}>
       {/* 캐릭터 이미지 */}
@@ -10,7 +10,8 @@ const RecommendedCharacterCard = ({ image, name, description, tags }) => {
         src={image}
         alt={`${name} 캐릭터 이미지`}
         fill
-        sizes="(max-width: 480px) 100vw, (max-width: 1024px) 218px, 285px"
+        loading={isPriority ? "eager" : "lazy"}
+        sizes="(max-width: 480px) 100vw, (max-width: 1199px) 33vw, 285px"
         className={styles.card_image}
       />
 
@@ -27,16 +28,9 @@ const RecommendedCharacterCard = ({ image, name, description, tags }) => {
 
         <div className={styles.card_tags}>
           {tags.map((tag) => (
-            <span key={tag} className={`kr_caption ${styles.card_tag}`}>
-              {tag}
-            </span>
-          ))}
-        </div>
-        {/* <div className={styles.card_tags}>
-          {tags.map((tag) => (
             <Tag key={tag}>{tag}</Tag>
           ))}
-        </div> 태그 컴포넌트 만든 후 사용할거*/}
+        </div>
       </div>
     </article>
   );
