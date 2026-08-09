@@ -4,6 +4,7 @@ import HomeSidebar from "@/components/home/HomeSidebar/HomeSidebar";
 import Hero from "@/components/home/Hero/Hero";
 import RecommendedCharacters from "@/components/home/RecommendedCharacters/RecommendedCharacters";
 import QuickMenu from "@/components/home/QuickMenu/QuickMenu";
+import CategoryList from "@/components/home/CategoryList/CategoryList";
 import styles from "./page.module.scss";
 
 const HomePage = () => {
@@ -70,8 +71,7 @@ const HomePage = () => {
               />
             </section>
 
-            {/* 추후 카테고리 */}
-            {/* <CategoryList /> */}
+            <CategoryList />
 
             {/* 추후 인기 스토리 */}
             {/* <PopularStories /> */}
