@@ -43,13 +43,14 @@ const RecommendedCharacters = () => {
     <section className={styles.recommended}>
       {/* 추천 캐릭터 카드 목록 */}
       <div ref={sliderRef} className={styles.recommended_list} onScroll={handleScroll}>
-        {recommendedCharacters.map((character) => (
+        {recommendedCharacters.map((character, index) => (
           <RecommendedCharacterCard
             key={character.id}
             image={character.image}
             name={character.name}
             description={character.description}
             tags={character.tags}
+            isPriority={index === 0}
           />
         ))}
       </div>

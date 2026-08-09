@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
+import Tag from "@/components/common/Tag/Tag";
 import styles from "./HomeSidebar.module.scss";
 
 const tags = ["판타지", "기사", "마법사", "엘프", "악역", "성장", "악마"];
@@ -56,12 +57,10 @@ const HomeSidebar = () => {
 
         {/* 태그 탐색 */}
         <section className={styles.tag_section}>
-          <h2 className={`kr_caption ${styles.tag_title}`}>태그 탐색</h2>
+          <h2 className={`kr_body ${styles.tag_title}`}>태그 탐색</h2>
           <div className={styles.tag_list}>
             {tags.map((tag) => (
-              <button key={tag} type="button" className={`kr_caption ${styles.tag_button}`}>
-                {tag}
-              </button>
+              <Tag key={tag}>{tag}</Tag>
             ))}
           </div>
 

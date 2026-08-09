@@ -93,48 +93,43 @@
   gap: 8px;
 }
 
-.tag_button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 28px;
-  padding: 4px 10px;
-  color: colors.$color_white;
-  background-color: colors.$color_tag;
-  border: 0;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: background-color 200ms ease;
-
-  &:hover,
-  &:focus-visible {
-    background-color: colors.$color_primary_dark;
-  }
-
-  &:focus-visible {
-    outline: 2px solid colors.$color_primary;
-    outline-offset: 2px;
-  }
-}
-
 .more_tags {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  height: 44px;
+  justify-content: center;
+  gap: 10px;
+  width: 244px;
+  height: 60px;
   margin-top: 16px;
-  padding: 0 16px;
+  padding: 0 36px;
   color: colors.$color_white;
   text-decoration: none;
-  background-color: colors.$color_tag;
-  border-radius: 20px;
+  background: colors.$gradient_tag;
+  border: 1px solid colors.$color_tag_border_60;
+  border-radius: 50px;
   box-sizing: border-box;
-  transition: background-color 200ms ease;
+  overflow: hidden;
 
-  &:hover,
-  &:focus-visible {
-    background-color: colors.$color_primary_dark;
+  &::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+    background: colors.$gradient_side;
+    opacity: 0;
+    transition: opacity 300ms ease;
+    pointer-events: none;
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    opacity: 1;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
   }
 
   &:focus-visible {
