@@ -24,6 +24,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - `CSS` 규칙 : `Sass`
 - `Class Naming : \_(스네이크)
 - JS : 대문자
+- 이미지 : 소문자 - (케밥)
 
 ## 기본 작업 흐름
 
@@ -219,6 +220,7 @@ gantt
 │  │  ├─ RecommendedCharacters
 │  │  ├─ QuickMenu
 │  │  ├─ CategoryList
+│  │  ├─ HomeSidebar
 │  │  └─ PopularStories
 │  │
 │  ├─ character                             // 캐릭터 관련 컴포넌트
