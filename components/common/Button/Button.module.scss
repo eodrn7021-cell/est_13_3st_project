@@ -37,10 +37,8 @@
     content: "";
     position: absolute;
     inset: 0;
-
     background: colors.$gradient_side;
     opacity: 0;
-
     transition: opacity 300ms ease-out;
     pointer-events: none;
   }
