@@ -1,0 +1,146 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+
+.card {
+  position: relative;
+  display: block;
+  width: 210px;
+  height: 150px;
+  color: colors.$color_white;
+  background: colors.$gradient_card;
+  border: 1px solid colors.$color_tag_border_60;
+  border-radius: 10px;
+  overflow: hidden;
+  box-sizing: border-box;
+  text-decoration: none;
+  transition:
+    border-color 300ms ease,
+    transform 300ms ease;
+
+  &:hover {
+    border-color: colors.$color_primary_dark;
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: colors.$color_primary;
+  }
+
+  &:hover .card_overlay,
+  &:focus-visible .card_overlay {
+    height: 75%;
+  }
+}
+
+.card_image_wrap {
+  position: absolute;
+  inset: 0;
+}
+
+.card_image {
+  object-fit: cover;
+  filter: brightness(0.8);
+}
+
+.card_overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 58%;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.85) 60%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
+  pointer-events: none;
+  transition: height 300ms ease;
+}
+
+.card_content {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card_text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.card_title,
+.card_description {
+  margin: 0;
+}
+
+.card_description {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.card_tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card_tag {
+  flex-shrink: 0;
+  height: 24px;
+  padding: 0 10px;
+}
+
+/* 태블릿 */
+@media (min-width: 481px) and (max-width: 1200px) {
+  .card {
+    width: 100%;
+    height: 180px;
+  }
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+  .card {
+    display: flex;
+    width: 100%;
+    max-width: 400px;
+    height: 120px;
+  }
+
+  .card_image_wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: 106px;
+    height: 120px;
+  }
+
+  .card_overlay {
+    display: none;
+  }
+
+  .card_content {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+    height: 100%;
+    padding: 12px 12px 12px 0;
+    margin-left: 16px;
+    box-sizing: border-box;
+  }
+
+  .card_description {
+    white-space: nowrap;
+  }
+}

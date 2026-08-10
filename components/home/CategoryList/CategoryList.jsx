@@ -66,7 +66,7 @@ const CategoryList = () => {
     <section className={styles.category}>
       {/* 카테고리 제목 */}
       <div className={styles.category_header}>
-        <h2 className={`kr_body ${styles.category_title}`}>카테고리</h2>
+        <h2 className={`kr_body_b ${styles.category_title}`}>카테고리</h2>
 
         {/* 전체 카테고리 페이지 */}
         <Link href="/characters" className={`kr_caption ${styles.category_more}`}>

@@ -30,3 +30,17 @@
     outline-offset: 2px;
   }
 }
+
+.tag_interactive {
+  cursor: pointer;
+
+  &:hover {
+    background-color: colors.$color_primary_dark;
+    border-color: colors.$color_tag_border_60;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+  }
+}
