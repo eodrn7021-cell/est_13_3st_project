@@ -9,7 +9,7 @@
 
 .home_inner {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -33,6 +33,13 @@
   width: 100%;
   gap: 20px;
   box-sizing: border-box;
+}
+
+.home_sidebar_wrapper {
+  display: flex;
+  width: 285px;
+  flex-shrink: 0;
+  align-self: stretch;
 }
 
 /* 태블릿 */
