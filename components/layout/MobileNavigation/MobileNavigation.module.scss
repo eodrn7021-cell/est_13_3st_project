@@ -1,0 +1,157 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+
+.mobile_navigation {
+  // PC에서는 숨김
+  display: none;
+}
+
+/* 태블릿 */
+@media (min-width: 481px) and (max-width: 1200px) {
+  .mobile_navigation {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 80px;
+    background-color: colors.$color_background_surface;
+  }
+
+  .mobile_navigation_inner {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0 60px;
+    box-sizing: border-box;
+  }
+
+  .mobile_navigation_item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    gap: 8px;
+    white-space: nowrap;
+    color: colors.$color_secondary;
+    text-decoration: none;
+    transition: color 200ms ease;
+
+    &:hover {
+      color: colors.$color_primary;
+    }
+
+    &:focus-visible {
+      outline: 2px solid colors.$color_primary;
+      outline-offset: 4px;
+      border-radius: 8px;
+    }
+  }
+
+  .mobile_navigation_create {
+    gap: 5px;
+    color: colors.$color_white;
+
+    > :first-child {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: colors.$gradient_side;
+      color: colors.$color_white;
+      transition: transform 180ms ease;
+      will-change: transform;
+    }
+
+    &:hover {
+      color: colors.$color_white;
+
+      > :first-child {
+        transform: scale(1.04);
+      }
+    }
+  }
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+  .mobile_navigation {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 85px;
+    background-color: colors.$color_background_surface;
+  }
+
+  .mobile_navigation_inner {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0 26.5px;
+    box-sizing: border-box;
+  }
+
+  .mobile_navigation_item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    gap: 8px;
+    white-space: nowrap;
+    color: colors.$color_secondary;
+    text-decoration: none;
+    transition: color 200ms ease;
+
+    &:hover {
+      color: colors.$color_primary;
+    }
+
+    &:focus-visible {
+      outline: 2px solid colors.$color_primary;
+      outline-offset: 3px;
+      border-radius: 8px;
+    }
+  }
+
+  .mobile_navigation_create {
+    gap: 5px;
+    padding: 0;
+    color: colors.$color_white;
+
+    > :first-child {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: colors.$gradient_side;
+      color: colors.$color_white;
+      transition: transform 180ms ease;
+      will-change: transform;
+    }
+
+    &:hover {
+      color: colors.$color_white;
+
+      > :first-child {
+        transform: scale(1.04);
+      }
+    }
+  }
+}
