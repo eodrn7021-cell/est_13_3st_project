@@ -16,22 +16,39 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+### 핵심 규칙
+
+- `main` 브랜치에 직접 push하지 않습니다.
+- 작업은 `feat/`, `fix/`, `refactor/`, `chore/` 브랜치에서 진행합니다.
+- `next.js` + `javascript`
+- `CSS` 규칙 : `Sass`
+- `Class Naming : \_(스네이크)
+- JS : 대문자
+- 이미지 : 소문자 - (케밥)
+
+## 기본 작업 흐름
+
+```txt
+작업 브랜치 생성 → 기능 구현 → 자체 QA → PR 생성 → 코드 리뷰 → main 병합 → 작업 브랜치 삭제
+```
+
 ### 1. 프로젝트 개요
 
 과정명 : 프론트엔드 13기
 기간 : 2026/04/07 ~ 2026/08/21
-3차 프로젝트 (2026/07/15 ~ 2026/08/21) VisuLore : AI를 활용해 사용자가 자신만의 세계관과 캐릭터를 생성하고 관리할 수 있는 아카이빙 서비스를 기획
+3차 프로젝트 (2026/07/15 ~ 2026/08/21)
+VisuLore : AI를 활용해 사용자가 자신만의 세계관과 캐릭터를 생성하고 관리할 수 있는 아카이빙 서비스를 기획
 
-### 2 👥 팀원
+### 2. 팀원
 
-| 이름   | 역할 | 주요 담당 | GitHub                            | 연락                    |
-| ------ | ---- | --------- | --------------------------------- | ----------------------- |
-| 조승아 | 팀장 |           | https://github.com/eodrn7021-cell | eodrn7021@gmail.com     |
-| 장진혁 | 팀원 |           | https://github.com/wwg98          | wwwg98@gmail.com        |
-| 이채연 | 팀원 |           | https://github.com/codus69        | lcy0269@gmail.com       |
-| 박채원 | 팀원 |           | https://github.com/chaewon5205    | parkjihae9262@gmail.com |
+| 이름   | 역할 | 주요 담당                                   | GitHub                            | 연락                    |
+| ------ | ---- | ------------------------------------------- | --------------------------------- | ----------------------- |
+| 조승아 | 팀장 | 메인페이지 기획·디자인·구현                 | https://github.com/eodrn7021-cell | eodrn7021@gmail.com     |
+| 장진혁 | 팀원 | 작품 상세페이지 기획·디자인·구현            | https://github.com/wwg98          | wwwg98@gmail.com        |
+| 이채연 | 팀원 | 목록페이지 기획·디자인·구현                 | https://github.com/codus69        | lcy0269@gmail.com       |
+| 박채원 | 팀원 | 로그인,회원가입,마이페이지 기획·디자인·구현 | https://github.com/chaewon5205    | parkjihae9262@gmail.com |
 
-### 3 🗓️ 마일스톤
+### 3. 마일스톤
 
 #### 1주차 — 주제 선정 및 기획
 
@@ -126,3 +143,128 @@ gantt
     AI 기능 연동                   :i3, 2026-08-15, 3d
     테스트 및 오류 수정           :i4, 2026-08-18, 3d
 ```
+
+### 4 개발 스택
+
+#### Frontend
+
+- **Framework**: Next.js
+- **Library**: React
+- **Language**: JavaScript
+- **Styling**: Sass/SCSS
+- **Routing**: Next.js App Router
+
+#### Tools
+
+- **Version Control**: Git & GitHub
+- **Design**: Figma
+- **Editor**: Visual Studio Code
+
+## 5. 프로젝트 구조
+
+```txt
+3st
+├─ app                                      // Next.js 페이지 및 라우팅
+│  ├─ characters                            // 캐릭터 관련 페이지
+│  │  ├─ page.jsx                           // 캐릭터 목록 페이지 /characters
+│  │  ├─ characters.module.scss             // 캐릭터 목록 스타일
+│  │  │
+│  │  ├─ create                             // 캐릭터 생성 페이지
+│  │  │  ├─ page.jsx                        // /characters/create
+│  │  │  └─ create.module.scss              // 캐릭터 생성 스타일
+│  │  │
+│  │  └─ [id]                               // 캐릭터별 상세 페이지
+│  │     ├─ page.jsx                        // /characters/:id
+│  │     └─ detail.module.scss              // 캐릭터 상세 스타일
+│  │
+│  ├─ login                                 // 로그인 페이지
+│  │  ├─ page.jsx                           // /login
+│  │  └─ login.module.scss                  // 로그인 스타일
+│  │
+│  ├─ signup                                // 회원가입 페이지
+│  │  ├─ page.jsx                           // /signup
+│  │  └─ signup.module.scss                 // 회원가입 스타일
+│  │
+│  ├─ my-page                               // 마이페이지
+│  │  ├─ page.jsx                           // /my-page
+│  │  └─ my-page.module.scss                // 마이페이지 스타일
+│  │
+│  ├─ my-characters                         // 내 캐릭터 관리 페이지
+│  │  ├─ page.jsx                           // /my-characters
+│  │  └─ my-characters.module.scss          // 내 캐릭터 관리 스타일
+│  │
+│  ├─ favicon.ico                           // 브라우저 탭 아이콘
+│  ├─ globals.scss                          // 전역 공통 스타일
+│  ├─ layout.jsx                            // 전체 공통 레이아웃
+│  ├─ page.jsx                              // 메인 페이지 /
+│  └─ page.module.scss                      // 메인 페이지 스타일
+│
+├─ components                               // 재사용 UI 컴포넌트
+│  ├─ common                                // 버튼, 모달, 태그, 로딩
+│  │  ├─ Button
+│  │  │  ├─ Button.jsx
+│  │  │  └─ Button.module.scss
+│  │  ├─ Modal
+│  │  ├─ Tag
+│  │  ├─ SearchBar                          // 검색
+│  │  └─ Loading
+│  │
+│  ├─ layout                                // 공통 레이아웃 컴포넌트
+│  │  ├─ Header
+│  │  ├─ Sidebar
+│  │  ├─ Footer
+│  │  └─ MobileNavigation
+│  │
+│  ├─ home                                  // 메인 페이지 전용 컴포넌트
+│  │  ├─ Hero
+│  │  ├─ RecommendedCharacters
+│  │  ├─ QuickMenu
+│  │  ├─ CategoryList
+│  │  ├─ HomeSidebar
+│  │  └─ PopularStories
+│  │
+│  ├─ character                             // 캐릭터 관련 컴포넌트
+│  │  ├─ CharacterCard
+│  │  ├─ CharacterList
+│  │  ├─ CharacterDetail
+│  │  └─ CharacterForm
+│  │
+│  └─ form                                  // 공통 폼 컴포넌트
+│     ├─ Input
+│     ├─ Select
+│     └─ Textarea
+│
+├─ styles                                   // 공통 Sass 스타일
+│  ├─ abstracts                             // Sass 설정 및 유틸리티
+│  │  ├─ _variables.scss                    // 색상, 간격, 크기 변수
+│  │  ├─ _mixins.scss                       // 반응형, 말줄임 등 믹스인
+│  │  ├─ _functions.scss                    // Sass 공통 함수
+│  │  └──_colors.scss
+│  │
+│  └─ base                                  // 기본 스타일
+│     ├─ _reset.scss                        // 브라우저 기본 스타일 초기화
+│     └─ _typography.scss                   // 폰트 및 타이포그래피
+│
+├─ data                                     // 임시 데이터 및 고정 데이터
+├─ hooks                                    // React 커스텀 훅
+├─ lib                                      // API 및 외부 서비스 설정
+├─ utils                                    // 공통 유틸리티 함수
+│
+├─ public                                   // 정적 파일
+│  ├─ images
+│  │  ├─ home                               // 메인 페이지 이미지
+│  │  ├─ characters                         // 캐릭터 이미지
+│  │  ├─ backgrounds                        // 배경 이미지
+│  │  └─ icons                              // 아이콘 이미지
+│  └─ fonts                                 // 로컬 폰트
+│
+├─ jsconfig.json                            // JavaScript 경로 별칭 설정
+├─ next.config.js                           // Next.js 설정
+├─ package.json                             // 패키지 및 실행 명령어
+└─ README.md                                // 프로젝트 설명 문서
+
+```
+
+## 6. 향후 개선 사항
+
+## 7. 제작 후기

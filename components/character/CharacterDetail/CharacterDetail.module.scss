@@ -1,0 +1,370 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+@use "../../../styles/abstracts/_variables.scss" as variables;
+
+.container2Col {
+  display: grid;
+  grid-template-columns: 1fr 488px;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.leftCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  height: 810px;
+  padding: 20px 24px;
+  background-color: colors.$color_input_70;
+  border: 1px solid colors.$color_tag_stroke;
+  border-radius: 20px;
+  box-sizing: border-box;
+  color: colors.$color_white;
+  overflow: hidden;
+
+  @media (max-width: 1100px) {
+    height: auto;
+  }
+}
+
+.headerSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.personIcon {
+  color: colors.$color_white;
+}
+
+.characterName {
+  color: colors.$color_white;
+}
+
+.tagGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.infoTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  background-color: transparent;
+  border: 1px solid colors.$color_secondary_dark;
+  border-radius: 12px;
+  color: colors.$color_white;
+}
+
+.summarySection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summaryLabel {
+  color: colors.$color_white;
+}
+
+.summaryBox {
+  background-color: transparent;
+  border: 1px solid colors.$color_secondary_dark;
+  border-radius: 12px;
+  padding: 10px;
+  height: 200px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  color: colors.$color_secondary;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: colors.$color_secondary_dark;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: colors.$color_primary;
+  }
+}
+
+.divider {
+  height: 1px;
+  width: 100%;
+  background-color: colors.$color_white;
+}
+
+.commentSection {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.commentTitle {
+  color: colors.$color_white;
+}
+
+.commentList {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  padding-right: 4px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: colors.$color_secondary_dark;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: colors.$color_primary;
+  }
+}
+
+.commentCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  background-color: transparent;
+  border: 1px solid colors.$color_secondary_dark;
+  border-radius: 12px;
+}
+
+.commentAuthor {
+  color: colors.$color_text_muted;
+}
+
+.commentContent {
+  color: colors.$color_white;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.commentForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.formInputGroup {
+  display: flex;
+  gap: 10px;
+}
+
+.authorInput {
+  flex: 1;
+  padding: 10px 14px;
+  background-color: transparent;
+  border: 1px solid colors.$color_secondary_dark;
+  border-radius: 8px;
+  color: colors.$color_white;
+  outline: none;
+
+  &:focus {
+    border-color: colors.$color_primary;
+  }
+}
+
+.contentInput {
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 14px;
+  background-color: transparent;
+  border: 1px solid colors.$color_secondary_dark;
+  border-radius: 8px;
+  color: colors.$color_white;
+  resize: vertical;
+  outline: none;
+
+  &:focus {
+    border-color: colors.$color_primary;
+  }
+}
+
+.submitBtn {
+  align-self: flex-end;
+  padding: 8px 18px;
+  background-color: colors.$color_primary;
+  border: none;
+  border-radius: 8px;
+  color: colors.$color_white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: colors.$color_primary_dark;
+  }
+}
+
+/* Right Card: Figma Image 2 Specs (W: 488px, H: 810px, Gap: 9px, Padding: 30px 10px, Radius: 10px, Fill: Input color 70, Stroke: Tag Stroke 1px) */
+.rightCard {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: 488px;
+  min-height: 810px;
+  padding: 30px 10px;
+  background-color: colors.$color_input_70;
+  border: 1px solid colors.$color_tag_stroke;
+  border-radius: 10px;
+  box-sizing: border-box;
+  color: colors.$color_white;
+
+  @media (max-width: 1100px) {
+    width: 100%;
+    min-height: auto;
+  }
+}
+
+/* Image Container: Figma Image 3 Specs (W: Fill/468px, H: 591.16px, Radius: 20px) */
+.imageDisplayContainer {
+  width: 100%;
+  height: 591px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid colors.$color_tag_stroke;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 480px) {
+    height: 360px;
+  }
+}
+
+.aiCharacterImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.generatingStateBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: colors.$color_white;
+}
+
+.placeholderStateBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: colors.$color_text_muted;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+  color: colors.$color_primary;
+}
+
+/* Right Tag Row: Figma Image 1 Specs (H: 60px, Radius: 30px, Gap: 10px, Padding: 16px 0, Fill: Tag, Stroke: 1px Inside #3B4055 60%, Font: M Title) */
+.rightTagGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.rightTagCapsule {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  padding: 0 20px;
+  background-color: colors.$color_tag;
+  border: 1px solid colors.$color_tag_stroke;
+  border-radius: 30px;
+  color: colors.$color_white;
+  box-sizing: border-box;
+}
+
+/* Right Action Buttons Group */
+.actionButtonGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: auto;
+}
+
+.regenerateActionButton {
+  flex: 1;
+  height: 48px;
+  background-color: colors.$color_tag;
+  border: 1px solid colors.$color_tag_stroke;
+  border-radius: 12px;
+  color: colors.$color_white;
+  cursor: pointer;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: colors.$color_primary_dark;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.saveActionButton {
+  flex: 1;
+  height: 48px;
+  background: colors.$gradient_side;
+  border: none;
+  border-radius: 12px;
+  color: colors.$color_white;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

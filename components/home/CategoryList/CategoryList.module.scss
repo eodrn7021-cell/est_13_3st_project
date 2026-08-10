@@ -1,0 +1,74 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+
+.category {
+  width: 100%;
+}
+
+.category_header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.category_title {
+  margin: 0;
+  color: colors.$color_white;
+}
+
+.category_more {
+  display: inline-flex;
+  align-items: center;
+  color: colors.$color_white;
+  text-decoration: none;
+  transition: color 300ms ease;
+
+  &:hover {
+    color: colors.$color_primary;
+  }
+
+  &:focus-visible {
+    color: colors.$color_primary;
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+.category_more_icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.category_list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+/* 태블릿 */
+@media (min-width: 768px) and (max-width: 1200px) {
+  .category_list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* 작은 태블릿 */
+@media (min-width: 481px) and (max-width: 767px) {
+  .category_list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+  .category_list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .category_list > :nth-child(n + 5) {
+    display: none;
+  }
+}

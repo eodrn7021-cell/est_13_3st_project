@@ -1,0 +1,46 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  height: 32px;
+  padding: 0 16px;
+  color: colors.$color_white;
+  background-color: colors.$color_tag;
+  border: 1px solid colors.$color_tag_border_60;
+  border-radius: 20px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  cursor: pointer;
+
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    transform 300ms ease;
+
+  &:hover {
+    background-color: colors.$color_primary_dark;
+    border-color: colors.$color_tag_border_60;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+  }
+}
+
+.tag_interactive {
+  cursor: pointer;
+
+  &:hover {
+    background-color: colors.$color_primary_dark;
+    border-color: colors.$color_tag_border_60;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+  }
+}

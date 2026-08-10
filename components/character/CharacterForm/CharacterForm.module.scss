@@ -1,0 +1,204 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+@use "../../../styles/abstracts/_variables.scss" as variables;
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  min-height: 810px;
+  box-sizing: border-box;
+
+  @media (max-width: 1024px) {
+    min-height: auto;
+  }
+}
+
+.sectionOne {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+
+  @media (min-width: 1025px) {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr;
+    height: 550px;
+  }
+}
+
+.basicInfoCard {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: colors.$color_input_70;
+  border: 1px solid colors.$color_tag;
+  border-radius: 16px;
+  color: colors.$color_white;
+
+  &.closed {
+    padding: 18px 20px;
+    gap: 0;
+  }
+
+  @media (min-width: 1025px) {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+}
+
+.backgroundStoryCard {
+  height: 100%;
+
+  @media (min-width: 1025px) {
+    grid-column: 2 / span 2;
+    grid-row: 1;
+  }
+}
+
+.appearanceCard {
+  height: 100%;
+
+  @media (min-width: 1025px) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+.personalityCard {
+  height: 100%;
+
+  @media (min-width: 1025px) {
+    grid-column: 3;
+    grid-row: 2;
+  }
+}
+
+.sectionTwo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+
+  @media (min-width: 1025px) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    height: 250px;
+  }
+}
+
+.abilitiesCard {
+  height: 100%;
+
+  @media (min-width: 1025px) {
+    grid-column: 1;
+  }
+}
+
+.relatedCharactersCard {
+  height: 100%;
+
+  @media (min-width: 1025px) {
+    grid-column: 2;
+  }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+
+  &.clickable {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .headerIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: colors.$color_white;
+    flex-shrink: 0;
+
+    svg {
+      width: 36px;
+      height: 36px;
+      fill: currentColor;
+    }
+  }
+
+  .headerTitle {
+    color: colors.$color_white;
+    line-height: 1.4;
+    margin: 0;
+  }
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: colors.$color_secondary_dark;
+  margin: 2px 0 6px 0;
+}
+
+.fieldList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.mobileActionButtons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 20px;
+  background-color: colors.$color_input_70;
+  border: 1px solid colors.$color_tag;
+  border-radius: 16px;
+  box-sizing: border-box;
+  margin-top: 10px;
+
+  .primaryBtn {
+    flex: 1;
+    height: 44px;
+    border-radius: 22px;
+    border: none;
+    background: colors.$gradient_side;
+    color: colors.$color_white;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  .deleteBtn {
+    flex: 1;
+    height: 44px;
+    border-radius: 22px;
+    border: 1px solid colors.$color_tag;
+    background-color: colors.$color_tag;
+    color: colors.$color_white;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+}

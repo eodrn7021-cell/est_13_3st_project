@@ -1,0 +1,343 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+@use "../../../styles/abstracts/_variables.scss" as variables;
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 285px;
+  min-height: 810px;
+  height: 100%;
+  align-self: stretch;
+  padding: 30px 10px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  background-color: colors.$color_background_surface;
+  border-radius: 10px;
+  opacity: 1;
+  color: colors.$color_white;
+
+  @media (max-width: 1200px) {
+    display: none;
+  }
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+}
+
+.topSection {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 16px;
+}
+
+.accordionButton {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: calc(100% + 10px);
+  margin-right: -10px;
+  height: 48px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px 0px 0px 10px;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_bold;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, colors.$color_primary 0%, #1f1b33 100%);
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  &:hover:not(:disabled)::before {
+    opacity: 0.35;
+  }
+
+  &.active {
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.accordionList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 20px;
+  margin-top: 4px;
+}
+
+.subItem {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 10px;
+  width: calc(100% + 10px);
+  margin-right: -10px;
+  height: 38px;
+  box-sizing: border-box;
+  border-radius: 10px 0px 0px 10px;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_bold;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, colors.$color_primary 0%, #1f1b33 100%);
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  &:hover:not(:disabled)::before {
+    opacity: 0.35;
+  }
+
+  &.active {
+    font-weight: variables.$font_weight_bold;
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.checklistSection {
+  margin-top: 24px;
+  padding: 0 10px;
+
+  .checklistTitle {
+    font-family: variables.$font_family_kr;
+    font-size: 16px;
+    font-weight: variables.$font_weight_bold;
+    line-height: 1;
+    color: colors.$color_white;
+    margin-bottom: 12px;
+  }
+
+  .checklistItems {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .checkItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: variables.$font_family_kr;
+    font-size: 16px;
+    font-weight: variables.$font_weight_bold;
+    line-height: 1;
+    color: colors.$color_white;
+    cursor: pointer;
+    user-select: none;
+
+    input[type="checkbox"] {
+      appearance: checkbox;
+      -webkit-appearance: checkbox;
+      width: 16px;
+      height: 16px;
+      accent-color: colors.$color_primary;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.usedImagesSection {
+  margin-top: 16px;
+  padding: 0 10px;
+}
+
+.usedImagesTitle {
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_bold;
+  color: colors.$color_white;
+  margin-bottom: 12px;
+}
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: colors.$color_white;
+    border-radius: 2px;
+  }
+}
+
+.thumbBox {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid colors.$color_tag_stroke;
+  background-color: colors.$color_tag;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.metaStatsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 0 10px;
+  color: colors.$color_white;
+}
+
+.statRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: variables.$font_family_kr;
+  font-size: 14px;
+  color: colors.$color_white;
+}
+
+.bottomSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 5px 0;
+  width: 100%;
+  height: auto;
+  margin-top: auto;
+  box-sizing: border-box;
+}
+
+.sideButton {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 44px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border-radius: 20px;
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_bold;
+  line-height: 1;
+  color: colors.$color_white;
+  cursor: pointer;
+  outline: none;
+  background-color: colors.$color_tag;
+  border: 1px solid colors.$color_tag;
+  user-select: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: colors.$gradient_side;
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  &:hover:not(:disabled)::before {
+    opacity: 1;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  &.active,
+  &.primary {
+    border-color: transparent;
+
+    &::before {
+      opacity: 1;
+    }
+
+    &:hover:not(:disabled) {
+      opacity: 0.92;
+    }
+  }
+}
+
+.buttonIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+
+  .materialIcon {
+    font-family: "Material Symbols Outlined", sans-serif !important;
+    font-size: 24px;
+    line-height: 1;
+    user-select: none;
+  }
+}

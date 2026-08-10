@@ -30,4 +30,128 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+@use "../../../styles/abstracts/_colors.scss" as colors;
+@use "../../../styles/abstracts/_variables.scss" as variables;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 3px;
+  }
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+// 종류
+
+// 회원가입 기본 버튼
+.button_primary {
+  position: relative;
+  overflow: hidden;
+
+  background-color: colors.$color_primary_dark;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: colors.$gradient_side;
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+    pointer-events: none;
+  }
+
+  &:hover:not(:disabled)::before {
+    opacity: 1;
+  }
+
+  // 버튼 글자를 그라디언트보다 위로 올림
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// 로그인 기본 버튼
+.button_secondary {
+  // 기본 상태
+  background-color: colors.$color_background_surface;
+  border-color: colors.$color_secondary;
+  color: colors.$color_white;
+
+  //자연스러운 전환
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+
+  &:hover:not(:disabled) {
+    //그라디언트 없이 단색
+    background-color: colors.$color_primary_dark;
+    border-color: colors.$color_primary;
+  }
+
+  &:active:not(:disabled) {
+    //클릭할 때 원래 위치로
+    transform: translateY(0);
+  }
+
+  // 로그인 버튼 hover
+  &:hover:not(:disabled) {
+    background-color: colors.$color_primary_dark;
+    border-color: colors.$color_secondary;
+  }
+}
+
+// 그라디언트 버튼
+.button_gradient {
+  color: colors.$color_white;
+  background: colors.$gradient_side;
+}
+
+// 크기
+.button_small {
+  min-width: 65px;
+  height: 32px;
+  padding: 0 16px;
+  font-size: 14px;
+  border-radius: 20px;
+}
+
+.button_medium {
+  min-width: 72px;
+  height: 60px;
+  padding: 0 20px;
+  font-size: 20px;
+}
+
+.button_large {
+  min-width: 88px;
+  height: 60px;
+  padding: 0 20px;
+  font-size: 24px;
+}
+
+.button_full_width {
+  width: 100%;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }

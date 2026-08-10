@@ -5,6 +5,7 @@ import Hero from "@/components/home/Hero/Hero";
 import RecommendedCharacters from "@/components/home/RecommendedCharacters/RecommendedCharacters";
 import QuickMenu from "@/components/home/QuickMenu/QuickMenu";
 import CategoryList from "@/components/home/CategoryList/CategoryList";
+import PopularStories from "@/components/home/PopularStories/PopularStories";
 import styles from "./page.module.scss";
 
 const HomePage = () => {
@@ -72,9 +73,6 @@ const HomePage = () => {
             </section>
 
             <CategoryList />
-
-            {/* 추후 인기 스토리 */}
-            {/* <PopularStories /> */}
           </div>
         </div>
       </main>

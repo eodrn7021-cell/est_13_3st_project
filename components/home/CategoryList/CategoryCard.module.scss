@@ -1,0 +1,94 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+
+.category_card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 212px;
+  height: 60px;
+  padding-left: 16px;
+  color: colors.$color_white;
+  text-decoration: none;
+  border: 1px solid colors.$color_tag_border_60;
+  border-radius: 10px;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: border-color 300ms ease;
+
+  &::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+    background: colors.$color_input_70;
+    opacity: 0.15;
+    border-radius: inherit;
+    transition: opacity 450ms cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+
+  &:focus-visible {
+    border-color: colors.$color_primary_dark;
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+  }
+
+  &:focus-visible::after {
+    opacity: 1;
+  }
+}
+
+.category_image {
+  object-fit: cover;
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.category_content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.category_icon {
+  width: 22px;
+  height: 24px;
+
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.category_name {
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .category_card:hover {
+    border-color: colors.$color_primary_dark;
+  }
+
+  .category_card:hover::after {
+    opacity: 0.55;
+  }
+
+  .category_card:hover .category_image {
+    transform: scale(1.04);
+  }
+}
+
+/* 태블릿 */
+@media (min-width: 481px) and (max-width: 1200px) {
+  .category_card {
+    width: 100%;
+    height: 72px;
+  }
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+  .category_card {
+    width: 100%;
+    height: 80px;
+  }
+}
