@@ -1,0 +1,37 @@
+// Background
+$color_background_deep: #0f111a;
+$color_background_surface: #191c2b;
+
+// Primary
+$color_primary: #865ef4;
+$color_primary_dark: #562ec4;
+
+// Secondary
+$color_secondary: #dbdee5;
+$color_secondary_dark: #b0b3bc;
+
+// Text
+$color_text_muted: #acb2c4;
+$color_white: #ffffff;
+$color_black: #000000;
+
+// Highlight
+$color_highlight: #f47777;
+
+// Tag
+$color_tag: #242838;
+
+// Opacity
+$color_input_70: rgba(25, 28, 43, 0.7);
+
+// Gradient
+$gradient_tag: linear-gradient(90deg, #25293a 0%, #1b1f2e 100%);
+$gradient_main: linear-gradient(90deg, #562ec4 0%, #211d36 100%);
+$gradient_side: linear-gradient(180deg, #865ef4 0%, #562ec4 100%);
+$gradient_cover: linear-gradient(180deg, #ffffff 0%, rgba(0, 0, 0, 0.7) 70%, #000000 100%);
+$gradient_card: linear-gradient(
+  180deg,
+  rgba(255, 255, 255, 0) 0%,
+  rgba(0, 0, 0, 0.7) 70%,
+  rgba(0, 0, 0, 1) 100%
+);

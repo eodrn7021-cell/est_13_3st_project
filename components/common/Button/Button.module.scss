@@ -1,9 +1,13 @@
-@use "@/styles/abstracts/colors" as *;
-@use "@/styles/abstracts/variables" as *;
+@use "../../../styles/abstracts/colors" as *;
+@use "../../../styles/abstracts/variables" as *;
 
 .button {
   width: 100%;
   height: 56px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   border: none;
   border-radius: 14px;
@@ -16,8 +20,7 @@
   font-weight: $font_weight_medium;
 
   cursor: pointer;
-
-  transition: all 0.25s ease;
+  transition: 0.25s ease;
 
   &:hover {
     background: $color_primary_dark;

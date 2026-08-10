@@ -1,28 +1,28 @@
-"use client";
-
-import { useState } from "react";
 import Image from "next/image";
-import { Eye, EyeOff } from "lucide-react";
-
-import AuthLayout from "@/components/layout/AuthLayout/AuthLayout";
-import Input from "@/components/form/Input/Input";
-import Button from "@/components/common/Button/Button";
-
+import Link from "next/link";
 import styles from "./login.module.scss";
 
 const LoginPage = () => {
-  const [showPassword, setShowPassword] = useState(false);
-
   return (
-    <AuthLayout>
+    <main
+      className={styles.page}
+      style={{
+        backgroundImage: "url('/images/backgrounds/fantasy-space.webp')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className={styles.overlay} />
+
       <div className={styles.container}>
-        {/* ================= LEFT ================= */}
+        {/* Left */}
         <section className={styles.left}>
           <Image
             src="/images/icons/logo.png"
             alt="VisuLore"
-            width={230}
-            height={72}
+            width={190}
+            height={58}
             priority
             className={styles.logo}
           />
@@ -34,65 +34,80 @@ const LoginPage = () => {
           </h1>
 
           <p className={styles.description}>
-            AI가 당신만의 세계관과 캐릭터를
+            VisuLore와 함께
             <br />
-            더욱 쉽고 풍부하게 만들어드립니다.
+            당신만의 세계를 창조해보세요.
           </p>
         </section>
 
-        {/* ================= RIGHT ================= */}
+        {/* Right */}
         <section className={styles.card}>
           <h2 className={styles.cardTitle}>로그인</h2>
 
+          <p className={styles.cardSub}>계정에 로그인하여 계속 이용하세요.</p>
+
           <form className={styles.form}>
-            <Input label="이메일" type="email" placeholder="이메일을 입력해주세요." />
+            <div className={styles.inputGroup}>
+              <label htmlFor="email">이메일</label>
 
-            <div className={styles.passwordWrapper}>
-              <Input
-                label="비밀번호"
-                type={showPassword ? "text" : "password"}
-                placeholder="비밀번호를 입력해주세요."
-              />
+              <input id="email" type="email" placeholder="이메일을 입력해주세요" />
+            </div>
 
-              <button
-                type="button"
-                className={styles.eyeButton}
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
+            <div className={styles.inputGroup}>
+              <label htmlFor="password">비밀번호</label>
+
+              <div className={styles.passwordField}>
+                <input id="password" type="password" placeholder="비밀번호를 입력해주세요" />
+
+                <button
+                  type="button"
+                  className={styles.eyeButton}
+                  aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <span className="material-symbols-rounded">
+                    {showPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
+              </div>
             </div>
 
             <div className={styles.optionRow}>
-              <label className={styles.checkbox}>
-                <input type="checkbox" />
-                로그인 상태 유지
+              <label htmlFor="remember" className={styles.checkbox}>
+                <input id="remember" type="checkbox" />
+                <span>로그인 상태 유지</span>
               </label>
 
-              <button type="button" className={styles.findPassword}>
-                비밀번호 찾기
-              </button>
+              <Link href="#">비밀번호 찾기</Link>
             </div>
 
-            <Button type="submit">로그인</Button>
-
-            <div className={styles.divider}>
-              <span>또는</span>
-            </div>
-
-            <button type="button" className={styles.googleButton}>
-              <Image src="/images/icons/google.png" alt="Google" width={20} height={20} />
-              Google로 로그인
+            <button className={styles.loginButton} type="submit">
+              로그인
             </button>
-
-            <p className={styles.signup}>
-              아직 계정이 없으신가요?
-              <span> 회원가입</span>
-            </p>
           </form>
+
+          <div className={styles.divider}>
+            <span>또는 다른 방법으로 로그인</span>
+          </div>
+
+          <button className={styles.googleButton} type="button">
+            <Image
+              src="/images/icons/google.png"
+              alt=""
+              aria-hidden="true"
+              width={20}
+              height={20}
+            />
+            Google로 계속하기
+          </button>
+
+          <p className={styles.signup}>
+            아직 계정이 없으신가요?
+            <Link href="/signup">회원가입</Link>
+          </p>
         </section>
       </div>
-    </AuthLayout>
+    </main>
   );
 };
 

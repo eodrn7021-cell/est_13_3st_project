@@ -1,4 +1,5 @@
-@use "../styles/abstracts/index" as *;
+@use "../styles/abstracts/colors" as *;
+@use "../styles/abstracts/variables" as *;
 
 *,
 *::before,
@@ -16,9 +17,9 @@ body {
 
 body {
   min-height: 100vh;
-  background: $background;
-  color: $text;
-  font-family: "Pretendard", sans-serif;
+  background: $color_background_deep;
+  color: $color_white;
+  font-family: $font_family_kr;
   overflow-x: hidden;
 }
 
@@ -48,4 +49,29 @@ img {
 ul,
 ol {
   list-style: none;
+}
+
+/* ==========================
+   Material Symbols
+========================== */
+
+.material-symbols-rounded {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 22px;
+  line-height: 1;
+
+  color: inherit;
+
+  user-select: none;
+
+  transition: color 0.2s ease;
+
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }

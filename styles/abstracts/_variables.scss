@@ -1,81 +1,8 @@
-/* ===============================
-   Color
-================================ */
+// Font family
+$font_family_kr: var(--font_pretendard), sans-serif;
+$font_family_en: var(--font_lora), serif;
 
-$background: #191c2b;
-
-$card-bg: rgba(25, 28, 43, 0.7);
-
-$primary: #865ef4;
-
-$primary-hover: #7650e8;
-
-$text: #ffffff;
-
-$text-secondary: #b0b3bc;
-
-$placeholder-login: #b0b3bc;
-
-$placeholder-signup: #ffffff;
-
-$border: rgba(255, 255, 255, 0.15);
-
-$input-bg: rgba(255, 255, 255, 0.08);
-
-$error: #ff6b6b;
-
-/* ===============================
-   Radius
-================================ */
-
-$radius-sm: 8px;
-
-$radius: 14px;
-
-$radius-lg: 20px;
-
-/* ===============================
-   Shadow
-================================ */
-
-$shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.45);
-
-$shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.25);
-
-/* ===============================
-   Transition
-================================ */
-
-$transition: all 0.25s ease;
-
-/* ===============================
-   Font Size
-================================ */
-
-$display: 48px;
-
-$title: 36px;
-
-$subtitle: 28px;
-
-$body: 16px;
-
-$caption: 14px;
-
-$small: 12px;
-
-/* ===============================
-   Spacing
-================================ */
-
-$space-xs: 8px;
-
-$space-sm: 12px;
-
-$space-md: 16px;
-
-$space-lg: 24px;
-
-$space-xl: 32px;
-
-$space-2xl: 48px;
+// Font weight
+$font_weight_regular: 400;
+$font_weight_medium: 500;
+$font_weight_bold: 700;
