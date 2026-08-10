@@ -1,10 +1,15 @@
 import styles from "./Tag.module.scss";
 
-const Tag = ({ children, className = "", onClick }) => {
+const Tag = ({ children, className = "", onClick, tabIndex }) => {
   const tagClassName = [styles.tag, className].filter(Boolean).join(" ");
 
   return (
-    <button type="button" className={`kr_caption ${tagClassName}`} onClick={onClick}>
+    <button
+      type="button"
+      className={`kr_caption ${tagClassName}`}
+      onClick={onClick}
+      tabIndex={tabIndex}
+    >
       {children}
     </button>
   );

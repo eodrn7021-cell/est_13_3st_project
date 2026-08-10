@@ -10,6 +10,11 @@
   overflow: hidden;
   box-sizing: border-box;
   cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: -2px;
+  }
 }
 
 .card_image {
