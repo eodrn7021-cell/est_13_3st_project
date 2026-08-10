@@ -84,8 +84,8 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         return;
       }
 
-      // 서버 처리가 완료되면 생성된 캐릭터 상세 페이지 (/characters/[id])로 이동
-      router.push(`/characters/${result.characterId}`);
+      // DB 저장 완료 후 즉시 생성된 캐릭터 상세 페이지 (/characters/[id]?generating=true)로 이동
+      router.push(`/characters/${result.characterId}?generating=true`);
     } catch (err) {
       console.error("서버 요청 중 예외 발생:", err);
       alert("서버 연결 처리 중 오류가 발생했습니다.");

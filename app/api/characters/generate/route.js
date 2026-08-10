@@ -62,7 +62,12 @@ export async function POST(request) {
       );
     }
 
-    // 3. 한국어 선택 옵션(종족/성별 등)을 영문 키워드로 매핑하여 프롬프트 왜곡 방지
+    // DB 저장 후 즉시 상세 페이지로 이동하도록 characterId 반환 (이미지 생성은 상세 화면에서 비동기 처리)
+    return NextResponse.json({
+      success: true,
+      characterId: insertedChar.id,
+    });
+  } catch (err) {
     const RACE_MAP = {
       "인간": "human",
       "엘프": "elf",
