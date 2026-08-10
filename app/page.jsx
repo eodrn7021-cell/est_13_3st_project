@@ -17,7 +17,9 @@ const HomePage = () => {
         {/* 사이드바 + 메인 콘텐츠 */}
         <div className={styles.home_inner}>
           {/* PC 사이드바 */}
-          <HomeSidebar />
+          <div className={styles.home_sidebar_wrapper}>
+            <HomeSidebar />
+          </div>
 
           {/* 메인 콘텐츠 */}
           <div className={styles.home_content}>
