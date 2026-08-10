@@ -176,12 +176,82 @@
     user-select: none;
 
     input[type="checkbox"] {
+      appearance: checkbox;
+      -webkit-appearance: checkbox;
       width: 16px;
       height: 16px;
       accent-color: colors.$color_primary;
       cursor: pointer;
+      flex-shrink: 0;
     }
   }
+}
+
+.usedImagesSection {
+  margin-top: 16px;
+  padding: 0 10px;
+}
+
+.usedImagesTitle {
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_bold;
+  color: colors.$color_white;
+  margin-bottom: 12px;
+}
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: colors.$color_white;
+    border-radius: 2px;
+  }
+}
+
+.thumbBox {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid colors.$color_tag_stroke;
+  background-color: colors.$color_tag;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.metaStatsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 0 10px;
+  color: colors.$color_white;
+}
+
+.statRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: variables.$font_family_kr;
+  font-size: 14px;
+  color: colors.$color_white;
 }
 
 .bottomSection {
