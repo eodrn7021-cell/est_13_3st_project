@@ -51,9 +51,6 @@ ol {
   list-style: none;
 }
 
-/* ==========================
-   Material Symbols
-
 .material-symbols-rounded {
   display: inline-flex;
   align-items: center;
@@ -78,7 +75,7 @@ ol {
 @use "../styles/base/typography";
 
 .material-symbols-rounded {
-  font-family: 'Material Symbols Rounded', sans-serif !important;
+  font-family: "Material Symbols Rounded", sans-serif !important;
   font-weight: normal;
   font-style: normal;
   font-size: 24px;
@@ -92,4 +89,3 @@ ol {
   -webkit-font-smoothing: antialiased;
   user-select: none;
 }
-
