@@ -12,11 +12,9 @@
   padding: 30px 10px;
   box-sizing: border-box;
   flex-shrink: 0;
-
   background-color: colors.$color_background_surface;
   border-radius: 10px;
   opacity: 1;
-
   color: colors.$color_white;
 
   @media (max-width: 1200px) {
@@ -286,7 +284,6 @@
   color: colors.$color_white;
   cursor: pointer;
   outline: none;
-
   background-color: colors.$color_tag;
   border: 1px solid colors.$color_tag;
   user-select: none;
@@ -338,7 +335,7 @@
   }
 
   .materialIcon {
-    font-family: 'Material Symbols Outlined', sans-serif !important;
+    font-family: "Material Symbols Outlined", sans-serif !important;
     font-size: 24px;
     line-height: 1;
     user-select: none;

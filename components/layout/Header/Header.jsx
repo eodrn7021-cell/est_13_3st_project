@@ -48,7 +48,7 @@ const Header = ({ variant = "main", accountContent = null }) => {
         {variant === "account" && (
           <div className={styles.header_account}>
             {accountContent || (
-              <Link href="/mypage" className={styles.header_mypage}>
+              <Link href="/my-page" className={styles.header_mypage}>
                 <span className="kr_body">마이페이지</span>
               </Link>
             )}

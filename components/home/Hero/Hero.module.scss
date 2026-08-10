@@ -14,21 +14,16 @@
 
 .hero_button {
   position: relative;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   min-width: 129px;
   height: 52px;
   padding: 0 20px;
-
   color: colors.$color_white;
   text-decoration: none;
-
   background-color: colors.$color_primary_dark;
   border-radius: 10px;
-
   overflow: hidden;
   box-sizing: border-box;
 
@@ -37,10 +32,8 @@
 
     position: absolute;
     inset: 0;
-
     background: colors.$gradient_side;
     opacity: 0;
-
     transition: opacity 0.3s ease;
     pointer-events: none;
   }
@@ -89,18 +82,20 @@
 .hero_button_text {
   position: relative;
   z-index: 1;
-
   color: colors.$color_white;
   white-space: nowrap;
 }
 
 /* 태블릿 */
-@media (min-width: 481px) and (max-width: 1024px) {
+@media (min-width: 481px) and (max-width: 1200px) {
   .hero {
-    width: 100%;
+    width: 100dvw;
+    margin-left: calc(50% - 50vw);
     height: 260px;
     padding: 32px 50px;
+    max-width: none;
   }
+
   .hero_content {
     gap: 16px;
   }
@@ -109,10 +104,12 @@
 /* 모바일 */
 @media (max-width: 480px) {
   .hero {
-    width: 100%;
+    width: 100dvw;
+    margin-left: calc(50% - 50vw);
     height: 240px;
     padding: 28px 40px;
     background-position: 60% center;
+    max-width: none;
   }
 
   .hero_content {

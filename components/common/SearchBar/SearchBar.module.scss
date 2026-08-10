@@ -33,6 +33,8 @@
 }
 
 .search_button {
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -41,7 +43,6 @@
   color: colors.$color_text_muted;
   background-color: transparent;
   border: 0;
-
   cursor: pointer;
 }
 
@@ -50,7 +51,7 @@
 }
 
 /* 태블릿 */
-@media (min-width: 481px) and (max-width: 1024px) {
+@media (min-width: 481px) and (max-width: 1200px) {
   .search_bar {
     width: 100%;
     height: 40px;

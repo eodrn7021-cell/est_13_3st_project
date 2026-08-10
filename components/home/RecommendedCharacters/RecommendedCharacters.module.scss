@@ -1,0 +1,93 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+
+.recommended {
+  width: 100%;
+}
+
+.recommended_list {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.recommended_slider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.slider_dot {
+  display: block;
+  width: 10px;
+  height: 10px;
+  background-color: colors.$color_secondary_dark;
+  border-radius: 50%;
+}
+
+.slider_dot_active {
+  background-color: colors.$color_primary;
+}
+
+/* 태블릿 */
+@media (min-width: 481px) and (max-width: 1200px) {
+  .recommended {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .recommended_list {
+    gap: 17px;
+  }
+
+  .recommended_slider {
+    margin-top: 10px;
+  }
+}
+
+/* 작은 태블릿 */
+@media (min-width: 481px) and (max-width: 767px) {
+  .recommended_list {
+    gap: 16px;
+  }
+
+  .recommended_list > :nth-child(n + 3) {
+    display: none;
+  }
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+  .recommended {
+    width: 100%;
+  }
+
+  .recommended_list {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    width: 100%;
+    gap: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    > * {
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+  }
+
+  .recommended_slider {
+    margin-top: 10px;
+  }
+}
