@@ -48,6 +48,17 @@
   }
 }
 
+/* 작은 태블릿 */
+@media (min-width: 481px) and (max-width: 767px) {
+  .recommended_list {
+    gap: 16px;
+  }
+
+  .recommended_list > :nth-child(n + 3) {
+    display: none;
+  }
+}
+
 /* 모바일 */
 @media (max-width: 480px) {
   .recommended {
@@ -55,7 +66,6 @@
   }
 
   .recommended_list {
-    // 모바일에서는 카드 1장씩 강제
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: 100%;
