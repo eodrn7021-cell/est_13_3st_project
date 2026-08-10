@@ -6,14 +6,235 @@
   min-height: 100vh;
 }
 
+.page_container {
+  min-height: 100vh;
+  background: $color_background_deep url('/images/backgrounds/bg_test_list.png') center / cover
+    no-repeat fixed;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+//!
 .main_wrapper {
   display: flex;
-  max-width: 1400px;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
   gap: 20px;
+  flex: 1;
+  align-items: flex-start;
+
+  > aside,
+  .pc_sidebar {
+    flex-shrink: 0;
+    position: sticky;
+    top: 20px;
+  }
+}
+//!
+
+@media (max-width: 768px) {
+  .main_wrapper {
+    padding: 20px;
+    gap: 20px;
+    margin: 0;
+  }
 }
 
+@media (max-width: 480px) {
+  .main_wrapper {
+    padding: 16px;
+    flex-direction: column;
+  }
+}
+
+/*    모바일 사이드바 + 푸터 */
+.mobile_drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+
+  &.is_open {
+    visibility: visible;
+    opacity: 1;
+
+    .drawer_content {
+      left: 0;
+    }
+  }
+
+  .backdrop {
+    position: absolute;
+    inset: 0;
+    /*     background: rgba(0, 0, 0, 0.6); */
+    backdrop-filter: blur(4px);
+  }
+
+  .drawer_content {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 80%;
+    max-width: 336px;
+    height: 100%;
+    background-color: $color_background_deep;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow-y: auto;
+    transition: left 0.3s ease;
+
+    .drawer_header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+
+      button {
+        background: none;
+        border: none;
+        color: $color_white;
+        cursor: pointer;
+      }
+    }
+
+    .drawer_body {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .drawer_footer {
+      margin-top: auto;
+      width: 100%;
+      padding-bottom: 100px;
+
+      :global(footer),
+      :global(div[class*='footer_inner']) {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        padding: 0;
+        margin: 0;
+        gap: 20px;
+        background: transparent;
+      }
+
+      :global(div[class*='footer_brand']) {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+
+        :global(h2[class*='footer_logo']) {
+          font-weight: bold;
+          color: $color_white;
+          margin: 0;
+        }
+
+        :global(p[class*='footer_subtitle']) {
+          color: $color_primary;
+          margin: 0;
+        }
+
+        :global(p[class*='footer_description']) {
+          color: $color_secondary;
+          margin: 0;
+        }
+
+        :global(div[class*='footer_sns']) {
+          display: flex;
+          gap: 12px;
+
+          a {
+            display: flex;
+            align-items: center;
+          }
+        }
+
+        :global(p[class*='footer_copyright']) {
+          color: $color_secondary_dark;
+        }
+      }
+
+      :global(nav[class*='footer_nav']) {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        width: 100%;
+
+        :global(div[class*='footer_menu_group']) {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 5px;
+
+          :global(h3[class*='footer_menu_title']) {
+            font-weight: bold;
+            color: $color_primary;
+            margin: 0;
+            white-space: nowrap;
+          }
+
+          :global(span[class*='footer_menu_line']) {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background-color: $color_primary;
+          }
+          :global(div[class*='footer_menu_links']) {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+
+            a {
+              font-size: 0.75rem;
+              color: rgba(255, 255, 255, 0.7);
+              text-decoration: none;
+              white-space: nowrap;
+
+              &:hover {
+                color: $color_secondary;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.pc_footer {
+  display: block;
+  width: 100%;
+  margin-top: auto;
+}
+
+@media (max-width: 1199px) {
+  .pc_footer {
+    display: none !important;
+  }
+}
+
+.page_container .mobile_drawer .drawer_content .drawer_footer {
+  :global(footer),
+  :global(div[class*='footer_inner']) {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+  }
+}
 .content_area {
   flex: 1;
   display: flex;
@@ -25,59 +246,147 @@
 .filter_bar {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 
-  .filter_select {
-    background-color: $gradient_tag;
-    color: $color_white;
-    padding: 8px 16px;
+  .select_wrapper {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    background: $gradient_tag;
     border-radius: 20px;
-    cursor: pointer;
+    padding: 0;
+
+    .filter_select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background: transparent;
+      color: $color_white;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      padding: 8px 32px 8px 16px;
+      min-width: 100%;
+
+      option {
+        background-color: $color_background_deep;
+        color: $color_white;
+        padding: 10px 14px;
+      }
+    }
+
+    .select_arrow {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+
+      color: $color_white;
+      pointer-events: none;
+      font-size: 18px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+    }
   }
 }
 
 /* 그리드 스타일 카드 리스트 */
-.card_grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
+.card_grid_container {
+  /*   height: calc(100vh - 120px); */
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+  }
 }
 
-.card_item {
-  background: $color_background_surface;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid $color_tag;
-  transition: transform 0.2s ease;
+.card_grid {
+  column-width: 260px;
+  column-gap: 20px;
 
-  &:hover {
-    transform: translateY(-4px);
-  }
+  .card_item {
+    break-inside: avoid;
+    margin-bottom: 20px;
 
-  .image_box {
-    position: relative;
-    width: 100%;
+    background: $color_background_surface;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid $color_tag;
+    transition:
+      transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.25s ease;
 
-    img {
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .image_box {
+      position: relative;
       width: 100%;
-      height: auto;
-      display: block;
-      object-fit: cover;
+      background: $gradient_tag;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+
+      .badge {
+        @extend .kr_caption;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: $color_background_deep;
+        backdrop-filter: blur(4px);
+        color: $color_white;
+        padding: 4px 10px;
+        border-radius: 12px;
+      }
     }
-  }
 
-  .card_info {
-    padding: 16px;
-
-    h3 {
-      font-size: 1.1rem;
-      font-weight: $font_weight_bold;
-      color: $color_white;
-      margin-bottom: 6px;
+    &:nth-child(6n + 1) .image_box {
+      height: 220px;
+    }
+    &:nth-child(6n + 2) .image_box {
+      height: 360px;
+    }
+    &:nth-child(6n + 3) .image_box {
+      height: 280px;
+    }
+    &:nth-child(6n + 4) .image_box {
+      height: 400px;
+    }
+    &:nth-child(6n + 5) .image_box {
+      height: 250px;
+    }
+    &:nth-child(6n + 6) .image_box {
+      height: 320px;
     }
 
-    p {
-      font-size: 0.85rem;
-      color: $color_text_muted;
+    .card_info {
+      padding: 16px;
+
+      h3 {
+        font-size: 1rem;
+        font-weight: $font_weight_bold;
+        color: $color_white;
+        margin-bottom: 6px;
+      }
+
+      p {
+        font-size: 0.85rem;
+        color: $color_text_muted;
+        line-height: 1.4;
+        overflow: hidden;
+      }
     }
   }
 }
@@ -88,15 +397,24 @@
   padding: 0;
 
   li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     padding: 12px 16px;
     border-radius: 8px;
-    /* color: $color_text_muted; */ //! 팀원들이랑 얘기해보기
+    color: $color_white;
     cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      transform 0.1s ease;
 
-    &.active {
-      background: $gradient_main;
-      color: $color_white;
-      font-weight: $font_weight_bold;
+    &:hover {
+      background: linear-gradient(90deg, $color_primary_dark 0%, #1f1b33 100%);
+    }
+
+    &:active {
+      background: linear-gradient(90deg, $color_primary_dark 0%, #100d1d 100%);
+      transform: scale(0.98);
     }
   }
 }
