@@ -6,6 +6,7 @@ import RecommendedCharacters from "@/components/home/RecommendedCharacters/Recom
 import QuickMenu from "@/components/home/QuickMenu/QuickMenu";
 import CategoryList from "@/components/home/CategoryList/CategoryList";
 import PopularStories from "@/components/home/PopularStories/PopularStories";
+import MobileNavigation from "@/components/layout/MobileNavigation/MobileNavigation";
 import styles from "./page.module.scss";
 
 const HomePage = () => {
@@ -80,6 +81,8 @@ const HomePage = () => {
           </div>
         </div>
       </main>
+
+      <MobileNavigation />
 
       <Footer />
     </>
