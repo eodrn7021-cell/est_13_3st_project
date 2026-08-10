@@ -4,6 +4,7 @@
   width: 100%;
   min-height: 100vh;
   background-color: colors.$color_background_deep;
+  overflow-x: clip;
 }
 
 .home_inner {

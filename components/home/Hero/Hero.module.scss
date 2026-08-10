@@ -14,7 +14,6 @@
 
 .hero_button {
   position: relative;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -83,18 +82,20 @@
 .hero_button_text {
   position: relative;
   z-index: 1;
-
   color: colors.$color_white;
   white-space: nowrap;
 }
 
 /* 태블릿 */
-@media (min-width: 481px) and (max-width: 1024px) {
+@media (min-width: 481px) and (max-width: 1200px) {
   .hero {
-    width: 100%;
+    width: 100dvw;
+    margin-left: calc(50% - 50vw);
     height: 260px;
     padding: 32px 50px;
+    max-width: none;
   }
+
   .hero_content {
     gap: 16px;
   }
@@ -103,10 +104,12 @@
 /* 모바일 */
 @media (max-width: 480px) {
   .hero {
-    width: 100%;
+    width: 100dvw;
+    margin-left: calc(50% - 50vw);
     height: 240px;
     padding: 28px 40px;
     background-position: 60% center;
+    max-width: none;
   }
 
   .hero_content {
