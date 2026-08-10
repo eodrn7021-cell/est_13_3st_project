@@ -4,7 +4,7 @@ import styles from "./RecommendedCharacterCard.module.scss";
 
 const RecommendedCharacterCard = ({ image, name, description, tags, isPriority = false }) => {
   return (
-    <article className={styles.card} tabIndex={0}>
+    <article className={styles.card}>
       {/* 캐릭터 이미지 */}
       <Image
         src={image}
@@ -28,7 +28,9 @@ const RecommendedCharacterCard = ({ image, name, description, tags, isPriority =
 
         <div className={styles.card_tags}>
           {tags.map((tag) => (
-            <Tag key={tag}>{tag}</Tag>
+            <Tag key={tag} className={styles.card_tag}>
+              {tag}
+            </Tag>
           ))}
         </div>
       </div>

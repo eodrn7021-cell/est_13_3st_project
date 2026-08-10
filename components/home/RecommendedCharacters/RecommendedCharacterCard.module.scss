@@ -26,17 +26,6 @@
   }
 }
 
-/* Tab 포커스 시 이미지 확대 */
-.card:focus-visible .card_image {
-  transform: scale(1.1);
-}
-
-/* Tab 포커스 테두리 */
-.card:focus-visible {
-  border-color: colors.$color_primary;
-  outline: none;
-}
-
 .card_overlay {
   position: absolute;
   inset: 0;
@@ -90,6 +79,15 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
+}
+
+.card_tag {
+  flex-shrink: 0;
+
+  &:focus-visible {
+    outline: none;
+    border-color: colors.$color_primary;
+  }
 }
 
 .card_tags {
