@@ -274,7 +274,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
                 className={`${sidebarStyles.sideButton} ${isAllCheckDone ? sidebarStyles.active : ""}`}
                 onClick={handleSaveClick}
               >
-                <span className="kr_body_b">저장후 이미지생성</span>
+                <span className="kr_body_b">저장 후 이미지생성</span>
               </button>
             </>
           }
