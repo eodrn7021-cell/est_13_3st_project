@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import styles from "./Button.module.scss";
 
 const Button = ({
@@ -11,6 +11,7 @@ const Button = ({
   fullWidth = false,
   className = "",
   onClick,
+  href,
 }) => {
   const ButtonClassName = [
     styles.button,
@@ -21,6 +22,14 @@ const Button = ({
   ]
     .filter(Boolean)
     .join(" ");
+
+  if (href) {
+    return (
+      <Link href={href} className={ButtonClassName}>
+        {children}
+      </Link>
+    );
+  }
 
   return (
     <button className={ButtonClassName} type={type} disabled={disabled} onClick={onClick}>

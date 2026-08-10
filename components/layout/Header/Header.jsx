@@ -33,11 +33,11 @@ const Header = ({ variant = "main", accountContent = null }) => {
             </div>
 
             <div className={styles.header_buttons}>
-              <Button variant="secondary" size="medium">
+              <Button href="/login" variant="secondary" size="medium">
                 <span className="kr_body">로그인</span>
               </Button>
 
-              <Button variant="primary" size="large">
+              <Button href="/signup" variant="primary" size="large">
                 <span className="kr_body">회원가입</span>
               </Button>
             </div>
