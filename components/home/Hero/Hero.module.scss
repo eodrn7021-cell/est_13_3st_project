@@ -1,15 +1,28 @@
 @use "../../../styles/abstracts/_colors.scss" as colors;
 
 .hero {
+  position: relative;
   width: 895px;
   max-width: 100%;
   height: 270px;
   padding: 32px 50px;
   color: colors.$color_white;
-  background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.7) 20%, rgba(0, 0, 0, 0) 100%),
-    url("/images/home/hero.webp") center / cover no-repeat;
+  overflow: hidden;
   box-sizing: border-box;
+}
+
+.hero_image {
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.hero_overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.7) 20%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
 }
 
 .hero_button {
@@ -50,6 +63,8 @@
 }
 
 .hero_content {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -108,8 +123,11 @@
     margin-left: calc(50% - 50vw);
     height: 240px;
     padding: 28px 40px;
-    background-position: 60% center;
     max-width: none;
+  }
+
+  .hero_image {
+    object-position: 60% center;
   }
 
   .hero_content {

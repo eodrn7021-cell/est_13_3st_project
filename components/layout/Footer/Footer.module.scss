@@ -30,12 +30,12 @@
 
 .footer_subtitle {
   margin: 0 0 10px;
-  color: colors.$color_primary;
+  color: colors.$color_white;
 }
 
 .footer_description {
   margin: 0 0 10px;
-  color: colors.$color_white;
+  color: colors.$color_secondary;
   line-height: 1.3;
 }
 
@@ -75,7 +75,7 @@
 
 .footer_menu_title {
   margin: 0 0 10px;
-  color: colors.$color_primary;
+  color: colors.$color_white;
 }
 
 .footer_menu_line {
@@ -90,14 +90,15 @@
   flex-direction: column;
   gap: 16px;
 
-  a {
+  a,
+  span {
     color: colors.$color_white;
     font-size: 12px;
     line-height: 1;
     text-decoration: none;
 
     &:hover {
-      color: colors.$color_primary;
+      color: colors.$color_secondary;
     }
   }
 }
@@ -159,7 +160,6 @@
 
   .footer_menu_links {
     gap: 14px;
-
     a {
       font-size: 11px;
       line-height: 1.2;

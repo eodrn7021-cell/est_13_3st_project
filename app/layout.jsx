@@ -43,18 +43,19 @@ const RootLayout = ({ children }) => {
       <head>
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
           precedence="default"
         />
-        {/* Google Material Icons Outlined (사용자가 지정한 Material Icons Outlined 폰트 셋) */}
+
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+          href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined&display=swap"
           precedence="default"
         />
+
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
           precedence="default"
         />
       </head>
