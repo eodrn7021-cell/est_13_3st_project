@@ -44,10 +44,6 @@
 
 /* 태블릿 */
 @media (min-width: 481px) and (max-width: 1200px) {
-  .home {
-    padding-bottom: 80px;
-  }
-
   .home_inner {
     display: block;
     width: 100%;
@@ -69,10 +65,6 @@
 
 /* 모바일 */
 @media (max-width: 480px) {
-  .home {
-    padding-bottom: 85px;
-  }
-
   .home_inner {
     display: block;
     width: 100%;
