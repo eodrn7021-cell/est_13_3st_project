@@ -16,7 +16,7 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
     {
       icon: "menu_book",
       label: "내 캐릭터 관리",
-      href: "/my-character",
+      href: "/my-characters",
     },
     {
       icon: "favorite",

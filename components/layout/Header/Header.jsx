@@ -4,12 +4,17 @@ import Button from "@/components/common/Button/Button";
 import SearchBar from "@/components/common/SearchBar/SearchBar";
 import styles from "./Header.module.scss";
 
-const Header = ({ variant = "main", accountContent = null }) => {
+const Header = ({ variant = "main", accountContent = null, onMenuClick }) => {
   return (
     <header className={styles.header}>
       <div className={styles.header_inner}>
         {/* 태블릿·모바일 햄버거 버튼 */}
-        <button className={styles.header_menu_button} type="button" aria-label="메뉴 열기">
+        <button
+          className={styles.header_menu_button}
+          type="button"
+          aria-label="메뉴 열기"
+          onClick={onMenuClick}
+        >
           <span
             className={`material-symbols-rounded icon_36 ${styles.header_menu_icon}`}
             aria-hidden="true"

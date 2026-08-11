@@ -7,6 +7,7 @@ import { useState } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Sidebar from "@/components/navigation/Sidebar";
+import MobileNavigation from "@/components/layout/MobileNavigation/MobileNavigation";
 
 import styles from "./my-characters.module.scss";
 
@@ -15,28 +16,28 @@ const characters = [
     id: 1,
     name: "은빛 성녀 엘리안느",
     description: "고요한 성역을 지키는 성녀. 당신의 운명에 신비로운 빛을 비춥니다.",
-    image: "/home/recommended-character-01.png",
+    image: "/images/home/recommended-character-01.png",
     tags: ["엘프", "성녀", "치유"],
   },
   {
     id: 2,
     name: "어둠의 왕자 카이론",
     description: "저주받은 왕국의 후계자. 그와 함께 진실을 파헤치고 운명을 바꾸세요.",
-    image: "/home/recommended-character-02.png",
+    image: "/images/home/recommended-character-02.png",
     tags: ["왕자", "암흑", "야망"],
   },
   {
     id: 3,
     name: "왕국의 후예 셀리아",
     description: "사라진 왕좌 계승자를 찾아 떠나는 여정. 당신의 선택이 역사를 만듭니다.",
-    image: "/home/recommended-character-03.png",
+    image: "/images/home/recommended-character-03.png",
     tags: ["기사", "왕국", "모험"],
   },
   {
     id: 4,
     name: "정복왕 바이올렛",
     description: "수많은 전장을 승리로 이끈 정복왕. 새로운 대륙과 운명을 당신의 손으로 개척합니다.",
-    image: "/home/recommended-character-03.png",
+    image: "/images/home/recommended-character-03.png",
     tags: ["기사", "왕국", "개척"],
   },
 ];
@@ -181,6 +182,7 @@ const MyCharactersPage = () => {
       </main>
 
       <Footer />
+      <MobileNavigation />
     </>
   );
 };

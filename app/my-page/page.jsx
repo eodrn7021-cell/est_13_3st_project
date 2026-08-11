@@ -7,13 +7,14 @@ import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Sidebar from "@/components/navigation/Sidebar";
+import MobileNavigation from "@/components/layout/MobileNavigation/MobileNavigation";
 
 import styles from "./my-page.module.scss";
 
 const recentCharacters = [
   {
     id: 1,
-    image: "/home/recommended-character-01.png",
+    image: "/images/home/recommended-character-01.png",
     status: "공개",
     name: "은빛 성녀 엘리안느",
     description: "고요한 성역을 지키는 성녀, 당신의 운명에 신비로운 빛을 비춥니다.",
@@ -21,7 +22,7 @@ const recentCharacters = [
   },
   {
     id: 2,
-    image: "/home/recommended-character-02.png",
+    image: "/images/home/recommended-character-02.png",
     status: "비공개",
     name: "어둠의 왕자 카이론",
     description: "저주받은 왕국의 후계자. 그와 함께 진실을 파헤치고 운명을 바꾸세요.",
@@ -29,7 +30,7 @@ const recentCharacters = [
   },
   {
     id: 3,
-    image: "/home/recommended-character-03.png",
+    image: "/images/home/recommended-character-03.png",
     status: "공개",
     name: "왕국의 후예 셀리아",
     description: "사라진 왕좌 계승자를 찾아 떠나는 여정. 당신의 선택이 역사를 만듭니다.",
@@ -42,7 +43,7 @@ const MyPage = () => {
 
   return (
     <div className={styles.page}>
-      {/* 기존 Header */}
+      {/* 공통 Header */}
       <Header onMenuClick={() => setSidebarOpen(true)} />
 
       {/* Sidebar */}
@@ -69,14 +70,16 @@ const MyPage = () => {
               </div>
             </div>
             <Link href="/characters/create" className={styles.createButton}>
-              <span className="material-symbols-rounded">add</span>
+              <span className="material-symbols-rounded" aria-hidden="true">
+                add
+              </span>
 
               <span>새로 만들기</span>
             </Link>
           </section>
 
           {/* 통계 */}
-          <section className={styles.stats}>
+          <section className={styles.stats} aria-label="마이페이지 통계">
             <div className={styles.statCard}>
               <h3>내 캐릭터</h3>
               <strong>10</strong>
@@ -95,17 +98,20 @@ const MyPage = () => {
 
           {/* 최근 생성 */}
           <section className={styles.recentSection}>
-            <h2>최근 생성한 작업물</h2>
+            <div className={styles.sectionTitle}>
+              <h2>최근 생성한 작업물</h2>
+            </div>
 
             <div className={styles.characterGrid}>
-              {characters.map((character) => (
+              {recentCharacters.map((character) => (
                 <article key={character.id} className={styles.characterCard}>
                   <div className={styles.imageWrapper}>
                     <Image
                       src={character.image}
                       alt={character.name}
                       fill
-                      sizes="(max-width: 480px) 90vw, (max-width: 768px) 42vw, 30vw"
+                      sizes="(max-width: 480px) 90vw, (max-width: 768px) 42vw, (max-width: 1200px) 30vw,
+                        280px"
                     />
 
                     <span className={styles.status}>{character.status}</span>
@@ -130,10 +136,12 @@ const MyPage = () => {
           {/* 페이지네이션 */}
           <div className={styles.pagination}>
             <button type="button" aria-label="이전 페이지">
-              <span className="material-symbols-rounded">chevron_left</span>
+              <span className="material-symbols-rounded" aria-hidden="true">
+                chevron_left
+              </span>
             </button>
 
-            <button type="button" className={styles.currentPage}>
+            <button type="button" className={styles.currentPage} aria-current="page">
               1
             </button>
 
@@ -142,7 +150,9 @@ const MyPage = () => {
             <button type="button">3</button>
 
             <button type="button" aria-label="다음 페이지">
-              <span className="material-symbols-rounded">chevron_right</span>
+              <span className="material-symbols-rounded" aria-hidden="true">
+                chevron_right
+              </span>
             </button>
           </div>
         </div>
@@ -150,6 +160,7 @@ const MyPage = () => {
 
       {/* 기존 Footer */}
       <Footer />
+      <MobileNavigation />
     </div>
   );
 };
