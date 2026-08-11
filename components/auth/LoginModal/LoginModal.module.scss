@@ -1,0 +1,141 @@
+@use "@/styles/abstracts/_colors.scss" as colors;
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modalContent {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background-color: colors.$color_background_surface;
+  border: 1px solid colors.$color_tag_stroke;
+  border-radius: 16px;
+  padding: 32px 28px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.closeButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  color: colors.$color_text_muted;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: color 0.2s, background-color 0.2s;
+
+  &:hover {
+    color: colors.$color_white;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.headerArea {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  h2 {
+    color: colors.$color_white;
+  }
+
+  p {
+    color: colors.$color_text_muted;
+  }
+}
+
+.errorAlert {
+  background-color: rgba(244, 119, 119, 0.15);
+  border: 1px solid colors.$color_highlight;
+  color: colors.$color_highlight;
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
+.formArea {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    color: colors.$color_text_muted;
+  }
+
+  input {
+    width: 100%;
+    height: 48px;
+    background-color: colors.$color_tag;
+    border: 1px solid colors.$color_tag_stroke;
+    border-radius: 8px;
+    padding: 0 16px;
+    color: colors.$color_white;
+    outline: none;
+    transition: border-color 0.2s;
+
+    &:focus {
+      border-color: colors.$color_primary;
+    }
+  }
+}
+
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  button[type="submit"] {
+    width: 100%;
+    height: 48px;
+  }
+}
+
+.demoButton {
+  background: transparent;
+  border: 1px dashed colors.$color_tag_stroke;
+  color: colors.$color_secondary_dark;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+
+  &:hover {
+    color: colors.$color_white;
+    border-color: colors.$color_primary;
+  }
+}

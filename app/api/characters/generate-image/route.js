@@ -23,6 +23,7 @@ export async function POST(request) {
     const { data: authData } = await supabase.auth.getUser();
     const realUserId = authData?.user?.id || null;
 
+    // 1. DB에서 캐릭터 및 세계관 정보 조회
     const { data: char, error: charErr } = await supabase
       .from("characters")
       .select("*, worlds(*)")
@@ -39,6 +40,7 @@ export async function POST(request) {
     let tempImageUrl = "";
     let lastErrorMsg = "";
 
+    // 2. OpenAI DALL-E 3 및 DALL-E 2 순차 시도
     if (apiKey) {
       const modelsToTry = ["dall-e-3", "dall-e-2"];
       for (const modelName of modelsToTry) {
@@ -64,7 +66,7 @@ export async function POST(request) {
             break;
           } else if (openaiData?.error?.message) {
             lastErrorMsg = openaiData.error.message;
-            console.warn(`OpenAI 재생성 모델 (${modelName}) 응답 에러:`, lastErrorMsg);
+            console.warn(`OpenAI 모델 (${modelName}) 응답 에러:`, lastErrorMsg);
           }
         } catch (err) {
           lastErrorMsg = err.message;
@@ -72,8 +74,9 @@ export async function POST(request) {
       }
     }
 
+    // 3. OpenAI 실패 시 무료 폴백 AI (Pollinations AI) 사용
     if (!tempImageUrl) {
-      console.warn("OpenAI 재생성 실패로 무료 AI 엔진 폴백 사용:", lastErrorMsg);
+      console.warn("OpenAI 사용 불가/실패로 무료 AI 엔진 폴백 사용:", lastErrorMsg);
       const encodedPrompt = encodeURIComponent(promptText);
       const seed = Math.floor(Math.random() * 1000000);
       tempImageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&seed=${seed}`;
@@ -81,6 +84,7 @@ export async function POST(request) {
 
     let publicUrl = tempImageUrl;
 
+    // 4. Supabase Storage (character-images 버킷) 업로드
     try {
       const imgFetchRes = await fetch(tempImageUrl);
       if (imgFetchRes.ok) {
@@ -106,9 +110,10 @@ export async function POST(request) {
         }
       }
     } catch (storageErr) {
-      console.warn("스토리지 업로드 중 오류 발생, 원본 URL 사용:", storageErr);
+      console.warn("스토리지 업로드 예외 발생, 생성된 URL 직연동:", storageErr);
     }
 
+    // 5. character_images 히스토리 DB 테이블에 인서트
     const insertPayload = {
       character_id: Number(characterId),
       image_url: publicUrl,
@@ -125,9 +130,9 @@ export async function POST(request) {
       .select();
 
     if (histErr) {
-      console.error("character_images 히스토리 저장 실패:", histErr.message);
+      console.error("character_images DB 인서트 실패:", histErr.message);
     } else {
-      console.log("character_images DB 저장 성공:", histRes);
+      console.log("character_images DB 인서트 성공:", histRes);
     }
 
     return NextResponse.json({
@@ -135,9 +140,9 @@ export async function POST(request) {
       imageUrl: publicUrl,
     });
   } catch (err) {
-    console.error("이미지 재생성 API 처리 중 예외 발생:", err);
+    console.error("이미지 생성 API 처리 중 예외 발생:", err);
     return NextResponse.json(
-      { error: "이미지 재생성 처리 중 예외가 발생했습니다." },
+      { error: "이미지 생성 처리 중 예외가 발생했습니다." },
       { status: 500 }
     );
   }

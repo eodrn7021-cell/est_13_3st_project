@@ -7,37 +7,46 @@ export async function POST(request) {
     const supabase = createClient();
     let insertedWorld = null;
 
-    // 1. 세계관(worlds) 테이블 데이터 저장
-    const { data: worldRes, error: worldError } = await supabase
-      .from("worlds")
-      .insert({
-        name: data.title || data.name || "무제 세계관",
-        theme: data.theme || "",
-        genre: data.genre || "",
-        myth_history: data.myth_history || null,
-        religion_culture: data.religion_culture || null,
-        social_structure: data.social_structure || null,
-        climate_landmarks: data.climate_landmarks || null,
-        resource_currency: data.resource_currency || null,
-      })
-      .select()
-      .single();
+    const userId = data.userId || "1d742f2b-17f7-436f-b0e2-fcc8e4957247";
+    let worldId = data.existingWorldId;
+    let isNewWorldCreated = false;
 
-    if (worldError) {
-      console.error("세계관 DB 저장 실패:", worldError);
-      return NextResponse.json(
-        { error: "세계관 저장 중 오류가 발생했습니다: " + worldError.message },
-        { status: 500 }
-      );
+    // 1. 기존 세계관 ID가 없는 경우에만 신규 세계관(worlds) 테이블 데이터 저장
+    if (!worldId) {
+      const { data: worldRes, error: worldError } = await supabase
+        .from("worlds")
+        .insert({
+          name: data.title || data.name || "무제 세계관",
+          theme: data.theme || "",
+          genre: data.genre || "",
+          myth_history: data.myth_history || null,
+          religion_culture: data.religion_culture || null,
+          social_structure: data.social_structure || null,
+          climate_landmarks: data.climate_landmarks || null,
+          resource_currency: data.resource_currency || null,
+          creator_id: userId,
+        })
+        .select()
+        .single();
+
+      if (worldError) {
+        console.error("세계관 DB 저장 실패:", worldError);
+        return NextResponse.json(
+          { error: "세계관 저장 중 오류가 발생했습니다: " + worldError.message },
+          { status: 500 }
+        );
+      }
+
+      worldId = worldRes.id;
+      isNewWorldCreated = true;
     }
-
-    insertedWorld = worldRes;
 
     // 2. 캐릭터(characters) 테이블 데이터 저장 (world_id 외래키 연동)
     const { data: insertedChar, error: charError } = await supabase
       .from("characters")
       .insert({
-        world_id: insertedWorld.id,
+        world_id: worldId,
+        creator_id: userId,
         name: data.name || "무제 캐릭터",
         race: data.race || null,
         gender: data.gender || null,
@@ -54,8 +63,10 @@ export async function POST(request) {
       .single();
 
     if (charError) {
-      console.error("캐릭터 DB 저장 실패. 세계관 롤백 실행:", charError);
-      await supabase.from("worlds").delete().eq("id", insertedWorld.id);
+      console.error("캐릭터 DB 저장 실패:", charError);
+      if (isNewWorldCreated) {
+        await supabase.from("worlds").delete().eq("id", worldId);
+      }
       return NextResponse.json(
         { error: "캐릭터 저장 중 오류가 발생하여 롤백되었습니다: " + charError.message },
         { status: 500 }

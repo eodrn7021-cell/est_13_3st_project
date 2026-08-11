@@ -13,6 +13,7 @@ export default function CharacterDetail({
   character,
   initialComments = [],
   onRegenerateImage,
+  onSaveImage,
   isRegenerating = false,
 }) {
   // 기본 더미 코멘트 (시안 참고)
@@ -43,14 +44,27 @@ export default function CharacterDetail({
     setNewContent("");
   };
 
-  const handleSaveImage = () => {
+  const handleSaveImage = async () => {
+    if (onSaveImage) {
+      onSaveImage();
+      return;
+    }
     if (!character?.image_url) return;
-    const link = document.createElement("a");
-    link.href = character.image_url;
-    link.download = `${character?.name || "character"}_image.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      const response = await fetch(character.image_url);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `${character?.name || "character"}_image.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.warn("이미지 다운로드 예외 발생, 새 창으로 열기:", err);
+      window.open(character.image_url, "_blank");
+    }
   };
 
   const name = character?.name || "은빛 성녀 엘리안느";
