@@ -272,6 +272,19 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   // '수정 정보 저장' 버튼 클릭 시 ➔ 캐릭터 DB 정보만 수정 저장
   const handleUpdateOnly = async () => {
     if (!isAllCheckDone || !selectedCharObj || isSubmitting) return;
+
+    // 이전 값과 비교하여 변경된 내용이 없는지 확인
+    const isFormChanged = Object.keys(formData).some(
+      (key) => formData[key] !== initialFormValues[key]
+    );
+
+    if (!isFormChanged) {
+      // 변경된 내용이 없으면 쓸데없는 DB API 호출 없이 바로 읽기 전용 모드로 복귀
+      setIsEditMode(false);
+      setIsReadOnlyChar(true);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
