@@ -1,8 +1,13 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import styles from "./login.module.scss";
 
 const LoginPage = () => {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <main
       className={styles.page}
@@ -57,13 +62,17 @@ const LoginPage = () => {
               <label htmlFor="password">비밀번호</label>
 
               <div className={styles.passwordField}>
-                <input id="password" type="password" placeholder="비밀번호를 입력해주세요" />
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="비밀번호를 입력해주세요"
+                />
 
                 <button
                   type="button"
                   className={styles.eyeButton}
                   aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setShowPassword((prev) => !prev)}
                 >
                   <span className="material-symbols-rounded">
                     {showPassword ? "visibility_off" : "visibility"}

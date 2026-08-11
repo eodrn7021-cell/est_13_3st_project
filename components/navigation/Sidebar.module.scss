@@ -1,0 +1,137 @@
+@use "@/styles/abstracts/colors" as *;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition: 0.3s;
+
+  z-index: 98;
+}
+
+.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sidebar {
+  position: fixed;
+
+  top: 80px;
+  left: -300px;
+
+  width: 260px;
+  height: calc(100vh - 100px);
+
+  padding: 20px;
+
+  background: rgba(23, 24, 38, 0.97);
+
+  border-radius: 18px;
+
+  transition: 0.35s;
+
+  z-index: 99;
+
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.open {
+  left: 20px;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+
+  height: 56px;
+
+  padding: 0 18px;
+
+  border-radius: 14px;
+
+  color: #fff;
+
+  transition: 0.2s;
+}
+
+.menu:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.active {
+  background: linear-gradient(90deg, #7d4cff, #5d34e6);
+}
+
+.menu span:first-child {
+  font-size: 24px;
+}
+
+.logout {
+  margin-top: auto;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 16px;
+
+  height: 56px;
+
+  padding: 0 18px;
+
+  background: none;
+
+  border: none;
+
+  color: #ff7b7b;
+
+  cursor: pointer;
+
+  font-size: 16px;
+}
+
+.logout:hover {
+  background: rgba(255, 255, 255, 0.05);
+
+  border-radius: 14px;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    top: 72px;
+
+    width: 240px;
+
+    height: calc(100vh - 90px);
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    top: 68px;
+
+    width: 220px;
+
+    left: -240px;
+  }
+
+  .open {
+    left: 0;
+
+    border-radius: 0 18px 18px 0;
+  }
+}
