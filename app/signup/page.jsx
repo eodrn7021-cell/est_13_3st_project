@@ -1,8 +1,15 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import AuthInput from "../../components/form/AuthInput/AuthInput";
 import styles from "./signup.module.scss";
 
 const SignupPage = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
     <main
       className={styles.page}
@@ -18,26 +25,28 @@ const SignupPage = () => {
       <div className={styles.container}>
         {/* Left */}
         <section className={styles.left}>
-          <Image
-            src="/images/icons/logo.png"
-            alt="VisuLore"
-            width={190}
-            height={58}
-            priority
-            className={styles.logo}
-          />
+          <Link href="/" className={styles.brand}>
+            <Image
+              src="/images/icons/logo.png"
+              alt="VisuLore"
+              width={48}
+              height={48}
+              priority
+              className={styles.logo}
+            />
 
-          <h1 className={styles.title}>
-            새로운 세계의 시작,
-            <br />
-            지금 함께하세요.
-          </h1>
+            <span className={styles.brandText}>VisuLore</span>
+          </Link>
 
-          <p className={styles.description}>
-            VisuLore와 함께
-            <br />
-            당신만의 세계를 창조해보세요.
-          </p>
+          <div className={styles.intro}>
+            <h1 className={styles.title}>
+              새로운 세계의 시작,
+              <br />
+              지금 함께하세요.
+            </h1>
+
+            <p className={styles.description}>VisuLore와 함께 당신만의 세계를 창조해보세요.</p>
+          </div>
         </section>
 
         {/* Right */}
@@ -47,55 +56,67 @@ const SignupPage = () => {
           <p className={styles.cardSub}>새로운 계정을 만들어 VisuLore를 시작해보세요.</p>
 
           <form className={styles.form}>
-            {/* 이메일 */}
-            <div className={styles.inputGroup}>
-              <label htmlFor="email">이메일</label>
-
-              <input id="email" type="email" placeholder="이메일을 입력해주세요" />
-            </div>
-
             {/* 닉네임 */}
-            <div className={styles.inputGroup}>
-              <label htmlFor="nickname">닉네임</label>
+            <AuthInput
+              label="닉네임"
+              name="nickname"
+              type="text"
+              placeholder="닉네임을 입력해주세요"
+              icon={<span className="material-symbols-rounded">person</span>}
+            />
 
-              <input id="nickname" type="text" placeholder="닉네임을 입력해주세요" />
-            </div>
+            {/* 이메일 */}
+            <AuthInput
+              label="이메일"
+              name="email"
+              type="email"
+              placeholder="이메일을 입력해주세요"
+              icon={<span className="material-symbols-rounded">email</span>}
+            />
 
             {/* 비밀번호 */}
-            <div className={styles.inputGroup}>
-              <label htmlFor="password">비밀번호</label>
-
-              <div className={styles.passwordField}>
-                <input id="password" type="password" placeholder="비밀번호를 입력해주세요" />
-
-                <button type="button" className={styles.eyeButton} aria-label="비밀번호 보기">
-                  <span className="material-symbols-rounded">visibility</span>
-                </button>
-              </div>
-            </div>
+            <AuthInput
+              label="비밀번호"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="비밀번호를 입력해주세요"
+            >
+              <button
+                type="button"
+                className={styles.eyeButton}
+                aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                <span className="material-symbols-rounded">
+                  {showPassword ? "visibility_off" : "visibility"}
+                </span>
+              </button>
+            </AuthInput>
 
             {/* 비밀번호 확인 */}
-            <div className={styles.inputGroup}>
-              <label htmlFor="confirmPassword">비밀번호 확인</label>
-
-              <div className={styles.passwordField}>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="비밀번호를 다시 입력해주세요"
-                />
-
-                <button type="button" className={styles.eyeButton} aria-label="비밀번호 보기">
-                  <span className="material-symbols-rounded">visibility</span>
-                </button>
-              </div>
-            </div>
+            <AuthInput
+              label="비밀번호 확인"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="비밀번호를 다시 입력해주세요"
+            >
+              <button
+                type="button"
+                className={styles.eyeButton}
+                aria-label={showConfirmPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+              >
+                <span className="material-symbols-rounded">
+                  {showConfirmPassword ? "visibility_off" : "visibility"}
+                </span>
+              </button>
+            </AuthInput>
 
             {/* 이용약관 */}
             <label htmlFor="agreement" className={styles.checkbox}>
               <input id="agreement" type="checkbox" />
 
-              <span>개인정보 처리방침 및 이용약관에 동의합니다.</span>
+              <span>이용약관 및 개인정보처리방침에 동의합니다.</span>
             </label>
 
             {/* 회원가입 버튼 */}
@@ -116,7 +137,8 @@ const SignupPage = () => {
               width={20}
               height={20}
             />
-            Google로 가입하기
+
+            <span>Google로 계속하기</span>
           </button>
 
           <p className={styles.login}>

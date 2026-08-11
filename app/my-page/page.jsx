@@ -4,8 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import Header from "@/components/layout/Header/Header";
+import Footer from "@/components/layout/Footer/Footer";
 import Sidebar from "@/components/navigation/Sidebar";
 import MobileNavigation from "@/components/layout/MobileNavigation/MobileNavigation";
 
