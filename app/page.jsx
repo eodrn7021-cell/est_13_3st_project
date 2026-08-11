@@ -6,6 +6,7 @@ import RecommendedCharacters from "@/components/home/RecommendedCharacters/Recom
 import QuickMenu from "@/components/home/QuickMenu/QuickMenu";
 import CategoryList from "@/components/home/CategoryList/CategoryList";
 import PopularStories from "@/components/home/PopularStories/PopularStories";
+import MobileNavigation from "@/components/layout/MobileNavigation/MobileNavigation";
 import styles from "./page.module.scss";
 
 const HomePage = () => {
@@ -17,7 +18,9 @@ const HomePage = () => {
         {/* 사이드바 + 메인 콘텐츠 */}
         <div className={styles.home_inner}>
           {/* PC 사이드바 */}
-          <HomeSidebar />
+          <div className={styles.home_sidebar_wrapper}>
+            <HomeSidebar />
+          </div>
 
           {/* 메인 콘텐츠 */}
           <div className={styles.home_content}>
@@ -76,6 +79,8 @@ const HomePage = () => {
           </div>
         </div>
       </main>
+
+      <MobileNavigation />
 
       <Footer />
     </>
