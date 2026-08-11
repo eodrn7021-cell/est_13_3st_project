@@ -28,7 +28,7 @@ const SignupPage = () => {
           <Link href="/" className={styles.brand}>
             <Image
               src="/images/icons/logo.png"
-              alt="VisuLore"
+              alt="VisuLore 로고"
               width={48}
               height={48}
               priority
