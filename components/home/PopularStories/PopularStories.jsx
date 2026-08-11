@@ -7,28 +7,28 @@ import styles from "./PopularStories.module.scss";
 const popularStories = [
   {
     id: 1,
-    image: "/images/home/popular-story-neon-shadow.png",
+    image: "/images/home/popular-story-neon-shadow.webp",
     title: "네온 사이의 그림자",
     description: "진실은 언제나 빛 뒤에 숨어 있다.",
     tags: ["현대", "스릴러"],
   },
   {
     id: 2,
-    image: "/images/home/popular-story-promise.png",
+    image: "/images/home/popular-story-promise.webp",
     title: "그날의 약속",
     description: "시간이 흘러도, 마음은 기억한다.",
     tags: ["로맨스", "드라마"],
   },
   {
     id: 3,
-    image: "/images/home/popular-story-star-records.png",
+    image: "/images/home/popular-story-star-records.webp",
     title: "별의 기록자들",
     description: "우주 끝에서 마주한 잊힌 약속.",
     tags: ["SF", "모험"],
   },
   {
     id: 4,
-    image: "/images/home/popular-story-last-prayer.png",
+    image: "/images/home/popular-story-last-prayer.webp",
     title: "성역의 마지막 기도",
     description: "빛이 꺼져가는 순간, 기억이 시작된다.",
     tags: ["판타지", "성장형"],
