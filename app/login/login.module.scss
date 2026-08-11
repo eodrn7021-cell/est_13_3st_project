@@ -176,6 +176,11 @@
     background: transparent;
     cursor: pointer;
 
+    &:focus-visible {
+      outline: 2px solid colors.$color_white;
+      outline-offset: 3px;
+    }
+
     &:checked {
       border-color: colors.$color_primary;
       background: colors.$color_primary;
@@ -205,6 +210,12 @@
 
   &:hover {
     color: colors.$color_primary_dark;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 4px;
+    border-radius: 4px;
   }
 }
 
@@ -257,6 +268,12 @@
     &:hover {
       color: colors.$color_primary_dark;
     }
+
+    &:focus-visible {
+      outline: 2px solid colors.$color_primary;
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
   }
 }
 
@@ -280,6 +297,12 @@
 
   &:hover {
     color: colors.$color_white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 4px;
+    border-radius: 4px;
   }
 
   span {
