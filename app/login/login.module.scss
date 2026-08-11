@@ -1,813 +1,422 @@
-@use "../../styles/abstracts/colors" as *;
-@use "../../styles/abstracts/variables" as *;
+@use "../../styles/abstracts/colors" as colors;
+@use "../../styles/abstracts/variables" as variables;
 
-/* ========================================
-   Page
-======================================== */
-
+// Page
 .page {
   position: relative;
-
   min-height: 100vh;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  padding: 48px;
-
-  overflow: hidden;
+  padding: 40px;
+  overflow-x: hidden;
+  background-image: url("/images/backgrounds/fantasy-space.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: colors.$color_white;
 }
-
-/* ========================================
-   Background Overlay
-======================================== */
 
 .overlay {
   position: absolute;
-
   inset: 0;
-
   background: rgba(8, 10, 25, 0.52);
-
-  backdrop-filter: blur(2px);
 }
-
-/* ========================================
-   전체 레이아웃
-======================================== */
 
 .container {
   position: relative;
-
-  z-index: 2;
-
-  width: 100%;
-  max-width: 1260px;
-
-  display: grid;
-
-  grid-template-columns: 650px 500px;
-
+  z-index: 1;
+  display: flex;
   align-items: center;
-
-  gap: 110px;
+  width: 100%;
+  max-width: 1282px;
+  gap: clamp(80px, 16vw, 306px);
 }
 
-/* ========================================
-   왼쪽 영역
-======================================== */
-
+// Left
 .left {
+  flex: 1;
   display: flex;
   flex-direction: column;
-
   align-items: flex-start;
-
-  transform: translateY(-130px);
+  transform: translateY(-30px);
 }
-
-/* ========================================
-   Logo / Brand
-======================================== */
 
 .brand {
   display: inline-flex;
-
   align-items: center;
-
   gap: 10px;
-
-  width: fit-content;
-
-  margin-bottom: 135px;
-
-  color: $color_white;
-
+  margin-bottom: 50px;
+  color: colors.$color_white;
   text-decoration: none;
 }
 
 .logo {
   width: 48px;
   height: 48px;
-
-  object-fit: contain;
-
   flex-shrink: 0;
+  object-fit: contain;
 }
 
-.brandText {
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
+.brand_text {
+  color: colors.$color_white;
+  font-family: variables.$font_family_en;
   font-size: 32px;
-
-  font-weight: 400;
-
+  font-weight: variables.$font_weight_regular;
   line-height: 1;
 }
 
-/* ========================================
-   소개 문구
-======================================== */
-
 .intro {
   display: flex;
-
   flex-direction: column;
-
   align-items: flex-start;
 }
 
 .title {
-  margin: 0 0 24px;
-
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
+  margin: 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
   font-size: 32px;
+  font-weight: variables.$font_weight_bold;
+  line-height: 1.25;
+}
 
-  font-weight: $font_weight_bold;
-
-  line-height: 1.4;
-
-  letter-spacing: -0.02em;
+.title_break {
+  display: block;
 }
 
 .description {
-  margin: 0;
-
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 20px;
-
-  font-weight: 400;
-
-  line-height: 1.7;
-}
-
-/* ========================================
-   로그인 카드
-======================================== */
-
-.card {
-  width: 100%;
-
-  box-sizing: border-box;
-
-  padding: 52px 54px;
-
-  background: rgba(25, 28, 43, 0.72);
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  border-radius: 30px;
-
-  backdrop-filter: blur(22px);
-
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
-}
-
-/* ========================================
-   카드 제목
-======================================== */
-
-.cardHeader {
-  text-align: left;
-}
-
-.cardTitle {
-  margin: 0 0 8px;
-
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 32px;
-
-  font-weight: $font_weight_bold;
-
-  line-height: 1.3;
-}
-
-.cardSub {
-  margin: 0 0 34px;
-
-  color: $color_secondary_dark;
-
-  font-family: $font_family_kr;
-
+  display: flex;
+  align-items: baseline;
+  margin: 14px 0 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
   font-size: 16px;
-
-  font-weight: 400;
-
+  font-weight: variables.$font_weight_regular;
   line-height: 1.5;
-}
-
-/* ========================================
-   Form
-======================================== */
-
-.form {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 20px;
-}
-
-/* ========================================
-   로그인 옵션
-======================================== */
-
-.optionRow {
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  width: 100%;
-
-  margin-top: -2px;
-}
-
-/* ========================================
-   Checkbox
-======================================== */
-
-.checkbox {
-  display: flex;
-
-  align-items: center;
-
-  gap: 8px;
-
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 16px;
-
-  font-weight: 400;
-
-  line-height: 1;
-
-  cursor: pointer;
-}
-
-.checkbox input {
-  appearance: none;
-  -webkit-appearance: none;
-
-  width: 20px;
-  height: 20px;
-
-  margin: 0;
-
-  flex-shrink: 0;
-
-  border: 2px solid $color_primary;
-
-  border-radius: 4px;
-
-  background: transparent;
-
-  cursor: pointer;
-
-  position: relative;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.checkbox input:checked {
-  background: $color_primary;
-
-  border-color: $color_primary;
-}
-
-.checkbox input:checked::after {
-  content: "";
-
-  position: absolute;
-
-  left: 5px;
-  top: 2px;
-
-  width: 6px;
-  height: 10px;
-
-  border: solid $color_white;
-
-  border-width: 0 2px 2px 0;
-
-  transform: rotate(45deg);
-}
-
-/* ========================================
-   비밀번호 찾기
-======================================== */
-
-.findPassword {
-  color: #865ef4;
-
-  font-family: $font_family_kr;
-
-  font-size: 16px;
-
-  font-weight: $font_weight_bold;
-
-  text-decoration: none;
-
-  transition: opacity 0.2s ease;
-}
-
-.findPassword:hover {
-  opacity: 0.8;
-}
-
-/* ========================================
-   로그인 버튼
-======================================== */
-
-.loginButton {
-  width: 100%;
-  height: 56px;
-
-  margin-top: 2px;
-
-  border: none;
-
-  border-radius: 14px;
-
-  background: $color_primary;
-
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 16px;
-
-  font-weight: $font_weight_bold;
-
-  cursor: pointer;
-
-  transition:
-    background 0.25s ease,
-    transform 0.2s ease;
-}
-
-.loginButton:hover {
-  background: $color_primary_dark;
-}
-
-/* ========================================
-   구분선
-======================================== */
-
-.divider {
-  display: flex;
-
-  align-items: center;
-
-  gap: 14px;
-
-  width: 100%;
-
-  margin: 26px 0 18px;
-
-  color: $color_secondary_dark;
-
-  font-family: $font_family_kr;
-
-  font-size: 14px;
-
-  font-weight: 400;
-
   white-space: nowrap;
 }
 
-.divider::before,
-.divider::after {
-  content: "";
-
-  flex: 1;
-
-  height: 1px;
-
-  background: rgba(255, 255, 255, 0.35);
+.description_en {
+  font-family: variables.$font_family_en;
+  position: relative;
+  top: -2px;
 }
 
-/* ========================================
-   Google 버튼
-======================================== */
+// Login Card
+.card {
+  flex-shrink: 0;
+  width: 488px;
+  box-sizing: border-box;
+  padding: 44px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  background: colors.$color_input_70;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
 
-.googleButton {
-  width: 100%;
-  height: 56px;
+.card_header {
+  margin-bottom: 20px;
+}
 
-  display: flex;
+.card_title {
+  margin: 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 32px;
+  font-weight: variables.$font_weight_bold;
+  line-height: 1.25;
+}
 
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 12px;
-
-  padding: 0;
-
-  border: 1px solid #ffffff;
-
-  border-radius: 14px;
-
-  background: #ffffff;
-
-  color: #111111;
-
-  font-family: $font_family_kr;
-
+.card_sub {
+  margin: 10px 0 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
   font-size: 16px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
 
-  font-weight: $font_weight_bold;
+// Form
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.option_row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_regular;
 
   cursor: pointer;
 
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+  input {
+    appearance: none;
+    -webkit-appearance: none;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+
+    &:checked {
+      border-color: colors.$color_primary;
+      background: colors.$color_primary;
+    }
+
+    &:checked::after {
+      content: "";
+
+      position: absolute;
+      top: 2px;
+      left: 6px;
+      width: 5px;
+      height: 10px;
+      border: solid colors.$color_white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+  }
 }
 
-.googleButton img {
-  width: 20px;
-  height: 20px;
+.find_password {
+  color: colors.$color_primary;
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_bold;
+  text-decoration: none;
 
+  &:hover {
+    color: colors.$color_primary_dark;
+  }
+}
+
+// Divider
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin: 20px 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 14px;
+  font-weight: variables.$font_weight_regular;
+  white-space: nowrap;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.35);
+  }
+}
+
+// Google
+.google_icon {
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
 }
 
-.googleButton:hover {
-  background: #f5f5f5;
-}
-
-/* ========================================
-   회원가입
-======================================== */
-
+// Signup
 .signup {
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   gap: 8px;
-
-  margin: 24px 0 0;
-
-  color: $color_secondary_dark;
-
-  font-family: $font_family_kr;
-
+  margin: 20px 0 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
   font-size: 14px;
+  font-weight: variables.$font_weight_regular;
 
-  font-weight: 400;
+  a {
+    color: colors.$color_primary;
+    font-weight: variables.$font_weight_bold;
+    text-decoration: none;
 
-  line-height: 1.5;
+    &:hover {
+      color: colors.$color_primary_dark;
+    }
+  }
 }
 
-.signup a {
-  color: #865ef4;
-
-  font-size: 16px;
-
-  font-weight: $font_weight_bold;
-
-  text-decoration: none;
-}
-
-/* ========================================
-   비밀번호 보기 버튼
-======================================== */
-
-.eyeButton {
+// Password Eye
+.eye_button {
   position: absolute;
-
   top: 50%;
   right: 12px;
-
-  width: 36px;
-  height: 36px;
-
   display: flex;
-
   align-items: center;
   justify-content: center;
-
+  width: 36px;
+  height: 36px;
   padding: 0;
-
+  border: 0;
   transform: translateY(-50%);
-
   background: transparent;
-
-  border: none;
-
-  color: rgba(255, 255, 255, 0.65);
+  color: colors.$color_secondary_dark;
 
   cursor: pointer;
 
-  transition: color 0.2s ease;
+  &:hover {
+    color: colors.$color_white;
+  }
+
+  span {
+    font-size: 24px;
+  }
 }
 
-.eyeButton .material-symbols-rounded {
-  font-size: 22px;
-
-  line-height: 1;
-
-  font-variation-settings:
-    "FILL" 0,
-    "wght" 400,
-    "GRAD" 0,
-    "opsz" 24;
-}
-
-.eyeButton:hover {
-  color: $color_white;
-}
-
-/* ========================================
-   Tablet
-   768px
-======================================== */
-
+// Tablet
 @media (max-width: 960px) {
   .page {
-    min-height: 100vh;
-
-    padding: 48px 40px;
+    align-items: flex-start;
+    padding: 20px 40px;
   }
 
   .container {
-    max-width: 510px;
-
-    display: flex;
-
+    max-width: 509px;
     flex-direction: column;
-
     align-items: center;
-
-    gap: 42px;
+    gap: 0;
   }
 
   .left {
     width: 100%;
-
-    align-items: flex-start;
-
+    align-items: center;
     text-align: center;
-
     transform: none;
   }
 
   .brand {
-    display: inline-flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-    width: fit-content;
-
-    margin-bottom: 135px;
-
-    color: $color_white;
-
-    text-decoration: none;
+    margin-bottom: 36px;
+    transform: translateX(-4px);
   }
 
-  .logo {
-    width: 48px;
-    height: 48px;
-
-    object-fit: contain;
-
-    flex-shrink: 0;
-  }
-
-  .brandText {
-    color: $color_white;
-
-    font-family: $font_family_kr;
-
-    font-size: 32px;
-
-    font-weight: 400;
-
-    line-height: 1;
+  .brand_text {
+    font-size: 24px;
   }
 
   .intro {
     width: 100%;
-
     align-items: center;
-
+    margin-bottom: 24px;
     text-align: center;
   }
 
   .title {
-    width: 100%;
-
     font-size: 24px;
+    white-space: nowrap;
+  }
 
-    line-height: 1.45;
-
-    margin-bottom: 12px;
-
-    text-align: center;
+  .title_break {
+    display: none;
   }
 
   .description {
-    width: 100%;
-
-    font-size: 12px;
-
-    line-height: 1.7;
-
-    text-align: center;
+    margin-top: 14px;
   }
 
   .card {
-    width: 100%;
-
-    padding: 42px 54px;
-
-    border-radius: 28px;
+    width: 509px;
+    padding: 40px 30px;
   }
 
-  .cardTitle {
+  .card_title {
     font-size: 24px;
-  }
-
-  .cardSub {
-    font-size: 12px;
-
-    margin-bottom: 28px;
-  }
-
-  .form {
-    gap: 18px;
-  }
-
-  .optionRow {
-    margin-top: 0;
-  }
-
-  .checkbox {
-    font-size: 16px;
-  }
-
-  .findPassword {
-    font-size: 16px;
-  }
-
-  .divider {
-    margin-top: 24px;
-
-    font-size: 12px;
-  }
-
-  .signup {
-    font-size: 14px;
-  }
-
-  .signup a {
-    font-size: 16px;
   }
 }
 
-/* ========================================
-   Mobile
-   480px
-======================================== */
-
+// Mobile
 @media (max-width: 600px) {
   .page {
-    padding: 32px 40px;
-
-    align-items: flex-start;
+    padding: 32px clamp(20px, 8vw, 40px);
   }
 
   .container {
     width: 100%;
-
     max-width: 400px;
-
-    gap: 32px;
   }
 
   .brand {
-    margin-bottom: 32px;
-
-    gap: 8px;
+    margin-bottom: 50px;
   }
 
-  .logo {
-    width: 48px;
-    height: 48px;
-  }
-
-  .brandText {
+  .brand_text {
     font-size: 20px;
   }
 
   .title {
     font-size: 20px;
-
-    line-height: 1.45;
-
-    margin-bottom: 10px;
+    white-space: nowrap;
   }
 
   .description {
-    font-size: 12px;
+    margin-top: 14px;
+    font-size: 14px;
+  }
 
-    line-height: 1.6;
+  .intro {
+    margin-bottom: 40px;
   }
 
   .card {
     width: 100%;
-
-    padding: 34px 20px;
-
-    border-radius: 24px;
+    padding: 52px 30px;
   }
 
-  .cardTitle {
-    font-size: 24px;
+  .card_title {
+    font-size: 20px;
   }
 
-  .cardSub {
-    font-size: 12px;
-
-    margin-bottom: 28px;
-  }
-
-  .form {
-    gap: 18px;
-  }
-
-  .optionRow {
-    gap: 12px;
-  }
-
-  .checkbox {
-    font-size: 16px;
-
-    gap: 8px;
-  }
-
-  .checkbox input {
-    width: 20px;
-    height: 20px;
-  }
-
-  .findPassword {
-    font-size: 16px;
-
-    white-space: nowrap;
-  }
-
-  .loginButton {
-    height: 56px;
-
-    font-size: 16px;
-  }
-
-  .divider {
-    gap: 10px;
-
-    margin: 22px 0 16px;
-
-    font-size: 12px;
-  }
-
-  .googleButton {
-    height: 56px;
-
-    font-size: 16px;
-  }
-
-  .signup {
-    margin-top: 22px;
-
+  .card_sub {
     font-size: 14px;
   }
 
-  .signup a {
-    font-size: 16px;
+  .checkbox,
+  .find_password {
+    font-size: 14px;
+  }
+
+  .checkbox input {
+    width: 18px;
+    height: 18px;
+  }
+
+  .divider {
+    font-size: 14px;
+  }
+
+  .signup {
+    font-size: 14px;
+  }
+
+  .eye_button {
+    width: 32px;
+    height: 32px;
+
+    span {
+      font-size: 20px;
+    }
   }
 }
