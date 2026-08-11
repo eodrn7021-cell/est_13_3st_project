@@ -61,7 +61,9 @@
   border: 1px solid colors.$color_secondary_dark;
   border-radius: 12px;
   color: colors.$color_white;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   overflow: hidden;
 
   &:hover:not(.disabled) {

@@ -1,0 +1,33 @@
+@use "../../../styles/abstracts/colors" as *;
+@use "../../../styles/abstracts/variables" as *;
+
+.button {
+  width: 100%;
+  height: 56px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: none;
+  border-radius: 14px;
+
+  background: $color_primary;
+  color: $color_white;
+
+  font-family: $font_family_kr;
+  font-size: 16px;
+  font-weight: $font_weight_medium;
+
+  cursor: pointer;
+  transition: 0.25s ease;
+
+  &:hover {
+    background: $color_primary_dark;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
