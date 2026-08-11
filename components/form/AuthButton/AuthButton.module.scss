@@ -1,33 +1,64 @@
-@use "../../../styles/abstracts/colors" as *;
-@use "../../../styles/abstracts/variables" as *;
+@use "../../../styles/abstracts/colors" as colors;
+@use "../../../styles/abstracts/variables" as variables;
 
 .button {
   width: 100%;
-  height: 56px;
-
-  display: flex;
-  justify-content: center;
+  height: 60px;
+  display: inline-flex;
   align-items: center;
-
-  border: none;
-  border-radius: 14px;
-
-  background: $color_primary;
-  color: $color_white;
-
-  font-family: $font_family_kr;
-  font-size: 16px;
-  font-weight: $font_weight_medium;
+  justify-content: center;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  font-family: variables.$font_family_kr;
 
   cursor: pointer;
-  transition: 0.25s ease;
-
-  &:hover {
-    background: $color_primary_dark;
-  }
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+}
+
+// 로그인 버튼
+.button_primary {
+  background: colors.$color_primary;
+  color: colors.$color_white;
+
+  // Card Title
+  font-size: 16px;
+  font-weight: variables.$font_weight_regular;
+
+  &:hover:not(:disabled) {
+    background: colors.$color_primary_dark;
+  }
+}
+
+// Google 버튼
+.button_google {
+  background: colors.$color_white;
+  color: colors.$color_black;
+  font-size: 16px;
+  font-weight: variables.$font_weight_bold;
+
+  &:hover:not(:disabled) {
+    background: colors.$color_primary_dark;
+    color: colors.$color_white;
+  }
+}
+
+// Mobile
+@media (max-width: 600px) {
+  .button {
+    height: 40px;
+  }
+
+  .button_primary,
+  .button_google {
+    font-size: 14px;
   }
 }

@@ -1,5 +1,5 @@
-@use "../../../styles/abstracts/_colors.scss" as colors;
-@use "../../../styles/abstracts/_variables.scss" as variables;
+@use "../../../styles/abstracts/colors" as colors;
+@use "../../../styles/abstracts/variables" as variables;
 
 .wrapper {
   width: 100%;
@@ -8,59 +8,45 @@
 .label {
   display: block;
   margin-bottom: 10px;
-
   color: colors.$color_white;
-
+  font-family: variables.$font_family_kr;
   font-size: 16px;
-  font-weight: 400;
-
-  line-height: 1.5;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
 }
 
 .inputBox {
   position: relative;
-
   display: flex;
   align-items: center;
-
   width: 100%;
-
-  overflow: visible;
 }
 
 .input {
   width: 100%;
-  height: 56px;
-
+  height: 60px;
   padding: 0 48px 0 20px;
-
   box-sizing: border-box;
-
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 14px;
-
-  background: rgba(25, 28, 43, 0.7);
-
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background: colors.$color_input_70;
   color: colors.$color_white;
-
+  font-family: variables.$font_family_kr;
   font-size: 16px;
-
-  line-height: 1;
-
+  font-weight: variables.$font_weight_regular;
+  outline: none;
   transition:
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &::placeholder {
     color: colors.$color_secondary_dark;
+    opacity: 1;
   }
 
   &:focus {
     border-color: colors.$color_primary;
-
-    box-shadow: 0 0 0 4px rgba(134, 94, 244, 0.15);
-
-    outline: none;
+    box-shadow: 0 0 0 3px rgba(134, 94, 244, 0.18);
   }
 
   &:disabled {
@@ -69,41 +55,18 @@
   }
 }
 
-.icon {
-  position: absolute;
-
-  right: 18px;
-  top: 50%;
-
-  transform: translateY(-50%);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: colors.$color_white;
-
-  pointer-events: none;
-}
-
-.icon .material-symbols-rounded {
-  font-size: 22px;
-}
-
 @media (max-width: 600px) {
   .input {
-    font-size: 12px;
+    height: 40px;
+    padding-left: 14px;
+    font-size: 14px;
 
     &::placeholder {
-      font-size: 12px;
-
-      color: #b0b3bc;
-
-      opacity: 1;
+      font-size: 14px;
     }
   }
 
   .label {
-    font-size: 16px;
+    font-size: 14px;
   }
 }
