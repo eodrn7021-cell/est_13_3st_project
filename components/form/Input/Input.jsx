@@ -2,51 +2,9 @@
 
 import styles from "./Input.module.scss";
 
-const Input = ({
-  label,
-  type = "text",
-  placeholder,
-  name,
-  value,
-  onChange,
-  icon,
-  children,
-  className = "",
-  ...props
-}) => {
-  return (
-    <div className={`${styles.wrapper} ${className}`}>
-      {label && <label className={styles.label}>{label}</label>}
-
-      <div className={styles.inputBox}>
-        <input
-          className={styles.input}
-          type={type}
-          placeholder={placeholder}
-          name={name}
-          value={value}
-          onChange={onChange}
-          {...props}
-        />
-
-        {icon && <span className={styles.icon}>{icon}</span>}
-
-        {children}
-      </div>
-    </div>
-  );
-};
-
-export default Input;
 function EditNoteIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      width="36"
-      height="36"
-      aria-hidden="true"
-    >
+    <svg viewBox="0 0 24 24" fill="currentColor" width="36" height="36" aria-hidden="true">
       <path d="M3 10h11v2H3zm0-4h11v2H3zm0 8h7v2H3zm15.01-3.13l1.41-1.41c.39-.39 1.02-.39 1.41 0l.71.71c.39.39.39 1.02 0 1.41l-1.41 1.41-2.12-2.12zm-.71.71l-5.3 5.3V18h2.12l5.3-5.3-2.12-2.12z" />
     </svg>
   );
@@ -71,9 +29,7 @@ export default function Input({
     if (!icon || icon === "edit_note") return <EditNoteIcon />;
     if (typeof icon === "string") {
       return (
-        <span className={`material-symbols-outlined icon_36 ${styles.materialIcon}`}>
-          {icon}
-        </span>
+        <span className={`material-symbols-outlined icon_36 ${styles.materialIcon}`}>{icon}</span>
       );
     }
     return icon;

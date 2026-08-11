@@ -76,6 +76,8 @@ const HomePage = () => {
             </section>
 
             <CategoryList />
+
+            <PopularStories />
           </div>
         </div>
       </main>
