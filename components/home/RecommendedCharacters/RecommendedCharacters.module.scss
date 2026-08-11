@@ -70,36 +70,3 @@
     display: none;
   }
 }
-
-/* 모바일 */
-@media (max-width: 480px) {
-  .recommended {
-    width: 100%;
-  }
-
-  .recommended_list {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 100%;
-    width: 100%;
-    gap: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-
-    > * {
-      scroll-snap-align: start;
-      scroll-snap-stop: always;
-    }
-  }
-
-  .recommended_slider {
-    margin-top: 10px;
-  }
-}
