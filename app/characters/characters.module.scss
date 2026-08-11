@@ -7,7 +7,7 @@
 }
 
 .page_container {
-  min-height: 100vh;
+  height: 100vh;
   background: $color_background_deep url('/images/backgrounds/bg_test_list.png') center / cover
     no-repeat fixed;
   display: flex;
@@ -24,13 +24,51 @@
   padding: 20px;
   gap: 20px;
   flex: 1;
-  align-items: flex-start;
+  min-height: 0;
+  align-items: stretch;
 
   > aside,
   .pc_sidebar {
     flex-shrink: 0;
-    position: sticky;
-    top: 20px;
+    width: 283px;
+
+    max-height: calc(100vh - 180px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    /* 스크롤바는 깔끔하게 안 보이게 처리 */
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: $color_text_muted;
+      border-radius: 2px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  }
+}
+
+.side_menu {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(4px, 1vh, 12px);
+
+  li {
+    padding: clamp(8px, 1vh, 12px) 16px;
+  }
+}
+
+.tag_section {
+  margin-top: auto;
+
+  .more_tag_btn {
+    margin-top: clamp(8px, 1.5vh, 16px);
+    padding: clamp(6px, 1vh, 10px);
   }
 }
 //!
@@ -240,6 +278,8 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-height: 0;
+  height: 100%;
 }
 
 /* 상단 필터 영역 */
@@ -293,14 +333,17 @@
 
 /* 그리드 스타일 카드 리스트 */
 .card_grid_container {
-  /*   height: calc(100vh - 120px); */
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  /*   height: calc(100vh - 120px); */
 
   &::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
+    padding-left: 10px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: $color_text_muted;
     border-radius: 3px;
   }
 }
