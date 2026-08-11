@@ -26,8 +26,7 @@ const Header = ({ variant = "main", accountContent = null, onMenuClick }) => {
         {/* 공통 로고 */}
         <Link href="/" className={styles.header_logo}>
           <Image src="/images/icons/logo.png" alt="VisuLore 로고" width={48} height={48} priority />
-
-          <span className="en_t_title">VisuLore</span>
+          <span className={`en_t_title ${styles.header_logo_text}`}>VisuLore</span>{" "}
         </Link>
 
         {/* 메인·캐릭터 목록 페이지 */}
