@@ -41,6 +41,7 @@ const RecommendedCharacters = () => {
 
   return (
     <section className={styles.recommended}>
+      <h2 className={styles.sr_only}>추천 캐릭터</h2>
       {/* 추천 캐릭터 카드 목록 */}
       <div ref={sliderRef} className={styles.recommended_list} onScroll={handleScroll}>
         {recommendedCharacters.map((character, index) => (

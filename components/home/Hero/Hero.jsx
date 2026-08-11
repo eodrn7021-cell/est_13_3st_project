@@ -1,9 +1,20 @@
+import Image from "next/image";
 import Link from "next/link";
 import styles from "./Hero.module.scss";
 
 const Hero = () => {
   return (
     <section className={styles.hero}>
+      <Image
+        src="/images/home/hero.webp"
+        alt=""
+        fill
+        priority
+        fetchPriority="high"
+        sizes="(max-width: 1200px) 100vw, 895px"
+        className={styles.hero_image}
+      />
+      <div className={styles.hero_overlay} aria-hidden="true" />
       <div className={styles.hero_content}>
         <h1 className={`kr_pc_title ${styles.hero_title}`}>
           AI로 나만의

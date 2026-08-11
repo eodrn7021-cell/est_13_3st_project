@@ -9,7 +9,7 @@ const Footer = () => {
         {/* 왼쪽 브랜드 영역 */}
         <div className={styles.footer_brand}>
           <h2 className={`en_pc_title ${styles.footer_logo}`}>VisuLore</h2>
-          <p className={`kr_body ${styles.footer_subtitle}`}>AI 캐릭터 &amp; 스토리 아카이브</p>
+          <p className={`kr_body_b ${styles.footer_subtitle}`}>AI 캐릭터 &amp; 스토리 아카이브</p>
           <p className={`kr_caption ${styles.footer_description}`}>
             상상한 캐릭터와 이야기를 만들고,
             <br />
@@ -76,7 +76,7 @@ const Footer = () => {
             <div className={styles.footer_menu_links}>
               <Link href="/characters">캐릭터 둘러보기</Link>
               <Link href="/characters/create">캐릭터 만들기</Link>
-              <Link href="/stories">인기 스토리</Link>
+              <span>인기 스토리</span>
             </div>
           </div>
 
@@ -84,9 +84,9 @@ const Footer = () => {
             <h3 className={`kr_caption ${styles.footer_menu_title}`}>지원</h3>
             <span className={styles.footer_menu_line} />
             <div className={styles.footer_menu_links}>
-              <Link href="/guide">이용 가이드</Link>
-              <Link href="/faq">자주 묻는 질문</Link>
-              <Link href="/contact">문의하기</Link>
+              <span>이용 가이드</span>
+              <span>자주 묻는 질문</span>
+              <span>문의하기</span>
             </div>
           </div>
 
@@ -94,9 +94,9 @@ const Footer = () => {
             <h3 className={`kr_caption ${styles.footer_menu_title}`}>정책</h3>
             <span className={styles.footer_menu_line} />
             <div className={styles.footer_menu_links}>
-              <Link href="/terms">이용약관</Link>
-              <Link href="/privacy">개인정보처리방침</Link>
-              <Link href="/content-policy">콘텐츠 정책</Link>
+              <span>이용약관</span>
+              <span>개인정보처리방침</span>
+              <span>콘텐츠 정책</span>
             </div>
           </div>
         </nav>
