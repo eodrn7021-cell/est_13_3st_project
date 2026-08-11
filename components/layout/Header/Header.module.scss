@@ -33,6 +33,10 @@
   }
 }
 
+.header_logo_text {
+  font-size: 32px;
+}
+
 .header_actions {
   display: flex;
   align-items: center;
@@ -111,6 +115,10 @@
     padding: 0 40px;
   }
 
+  .header_logo_text {
+    font-size: 24px;
+  }
+
   /* 햄버거 버튼 표시 */
   .header_menu_button {
     display: inline-flex;
@@ -171,6 +179,10 @@
     height: 64px;
     min-height: 64px;
     padding: 0 16px;
+  }
+
+  .header_logo_text {
+    font-size: 20px;
   }
 
   .header_responsive_search {
