@@ -29,6 +29,7 @@ function EditNoteIcon() {
 export default function CharacterForm({
   mode = "character",
   initialValues = {},
+  isReadOnly = false,
   onSubmit,
   onChange,
   className = "",
@@ -76,6 +77,14 @@ export default function CharacterForm({
     climate_landmarks: initialValues.climate_landmarks || "",
     resource_currency: initialValues.resource_currency || "",
   });
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      ...initialValues,
+      title: initialValues.title || initialValues.name || prev.title,
+    }));
+  }, [initialValues]);
 
   const handleChange = (field, value) => {
     const updated = { ...formData, [field]: value };
@@ -146,6 +155,7 @@ export default function CharacterForm({
                       placeholder="이름"
                       value={formData.name}
                       onChange={(e) => handleChange("name", e.target.value)}
+                      disabled={isReadOnly}
                     />
                     <Select
                       fieldTitle="종족"
@@ -154,6 +164,7 @@ export default function CharacterForm({
                       onChange={(val) => handleChange("race", val)}
                       isOpen={activeSelect === "race"}
                       onToggle={(nextState) => setActiveSelect(nextState ? "race" : null)}
+                      disabled={isReadOnly}
                     />
                     <Select
                       fieldTitle="성별"
@@ -162,16 +173,19 @@ export default function CharacterForm({
                       onChange={(val) => handleChange("gender", val)}
                       isOpen={activeSelect === "gender"}
                       onToggle={(nextState) => setActiveSelect(nextState ? "gender" : null)}
+                      disabled={isReadOnly}
                     />
                     <Input
                       placeholder="나이"
                       value={formData.age}
                       onChange={(e) => handleChange("age", e.target.value)}
+                      disabled={isReadOnly}
                     />
                     <Input
                       placeholder="직업 / 역할"
                       value={formData.job_role}
                       onChange={(e) => handleChange("job_role", e.target.value)}
+                      disabled={isReadOnly}
                     />
                   </>
                 )}
@@ -191,6 +205,7 @@ export default function CharacterForm({
             }
             value={isWorldMode ? formData.myth_history : formData.background_story}
             onChange={(e) => handleChange(isWorldMode ? "myth_history" : "background_story", e.target.value)}
+            disabled={!isWorldMode && isReadOnly}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
             collapsible={isResponsive}
@@ -210,6 +225,7 @@ export default function CharacterForm({
             }
             value={isWorldMode ? formData.religion_culture : formData.appearance}
             onChange={(e) => handleChange(isWorldMode ? "religion_culture" : "appearance", e.target.value)}
+            disabled={!isWorldMode && isReadOnly}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
             collapsible={isResponsive}
@@ -229,6 +245,7 @@ export default function CharacterForm({
             }
             value={isWorldMode ? formData.social_structure : formData.personality}
             onChange={(e) => handleChange(isWorldMode ? "social_structure" : "personality", e.target.value)}
+            disabled={!isWorldMode && isReadOnly}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
             collapsible={isResponsive}
@@ -250,6 +267,7 @@ export default function CharacterForm({
             }
             value={isWorldMode ? formData.climate_landmarks : formData.abilities}
             onChange={(e) => handleChange(isWorldMode ? "climate_landmarks" : "abilities", e.target.value)}
+            disabled={!isWorldMode && isReadOnly}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
             collapsible={isResponsive}
@@ -269,6 +287,7 @@ export default function CharacterForm({
             }
             value={isWorldMode ? formData.resource_currency : formData.relationships}
             onChange={(e) => handleChange(isWorldMode ? "resource_currency" : "relationships", e.target.value)}
+            disabled={!isWorldMode && isReadOnly}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
             collapsible={isResponsive}

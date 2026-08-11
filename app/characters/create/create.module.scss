@@ -5,7 +5,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
+  background: colors.$color_background_deep url('/images/backgrounds/bg_test_list.png') center / cover no-repeat fixed;
 }
 
 /* 상단바: 100% 가득 차는 배경
@@ -215,5 +215,35 @@
     &:hover {
       opacity: 0.9;
     }
+  }
+}
+
+.loginHeaderButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 18px;
+  background: colors.$color_primary;
+  border: 1px solid colors.$color_tag_stroke;
+  border-radius: 8px;
+  color: colors.$color_white;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+
+  &:hover {
+    background-color: colors.$color_primary_dark;
+  }
+}
+
+.mypageLink {
+  color: colors.$color_text_muted;
+  text-decoration: none;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+
+  &:hover {
+    color: colors.$color_white;
   }
 }
