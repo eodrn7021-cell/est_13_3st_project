@@ -53,6 +53,7 @@ const RecommendedCharacters = () => {
       <div ref={sliderRef} className={styles.recommended_list} onScroll={handleScroll}>
         {recommendedCharacters.map((character, index) => (
           <RecommendedCharacterCard
+            id={character.id}
             key={character.id}
             image={character.image}
             name={character.name}

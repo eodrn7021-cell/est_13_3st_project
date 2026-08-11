@@ -1,10 +1,11 @@
+import Link from "next/link";
 import Image from "next/image";
 import Tag from "@/components/common/Tag/Tag";
 import styles from "./RecommendedCharacterCard.module.scss";
 
-const RecommendedCharacterCard = ({ image, name, description, tags, isPriority = false }) => {
+const RecommendedCharacterCard = ({ id, image, name, description, tags, isPriority = false }) => {
   return (
-    <article className={styles.card} tabIndex={0}>
+    <Link href={`/characters/${id}`} className={styles.card} aria-label={`${name} 캐릭터 상세보기`}>
       {/* 캐릭터 이미지 */}
       <Image
         src={image}
@@ -34,7 +35,7 @@ const RecommendedCharacterCard = ({ image, name, description, tags, isPriority =
           ))}
         </div>
       </div>
-    </article>
+    </Link>
   );
 };
 
