@@ -6,7 +6,7 @@ import Image from "next/image";
 
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import Sidebar from "@/components/layout/Sidebar";
+import Sidebar from "@/components/navigation/Sidebar";
 
 import styles from "./my-page.module.scss";
 
