@@ -8,7 +8,6 @@ import Footer from "@/components/layout/Footer/Footer";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
 import CharacterForm from "@/components/character/CharacterForm/CharacterForm";
 import WorldSelectModal from "@/components/character/WorldSelectModal/WorldSelectModal";
-import LoginModal from "@/components/auth/LoginModal/LoginModal";
 import { createClient } from "@/lib/supabase/client";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
 import createStyles from "./create.module.scss";
@@ -24,9 +23,6 @@ function HelpOutlineIcon() {
 export default function CreateCharacterPage({ worldData, characterListData }) {
   const router = useRouter();
 
-  // 로그인 모달 상태
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
   // 세계관 모달 및 선택 상태
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [userWorlds, setUserWorlds] = useState([]);
@@ -40,6 +36,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   const [formData, setFormData] = useState({});
   const [initialFormValues, setInitialFormValues] = useState({});
+  const [draftCharValues, setDraftCharValues] = useState({});
   const [isWorldCheckDone, setIsWorldCheckDone] = useState(false);
   const [isCharCheckDone, setIsCharCheckDone] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,13 +49,16 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
       try {
         const supabase = createClient();
         const { data: authData } = await supabase.auth.getUser();
-        const currentUserId = authData?.user?.id || "1d742f2b-17f7-436f-b0e2-fcc8e4957247";
+        const currentUserId = authData?.user?.id || null;
 
-        const { data: worldsData } = await supabase
-          .from("worlds")
-          .select("*")
-          .or(`creator_id.eq.${currentUserId},creator_id.is.null`)
-          .order("created_at", { ascending: false });
+        let query = supabase.from("worlds").select("*");
+        if (currentUserId) {
+          query = query.or(`creator_id.eq.${currentUserId},creator_id.is.null`);
+        } else {
+          query = query.is("creator_id", null);
+        }
+
+        const { data: worldsData } = await query.order("created_at", { ascending: false });
 
         if (worldsData) {
           setUserWorlds(worldsData);
@@ -153,6 +153,22 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   const handleFormChange = (field, value, updatedData) => {
     setFormData(updatedData);
 
+    // 새 캐릭터 작성 중일 때는 입력된 캐릭터 필드값을 draftCharValues에 기억
+    if (!selectedCharObj && !isEditMode) {
+      setDraftCharValues({
+        name: updatedData.name || "",
+        race: updatedData.race || "",
+        gender: updatedData.gender || "",
+        age: updatedData.age || "",
+        job_role: updatedData.job_role || "",
+        background_story: updatedData.background_story || "",
+        appearance: updatedData.appearance || "",
+        personality: updatedData.personality || "",
+        abilities: updatedData.abilities || "",
+        relationships: updatedData.relationships || "",
+      });
+    }
+
     const isWorldComplete = Boolean(
       updatedData.title?.trim() &&
       updatedData.theme?.trim() &&
@@ -179,26 +195,39 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
     setSelectedCharacterId(item.id);
 
     if (item.isDraft) {
-      // 새 캐릭터 (작성 중) 선택 ➔ 신규 캐릭터 작성 모드로 복귀
+      // 새 캐릭터 (작성 중) 선택 ➔ 작성 중이던 임시 입력값 복원
       setSelectedCharObj(null);
       setIsReadOnlyChar(false);
       setIsEditMode(false);
-      const resetCharValues = {
+
+      const restoreCharValues = {
         ...formData,
-        name: "",
-        race: "",
-        gender: "",
-        age: "",
-        job_role: "",
-        background_story: "",
-        appearance: "",
-        personality: "",
-        abilities: "",
-        relationships: "",
+        name: draftCharValues.name || "",
+        race: draftCharValues.race || "",
+        gender: draftCharValues.gender || "",
+        age: draftCharValues.age || "",
+        job_role: draftCharValues.job_role || "",
+        background_story: draftCharValues.background_story || "",
+        appearance: draftCharValues.appearance || "",
+        personality: draftCharValues.personality || "",
+        abilities: draftCharValues.abilities || "",
+        relationships: draftCharValues.relationships || "",
       };
-      setInitialFormValues((prev) => ({ ...prev, ...resetCharValues }));
-      setFormData(resetCharValues);
-      setIsCharCheckDone(false);
+
+      setInitialFormValues((prev) => ({ ...prev, ...restoreCharValues }));
+      setFormData(restoreCharValues);
+
+      const isCharComplete = Boolean(
+        restoreCharValues.name?.trim() &&
+        restoreCharValues.race?.trim() &&
+        restoreCharValues.gender?.trim() &&
+        restoreCharValues.age?.trim() &&
+        restoreCharValues.job_role?.trim() &&
+        restoreCharValues.background_story?.trim() &&
+        restoreCharValues.appearance?.trim() &&
+        restoreCharValues.personality?.trim()
+      );
+      setIsCharCheckDone(isCharComplete);
     } else {
       // 기존 캐릭터 선택 ➔ 폼에 데이터 바인딩 및 비활성화 (Read-only)
       const foundChar = item.data;
@@ -272,6 +301,19 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   // '수정 정보 저장' 버튼 클릭 시 ➔ 캐릭터 DB 정보만 수정 저장
   const handleUpdateOnly = async () => {
     if (!isAllCheckDone || !selectedCharObj || isSubmitting) return;
+
+    // 이전 값과 비교하여 변경된 내용이 없는지 확인
+    const isFormChanged = Object.keys(formData).some(
+      (key) => formData[key] !== initialFormValues[key]
+    );
+
+    if (!isFormChanged) {
+      // 변경된 내용이 없으면 쓸데없는 DB API 호출 없이 바로 읽기 전용 모드로 복귀
+      setIsEditMode(false);
+      setIsReadOnlyChar(true);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -351,7 +393,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
     try {
       const supabase = createClient();
       const { data: authData } = await supabase.auth.getUser();
-      const currentUserId = authData?.user?.id || "1d742f2b-17f7-436f-b0e2-fcc8e4957247";
+      const currentUserId = authData?.user?.id || null;
 
       const res = await fetch("/api/characters/generate", {
         method: "POST",
@@ -411,23 +453,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   return (
     <div className={createStyles.pageContainer}>
-      <Header
-        variant="account"
-        accountContent={
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <button
-              type="button"
-              className={createStyles.loginHeaderButton}
-              onClick={() => setIsLoginModalOpen(true)}
-            >
-              <span className="kr_body_b">로그인</span>
-            </button>
-            <Link href="/my-page" className={createStyles.mypageLink}>
-              <span className="kr_body">마이페이지</span>
-            </Link>
-          </div>
-        }
-      />
+      <Header variant="account" />
 
       {/* 모바일/태블릿 (<= 1024px) 상단바 */}
       <div className={createStyles.topNavSection}>
@@ -694,16 +720,6 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         worlds={userWorlds}
         onSelectNewWorld={handleSelectNewWorld}
         onSelectExistingWorld={handleSelectExistingWorld}
-      />
-
-      {/* 로그인 모달 */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onSuccess={(user) => {
-          console.log("로그인 성공:", user);
-          window.location.reload();
-        }}
       />
 
       <Footer />
