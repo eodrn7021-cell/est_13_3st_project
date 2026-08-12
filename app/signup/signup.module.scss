@@ -1,812 +1,438 @@
-@use "../../styles/abstracts/colors" as *;
-@use "../../styles/abstracts/variables" as *;
+@use "../../styles/abstracts/colors" as colors;
+@use "../../styles/abstracts/variables" as variables;
 
-/* =========================================================
-   Page
-========================================================= */
-
+// Page
 .page {
   position: relative;
-
   min-height: 100vh;
-
   display: flex;
-  justify-content: center;
   align-items: center;
-
-  padding: 48px;
-
-  overflow: hidden;
-
-  box-sizing: border-box;
+  justify-content: center;
+  padding: 40px;
+  overflow-x: hidden;
+  background-image: url("/images/backgrounds/fantasy-space.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: colors.$color_white;
 }
-
-/* =========================================================
-   Background Overlay
-========================================================= */
 
 .overlay {
   position: absolute;
-
   inset: 0;
-
-  background: rgba(8, 10, 25, 0.6);
-
-  backdrop-filter: blur(2px);
+  background: rgba(8, 10, 25, 0.52);
 }
-
-/* =========================================================
-   Main Container
-========================================================= */
 
 .container {
   position: relative;
-
-  z-index: 2;
-
-  width: 100%;
-  max-width: 1260px;
-
-  display: grid;
-
-  grid-template-columns: 650px 500px;
-
+  z-index: 1;
+  display: flex;
   align-items: center;
-
-  gap: 110px;
+  width: 100%;
+  max-width: 1282px;
+  gap: clamp(80px, 16vw, 306px);
 }
-
-/* =========================================================
-   Left Area
-========================================================= */
 
 .left {
+  flex: 1;
   display: flex;
-
   flex-direction: column;
-
   align-items: flex-start;
-
-  transform: translateY(-130px);
+  transform: translateY(-30px);
 }
-
-/* ---------- Brand ---------- */
 
 .brand {
   display: inline-flex;
-
   align-items: center;
-
   gap: 10px;
-
-  width: fit-content;
-
-  margin-bottom: 135px;
-
-  color: $color_white;
-
+  margin-bottom: 50px;
+  color: colors.$color_white;
   text-decoration: none;
 }
 
 .logo {
   width: 48px;
   height: 48px;
-
-  object-fit: contain;
-
   flex-shrink: 0;
+  object-fit: contain;
 }
 
-.brandText {
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 24px;
-
-  font-weight: 400;
-
+.brand_text {
+  color: colors.$color_white;
+  font-family: variables.$font_family_en;
+  font-size: 32px;
+  font-weight: variables.$font_weight_regular;
   line-height: 1;
 }
 
-/* ---------- Intro ---------- */
-
 .intro {
   display: flex;
-
   flex-direction: column;
-
   align-items: flex-start;
 }
 
 .title {
-  margin: 0 0 24px;
-
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
+  margin: 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
   font-size: 32px;
+  font-weight: variables.$font_weight_bold;
+  line-height: 1.25;
+}
 
-  font-weight: $font_weight_bold;
-
-  line-height: 1.4;
-
-  letter-spacing: -0.02em;
+.title_break {
+  display: block;
 }
 
 .description {
-  margin: 0;
-
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 20px;
-
-  font-weight: 400;
-
-  line-height: 1.7;
-}
-
-/* =========================================================
-   Signup Card
-========================================================= */
-
-.card {
-  width: 100%;
-
-  box-sizing: border-box;
-
-  padding: 38px 40px;
-
-  background: rgba(25, 28, 43, 0.72);
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  border-radius: 30px;
-
-  backdrop-filter: blur(22px);
-
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
-}
-
-/* ---------- Card Title ---------- */
-
-.cardTitle {
-  margin: 0 0 10px;
-
-  color: $color_white;
-
-  text-align: center;
-
-  font-size: 32px;
-
-  font-weight: $font_weight_bold;
-
-  line-height: 1.3;
-}
-
-.cardSub {
-  margin: 0 0 32px;
-
-  color: $color_secondary_dark;
-
-  text-align: center;
-
+  display: flex;
+  align-items: baseline;
+  margin: 14px 0 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
   font-size: 16px;
-
-  font-weight: 400;
-
+  font-weight: variables.$font_weight_regular;
   line-height: 1.5;
+  white-space: nowrap;
 }
 
-/* =========================================================
-   Form
-========================================================= */
+.description_en {
+  position: relative;
+  top: -2px;
+  font-family: variables.$font_family_en;
+}
+
+// Signup Card
+.card {
+  flex-shrink: 0;
+  width: 488px;
+  box-sizing: border-box;
+  padding: 44px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  background: colors.$color_input_70;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.card_header {
+  margin-bottom: 20px;
+}
+
+.card_title {
+  margin: 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 32px;
+  font-weight: variables.$font_weight_bold;
+  line-height: 1.25;
+}
+
+.card_sub {
+  margin: 10px 0 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+}
 
 .form {
   display: flex;
-
   flex-direction: column;
-
-  gap: 18px;
-
   width: 100%;
+  gap: 20px;
 }
 
-/* =========================================================
-   Agreement Checkbox
-========================================================= */
-
+// Agreement
 .checkbox {
   display: flex;
-
   align-items: center;
-
-  justify-content: center;
-
-  gap: 8px;
-
-  width: 100%;
-
-  color: $color_white;
-
+  gap: 10px;
+  margin-top: 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
   font-size: 16px;
-
+  font-weight: variables.$font_weight_regular;
   line-height: 1.5;
 
   cursor: pointer;
-
-  box-sizing: border-box;
 
   input {
     appearance: none;
     -webkit-appearance: none;
-
+    position: relative;
     width: 20px;
     height: 20px;
-
     margin: 0;
-
-    padding: 0;
-
     flex-shrink: 0;
-
-    border: 2px solid $color_primary;
-
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 4px;
-
     background: transparent;
-
     cursor: pointer;
 
-    position: relative;
+    &:focus-visible {
+      outline: 2px solid colors.$color_white;
+      outline-offset: 3px;
+    }
 
-    transition: 0.2s ease;
-  }
+    &:checked {
+      border-color: colors.$color_primary;
+      background: colors.$color_primary;
+    }
 
-  input:checked {
-    background: $color_primary;
-
-    border-color: $color_primary;
-  }
-
-  input:checked::after {
-    content: "";
-
-    position: absolute;
-
-    left: 5px;
-    top: 1px;
-
-    width: 6px;
-    height: 11px;
-
-    border: solid $color_white;
-
-    border-width: 0 2px 2px 0;
-
-    transform: rotate(45deg);
+    &:checked::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 6px;
+      width: 5px;
+      height: 10px;
+      border: solid colors.$color_white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
   }
 }
 
-/* =========================================================
-   Signup Button
-========================================================= */
-
-.signupButton {
-  width: 100%;
-
-  height: 56px;
-
-  margin-top: 4px;
-
-  border: none;
-
-  border-radius: 14px;
-
-  background: $color_primary;
-
-  color: $color_white;
-
-  font-size: 16px;
-
-  font-weight: $font_weight_bold;
-
-  cursor: pointer;
-
-  transition:
-    background 0.25s ease,
-    transform 0.2s ease;
-}
-
-.signupButton:hover {
-  background: $color_primary_dark;
-}
-
-/* =========================================================
-   Divider
-========================================================= */
-
+// Divider
 .divider {
   display: flex;
-
   align-items: center;
-
-  gap: 18px;
-
-  margin: 28px 0;
-
-  color: $color_secondary_dark;
-
-  font-size: 14px;
-
-  line-height: 1;
-
-  white-space: nowrap;
-}
-
-.divider::before,
-.divider::after {
-  content: "";
-
-  flex: 1;
-
-  height: 1px;
-
-  background: rgba(255, 255, 255, 0.18);
-}
-
-/* =========================================================
-   Google Button
-========================================================= */
-
-.googleButton {
+  gap: 14px;
   width: 100%;
+  margin: 20px 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 14px;
+  font-weight: variables.$font_weight_regular;
+  white-space: nowrap;
 
-  height: 56px;
+  &::before,
+  &::after {
+    content: "";
 
-  min-width: 0;
-
-  box-sizing: border-box;
-
-  border-radius: 14px;
-
-  background: $color_white;
-
-  border: 1px solid $color_white;
-
-  color: $color_black;
-
-  display: flex;
-
-  justify-content: center;
-
-  align-items: center;
-
-  gap: 12px;
-
-  font-size: 16px;
-
-  font-weight: $font_weight_bold;
-
-  cursor: pointer;
-
-  transition:
-    background 0.25s ease,
-    border-color 0.25s ease;
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.35);
+  }
 }
 
-.googleButton img {
-  width: 20px;
-  height: 20px;
-
+// Google
+.google_icon {
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
 }
 
-.googleButton:hover {
-  background: #f5f5f5;
-
-  border-color: #f5f5f5;
-}
-
-/* =========================================================
-   Login Link
-========================================================= */
-
+// Login Link
 .login {
-  margin: 26px 0 0;
-
-  text-align: center;
-
-  color: $color_secondary_dark;
-
-  font-size: 16px;
-
-  line-height: 1.5;
-}
-
-.login a {
-  margin-left: 8px;
-
-  color: $color_primary;
-
-  font-size: 16px;
-
-  font-weight: $font_weight_bold;
-
-  text-decoration: none;
-}
-
-/* =========================================================
-   Password Eye Button
-========================================================= */
-
-.eyeButton {
-  position: absolute;
-
-  top: 50%;
-  right: 14px;
-
-  transform: translateY(-50%);
-
   display: flex;
-
   align-items: center;
   justify-content: center;
+  gap: 8px;
+  margin: 20px 0 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 14px;
+  font-weight: variables.$font_weight_regular;
+  text-align: center;
 
-  width: 32px;
-  height: 32px;
+  a {
+    color: colors.$color_primary;
+    font-weight: variables.$font_weight_bold;
+    text-decoration: none;
 
+    &:hover {
+      color: colors.$color_primary_dark;
+    }
+
+    &:focus-visible {
+      outline: 2px solid colors.$color_primary;
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+  }
+}
+
+// Password Eye
+.eye_button {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
   padding: 0;
-
+  border: 0;
+  transform: translateY(-50%);
   background: transparent;
-
-  border: none;
-
-  color: rgba(255, 255, 255, 0.65);
+  color: colors.$color_secondary_dark;
 
   cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  &:hover {
+    color: colors.$color_white;
+  }
+
+  span {
+    font-size: 24px;
+  }
 }
 
-.eyeButton .material-symbols-rounded {
-  font-size: 22px;
-}
-
-.eyeButton:hover {
-  color: $color_white;
-}
-
-/* =========================================================
-   Tablet : 768px
-========================================================= */
-
+// Tablet
 @media (max-width: 960px) {
   .page {
-    min-height: 100vh;
-
-    padding: 40px 24px;
+    align-items: flex-start;
+    padding: 20px 40px;
   }
 
   .container {
-    width: 100%;
-
-    max-width: 510px;
-
-    display: flex;
-
+    max-width: 488px;
     flex-direction: column;
-
     align-items: center;
-
-    gap: 42px;
-
-    text-align: center;
+    gap: 0;
   }
-
-  /* ---------- Left ---------- */
 
   .left {
     width: 100%;
-
-    align-items: flex-start;
-
+    align-items: center;
     text-align: center;
-
     transform: none;
   }
 
   .brand {
-  display: inline-flex;
+    margin-bottom: 36px;
+    transform: translateX(-4px);
+  }
 
-  align-items: center;
+  .brand_text {
+    font-size: 24px;
+  }
 
-  gap: 10px;
-
-  width: fit-content;
-
-  margin-bottom: 135px;
-
-  color: $color_white;
-
-  text-decoration: none;
-}
-
-.logo {
-  width: 48px;
-  height: 48px;
-
-  object-fit: contain;
-
-  flex-shrink: 0;
-}
-
-.brandText {
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 32px;
-
-  font-weight: 400;
-
-  line-height: 1;
-}
   .intro {
     width: 100%;
-
     align-items: center;
-
-    text-align: center;
-  }
-
-  .title {
-    width: 100%;
-
-    margin-bottom: 14px;
-
-    font-size: 24px;
-
-    line-height: 1.4;
-
-    text-align: center;
-  }
-
-  .description {
-    width: 100%;
-
-    font-size: 12px;
-
-    line-height: 1.7;
-
-    text-align: center;
-  }
-
-  /* ---------- Card ---------- */
-
-  .card {
-    width: 100%;
-
-    max-width: 510px;
-
-    padding: 36px 40px;
-
-    border-radius: 24px;
-
-    text-align: left;
-  }
-
-  .cardTitle {
-    font-size: 24px;
-
-    text-align: center;
-  }
-
-  .cardSub {
-    margin-bottom: 28px;
-
-    font-size: 12px;
-
-    text-align: center;
-  }
-
-  /* ---------- Form ---------- */
-
-  .form {
-    gap: 18px;
-
-    text-align: left;
-  }
-
-  /* ---------- Agreement ---------- */
-
-  .checkbox {
-    justify-content: center;
-
-    font-size: 16px;
-
-    text-align: center;
-  }
-
-  /* ---------- Signup Button ---------- */
-
-  .signupButton {
-    height: 56px;
-
-    font-size: 16px;
-  }
-
-  /* ---------- Divider ---------- */
-
-  .divider {
-    margin: 26px 0;
-
-    font-size: 12px;
-  }
-
-  /* ---------- Google ---------- */
-
-  .googleButton {
-    height: 56px;
-
-    font-size: 16px;
-  }
-
-  /* ---------- Login ---------- */
-
-  .login {
-    margin-top: 24px;
-
-    font-size: 16px;
-  }
-
-  .login a {
-    font-size: 16px;
-  }
-}
-
-/* =========================================================
-   Mobile : 480px
-========================================================= */
-
-@media (max-width: 600px) {
-  .page {
-    padding: 28px 20px;
-  }
-
-  .container {
-    max-width: 400px;
-
-    gap: 30px;
-  }
-
-  /* ---------- Brand ---------- */
-
-  .brand {
-    gap: 8px;
-
-    margin-bottom: 30px;
-  }
-
-  .logo {
-    width: 48px;
-    height: 48px;
-  }
-
-  .brandText {
-    font-size: 20px;
-  }
-
-  /* ---------- Intro ---------- */
-
-  .title {
-    margin-bottom: 12px;
-
-    font-size: 20px;
-
-    line-height: 1.4;
-  }
-
-  .description {
-    font-size: 12px;
-
-    line-height: 1.7;
-  }
-
-  /* ---------- Card ---------- */
-
-  .card {
-    max-width: 400px;
-
-    padding: 30px 24px;
-
-    border-radius: 24px;
-  }
-
-  .cardTitle {
-    font-size: 20px;
-  }
-
-  .cardSub {
     margin-bottom: 24px;
-
-    font-size: 12px;
-  }
-
-  /* ---------- Form ---------- */
-
-  .form {
-    gap: 16px;
-  }
-
-  /* ---------- Agreement ---------- */
-
-  .checkbox {
-    gap: 8px;
-
-    font-size: 12px;
-
-    justify-content: center;
-
     text-align: center;
   }
 
-  .checkbox input {
-    width: 20px;
-    height: 20px;
+  .title {
+    font-size: 24px;
+    white-space: nowrap;
   }
 
-  /* ---------- Signup Button ---------- */
-
-  .signupButton {
-    height: 56px;
-
-    font-size: 16px;
-  }
-
-  /* ---------- Divider ---------- */
-
-  .divider {
-    gap: 12px;
-
-    margin: 24px 0;
-
-    font-size: 14px;
-  }
-
-  /* ---------- Google : Mobile ---------- */
-
-  .googleButton {
-    width: 82px;
-
-    height: 54px;
-
-    margin: 0 auto;
-
-    padding: 0;
-
-    gap: 0;
-  }
-
-  .googleButton span {
+  .title_break {
     display: none;
   }
 
-  .googleButton img {
-    width: 20px;
-    height: 20px;
+  .description {
+    margin-top: 14px;
   }
 
-  /* ---------- Login ---------- */
+  .card {
+    width: 488px;
+    padding: 36px 30px;
+  }
+
+  .card_title {
+    font-size: 24px;
+  }
+}
+
+.confirm_password {
+  width: 100%;
+}
+
+.error_message {
+  margin: 8px 0 0;
+
+  color: colors.$color_highlight;
+
+  font-family: variables.$font_family_kr;
+  font-size: 12px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1.4;
+}
+
+// Mobile
+@media (max-width: 600px) {
+  .page {
+    padding: 32px clamp(20px, 8vw, 40px);
+  }
+
+  .container {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .brand {
+    margin-bottom: 50px;
+  }
+
+  .brand_text {
+    font-size: 20px;
+  }
+
+  .title {
+    font-size: 20px;
+    white-space: nowrap;
+  }
+
+  .description {
+    margin-top: 14px;
+    font-size: 14px;
+  }
+
+  .intro {
+    margin-bottom: 40px;
+  }
+
+  .card {
+    width: 100%;
+    padding: 48px 30px;
+  }
+
+  .card_title {
+    font-size: 20px;
+  }
+
+  .card_sub {
+    font-size: 14px;
+  }
+
+  .checkbox {
+    font-size: 12px;
+  }
+
+  .checkbox input {
+    width: 18px;
+    height: 18px;
+  }
+
+  .divider {
+    font-size: 14px;
+  }
 
   .login {
-    margin-top: 24px;
-
-    font-size: 16px;
+    font-size: 14px;
   }
 
-  .login a {
-    font-size: 16px;
+  .eye_button {
+    width: 32px;
+    height: 32px;
+    right: 10px;
+
+    span {
+      font-size: 20px;
+    }
   }
 }

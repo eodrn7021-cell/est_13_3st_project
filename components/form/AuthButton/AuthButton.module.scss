@@ -18,6 +18,11 @@
     background-color 0.2s ease,
     color 0.2s ease;
 
+  &:focus-visible {
+    outline: 2px solid colors.$color_white;
+    outline-offset: 3px;
+  }
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
