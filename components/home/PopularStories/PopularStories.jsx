@@ -62,6 +62,7 @@ const PopularStories = () => {
         {popularStories.map((story) => (
           <PopularStoryCard
             key={story.id}
+            id={story.id}
             image={story.image}
             title={story.title}
             description={story.description}
