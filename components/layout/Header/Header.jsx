@@ -1,10 +1,59 @@
-import Link from "next/link";
+"use client";
+
 import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import Button from "@/components/common/Button/Button";
 import SearchBar from "@/components/common/SearchBar/SearchBar";
+import { createClient } from "@/lib/supabase/client";
 import styles from "./Header.module.scss";
 
 const Header = ({ variant = "main", accountContent = null, onMenuClick }) => {
+  // 로그인 사용자
+  const [user, setUser] = useState(null);
+
+  const supabase = createClient();
+
+  // 현재 로그인 상태 확인
+  useEffect(() => {
+    const checkUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      setUser(user);
+    };
+
+    checkUser();
+
+    // 로그인 / 로그아웃 상태가 바뀌면 Header도 즉시 갱신
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // 로그아웃
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut({
+      scope: "local",
+    });
+
+    if (error) {
+      console.error("로그아웃 실패:", error);
+      return;
+    }
+
+    setUser(null);
+
+    window.location.href = "/";
+  };
+
   return (
     <header className={styles.header}>
       <div className={styles.header_inner}>
@@ -26,7 +75,8 @@ const Header = ({ variant = "main", accountContent = null, onMenuClick }) => {
         {/* 공통 로고 */}
         <Link href="/" className={styles.header_logo}>
           <Image src="/images/icons/logo.png" alt="VisuLore 로고" width={48} height={48} priority />
-          <span className={`en_t_title ${styles.header_logo_text}`}>VisuLore</span>{" "}
+
+          <span className={`en_t_title ${styles.header_logo_text}`}>VisuLore</span>
         </Link>
 
         {/* 메인·캐릭터 목록 페이지 */}
@@ -37,13 +87,28 @@ const Header = ({ variant = "main", accountContent = null, onMenuClick }) => {
             </div>
 
             <div className={styles.header_buttons}>
-              <Button href="/login" variant="secondary" size="medium">
-                <span className="kr_body">로그인</span>
-              </Button>
+              {/* 로그인 상태에 따라 Header 버튼 변경 */}
+              {user ? (
+                <>
+                  <Button href="/my-page" variant="secondary" size="medium">
+                    <span className="kr_body">마이페이지</span>
+                  </Button>
 
-              <Button href="/signup" variant="primary" size="large">
-                <span className="kr_body">회원가입</span>
-              </Button>
+                  <button type="button" className={styles.header_logout} onClick={handleLogout}>
+                    <span className="kr_body">로그아웃</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Button href="/login" variant="secondary" size="medium">
+                    <span className="kr_body">로그인</span>
+                  </Button>
+
+                  <Button href="/signup" variant="primary" size="large">
+                    <span className="kr_body">회원가입</span>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}
