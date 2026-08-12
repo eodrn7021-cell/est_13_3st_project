@@ -2,15 +2,46 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-
 import AuthButton from "@/components/form/AuthButton/AuthButton";
 import AuthInput from "@/components/form/AuthInput/AuthInput";
-
+import { createClient } from "@/lib/supabase/client";
 import styles from "./login.module.scss";
 
 const LoginPage = () => {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const supabase = createClient();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setLoginError("");
+    setIsLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setLoginError("이메일 또는 비밀번호가 올바르지 않습니다.");
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(false);
+
+    // 로그인 성공 → 메인페이지
+    router.push("/");
+    router.refresh();
+  };
 
   return (
     <main className={styles.page}>
@@ -27,6 +58,7 @@ const LoginPage = () => {
               priority
               className={styles.logo}
             />
+
             <span className={styles.brand_text}>VisuLore</span>
           </Link>
 
@@ -36,6 +68,7 @@ const LoginPage = () => {
               <br className={styles.title_break} />
               지금 함께하세요.
             </h1>
+
             <p className={styles.description}>
               <span className={styles.description_en}>VisuLore</span>
               <span>와 함께 당신만의 세계를 창조해보세요.</span>
@@ -50,12 +83,15 @@ const LoginPage = () => {
             <p className={styles.card_sub}>계정에 로그인하여 계속 이용하세요.</p>
           </div>
 
-          <form className={styles.form}>
+          <form className={styles.form} onSubmit={handleSubmit}>
             <AuthInput
               label="이메일"
               name="email"
               type="email"
               placeholder="이메일을 입력해주세요"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
 
             <AuthInput
@@ -63,6 +99,9 @@ const LoginPage = () => {
               name="password"
               type={showPassword ? "text" : "password"}
               placeholder="비밀번호를 입력해주세요"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             >
               <button
                 type="button"
@@ -87,8 +126,14 @@ const LoginPage = () => {
               </Link>
             </div>
 
-            <AuthButton type="submit" variant="primary">
-              로그인
+            {loginError && (
+              <p className={styles.error_message} role="alert">
+                {loginError}
+              </p>
+            )}
+
+            <AuthButton type="submit" variant="primary" disabled={isLoading}>
+              {isLoading ? "로그인 중..." : "로그인"}
             </AuthButton>
           </form>
 
