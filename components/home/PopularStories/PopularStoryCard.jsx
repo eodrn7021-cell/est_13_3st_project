@@ -3,7 +3,7 @@ import Link from "next/link";
 import Tag from "@/components/common/Tag/Tag";
 import styles from "./PopularStoryCard.module.scss";
 
-const PopularStoryCard = ({ image, title, description, tags }) => {
+const PopularStoryCard = ({ id, image, title, description, tags }) => {
   return (
     <Link href="/characters" className={styles.card}>
       {/* 스토리 이미지 */}
