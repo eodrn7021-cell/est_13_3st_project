@@ -15,6 +15,8 @@ export default function CharacterDetail({
   onRegenerateImage,
   onSaveImage,
   isRegenerating = false,
+  isGeneratingMode = false,
+  isOwner = false,
 }) {
   // 기본 더미 코멘트 (시안 참고)
   const defaultComments = [
@@ -67,22 +69,18 @@ export default function CharacterDetail({
     }
   };
 
-  const name = character?.name || "은빛 성녀 엘리안느";
-  const race = character?.race || "엘프";
-  const gender = character?.gender || "여성";
-  const age = character?.age || "2000";
-  const jobRole = character?.job_role || "성녀";
+  const name = character?.name || "무명";
+  const race = character?.race;
+  const gender = character?.gender;
+  const age = character?.age;
+  const jobRole = character?.job_role;
   const summaryText =
     character?.summary ||
     character?.background_story ||
-    "직업 / 지고용한 성역을 지키며 당신의 운명에 신비로운 빛을 비추는 은빛 성녀 엘리안느. 그녀는 2,000년의 세월을 살아온 엘프로, 흘러내리는 은빛 머리카락과 심연을 꿰뚫어 보는 듯한 보랏빛 눈동자를 지닌 신비로운 존재입니다.\n\n평소에는 누구에게나 상냥하고 자애로운 미소로 다친 이들을 치유하지만, 중대한 결단 앞에서는 감정에 치우치지 않는 극도로 이성적이고 냉철한 면모를 보입니다.";
+    "캐릭터 설명이 없습니다.";
 
-  // 우측 카드 태그 목록 (Figma 시안 1번: 폰트 M Title 사용)
-  const rightTags = [
-    race,
-    jobRole,
-    character?.hair_color || "은발",
-  ];
+  // 우측 카드 태그 목록 (존재하는 값만 필터링)
+  const rightTags = [race, jobRole].filter(Boolean);
 
   return (
     <div className={styles.container2Col}>
@@ -100,18 +98,26 @@ export default function CharacterDetail({
 
         {/* 기본 정보 알약 태그 그룹 (Body 사용) */}
         <div className={styles.tagGroup}>
-          <div className={`${getFontClass(race, "kr_body", "en_body")} ${styles.infoTag}`}>
-            종족 : {race}
-          </div>
-          <div className={`${getFontClass(gender, "kr_body", "en_body")} ${styles.infoTag}`}>
-            성별 : {gender}
-          </div>
-          <div className={`${getFontClass(age, "kr_body", "en_body")} ${styles.infoTag}`}>
-            나이 : {age}
-          </div>
-          <div className={`${getFontClass(jobRole, "kr_body", "en_body")} ${styles.infoTag}`}>
-            직업 / 지위 : {jobRole}
-          </div>
+          {race && (
+            <div className={`${getFontClass(race, "kr_body", "en_body")} ${styles.infoTag}`}>
+              종족 : {race}
+            </div>
+          )}
+          {gender && (
+            <div className={`${getFontClass(gender, "kr_body", "en_body")} ${styles.infoTag}`}>
+              성별 : {gender}
+            </div>
+          )}
+          {age && (
+            <div className={`${getFontClass(age, "kr_body", "en_body")} ${styles.infoTag}`}>
+              나이 : {age}
+            </div>
+          )}
+          {jobRole && (
+            <div className={`${getFontClass(jobRole, "kr_body", "en_body")} ${styles.infoTag}`}>
+              직업 / 지위 : {jobRole}
+            </div>
+          )}
         </div>
 
         {/* 캐릭터 요약 본문 (Body 150) */}
@@ -156,27 +162,29 @@ export default function CharacterDetail({
             ))}
           </div>
 
-          {/* 새 코멘트 작성 폼 */}
-          <form onSubmit={handleAddComment} className={styles.commentForm}>
-            <div className={styles.formInputGroup}>
-              <input
-                type="text"
-                placeholder="작성자 이름 (선택)"
-                value={newAuthor}
-                onChange={(e) => setNewAuthor(e.target.value)}
-                className={`kr_caption ${styles.authorInput}`}
+          {/* 새 코멘트 작성 폼 (소유자가 아닐 때만 표시) */}
+          {!isOwner && (
+            <form onSubmit={handleAddComment} className={styles.commentForm}>
+              <div className={styles.formInputGroup}>
+                <input
+                  type="text"
+                  placeholder="작성자 이름 (선택)"
+                  value={newAuthor}
+                  onChange={(e) => setNewAuthor(e.target.value)}
+                  className={`kr_caption ${styles.authorInput}`}
+                />
+                <button type="submit" className={`kr_body ${styles.submitBtn}`}>
+                  등록
+                </button>
+              </div>
+              <textarea
+                placeholder="코멘트를 입력하세요..."
+                value={newContent}
+                onChange={(e) => setNewContent(e.target.value)}
+                className={`kr_body ${styles.contentInput}`}
               />
-              <button type="submit" className={`kr_body ${styles.submitBtn}`}>
-                등록
-              </button>
-            </div>
-            <textarea
-              placeholder="코멘트를 입력하세요..."
-              value={newContent}
-              onChange={(e) => setNewContent(e.target.value)}
-              className={`kr_body ${styles.contentInput}`}
-            />
-          </form>
+            </form>
+          )}
         </div>
       </div>
 

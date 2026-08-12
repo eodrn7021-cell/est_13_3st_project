@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, use, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/layout/Header/Header";
 import Footer from "@/components/layout/Footer/Footer";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
 import CharacterDetail from "@/components/character/CharacterDetail/CharacterDetail";
-import LoginModal from "@/components/auth/LoginModal/LoginModal";
 import { createClient } from "@/lib/supabase/client";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
 import createStyles from "@/app/characters/create/create.module.scss";
@@ -24,8 +23,12 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
   const { id } = params;
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // 최초 진입 시 URL에 generating=true가 있는지 한 번만 확인하고 상태로 유지
+  const [isGeneratingMode] = useState(searchParams.get("generating") === "true");
 
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
 
   const [character, setCharacter] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,6 +38,10 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
 
   const [activeNav, setActiveNav] = useState("character");
   const [isCharacterOpen, setIsCharacterOpen] = useState(true);
+
+  // 현재 사용자 세션 정보 및 소유자 여부 상태
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isOwner, setIsOwner] = useState(false);
 
   const fetchImageHistory = async (charId) => {
     const targetId = charId || id;
@@ -113,12 +120,21 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
     }
   };
 
+  const generationTriggered = useRef(false);
+
   useEffect(() => {
     setDbImageHistory([]);
     setSelectedImage(null);
 
-    const fetchCharacter = async () => {
+    const fetchCharacterAndUser = async () => {
       const supabase = createClient();
+      
+      // 1. 현재 접속 중인 유저 확인
+      const { data: authData } = await supabase.auth.getUser();
+      const user = authData?.user || null;
+      setCurrentUser(user);
+
+      // 2. 캐릭터 데이터 조회
       const { data } = await supabase
         .from("characters")
         .select("*, worlds(*)")
@@ -129,15 +145,24 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
       setLoading(false);
 
       if (data) {
+        // 생성창에서 넘어왔거나, 현재 접속 중인 유저의 ID와 캐릭터의 creator_id가 같으면 소유자로 판단
+        const ownerCheck = isGeneratingMode || (user && data.creator_id === user.id);
+        setIsOwner(ownerCheck);
+
         await fetchImageHistory(data.id);
-        if (!data.image_url) {
+        // 새로고침 시 무한 자동 생성을 막기 위해, isGeneratingMode일 때만 1회 실행
+        if (isGeneratingMode && !generationTriggered.current) {
+          generationTriggered.current = true;
           triggerImageGeneration(data.id);
+          
+          // 새로고침 시 다시 생성되지 않도록 URL에서 파라미터 제거
+          router.replace(`/characters/${data.id}`);
         }
       }
     };
 
-    fetchCharacter();
-  }, [id]);
+    fetchCharacterAndUser();
+  }, [id, isGeneratingMode, router]);
 
   const handleRegenerateImage = async () => {
     if (isRegenerating || !id) return;
@@ -164,23 +189,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
   return (
     <div className={createStyles.pageContainer}>
       {/* 상단 헤더 */}
-      <Header
-        variant="account"
-        accountContent={
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <button
-              type="button"
-              className={createStyles.loginHeaderButton}
-              onClick={() => setIsLoginModalOpen(true)}
-            >
-              <span className="kr_body_b">로그인</span>
-            </button>
-            <Link href="/my-page" className={createStyles.mypageLink}>
-              <span className="kr_body">마이페이지</span>
-            </Link>
-          </div>
-        }
-      />
+      <Header variant="account" />
 
       {/* 모바일/태블릿 (<= 1024px) 상단바 */}
       <div className={createStyles.topNavSection}>
@@ -334,20 +343,14 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
               onRegenerateImage={handleRegenerateImage}
               onSaveImage={handleSaveMainImage}
               isRegenerating={isRegenerating}
+              isGeneratingMode={isGeneratingMode}
+              isOwner={isOwner}
             />
           )}
         </div>
       </main>
 
-      {/* 로그인 모달 */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onSuccess={(user) => {
-          console.log("로그인 성공:", user);
-          window.location.reload();
-        }}
-      />
+
 
       {/* 하단 풋터 */}
       <Footer />

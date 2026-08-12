@@ -11,6 +11,54 @@ async function getSupabaseServerClient() {
   return await createClient();
 }
 
+function buildCharacterPrompt(char) {
+  const world = char.worlds || {};
+  const promptParts = [];
+
+  const identityList = [
+    char.name ? `named ${char.name}` : null,
+    char.age ? `${char.age} years old` : null,
+    char.gender ? char.gender : null,
+    char.race ? char.race : "human",
+    char.job_role ? `role: ${char.job_role}` : null,
+  ].filter(Boolean);
+
+  promptParts.push(`Digital concept art portrait of a character (${identityList.join(", ")}).`);
+
+  if (char.appearance) {
+    promptParts.push(`Visual Appearance & Clothing: ${char.appearance}.`);
+  }
+
+  if (char.personality) {
+    promptParts.push(`Personality & Expression: ${char.personality}.`);
+  }
+
+  if (char.abilities) {
+    promptParts.push(`Abilities & Magic & Equipment: ${char.abilities}.`);
+  }
+
+  if (char.background_story) {
+    promptParts.push(`Background Story Context: ${char.background_story}.`);
+  }
+
+  const worldDetails = [
+    world.name || world.title ? `World: ${world.name || world.title}` : null,
+    world.theme ? `Theme: ${world.theme}` : null,
+    world.genre ? `Genre: ${world.genre}` : null,
+    world.climate_landmarks ? `Environment: ${world.climate_landmarks}` : null,
+    world.myth_history ? `Lore: ${world.myth_history}` : null,
+    world.religion_culture ? `Culture: ${world.religion_culture}` : null,
+  ].filter(Boolean);
+
+  if (worldDetails.length > 0) {
+    promptParts.push(`World Setting: ${worldDetails.join(", ")}.`);
+  }
+
+  promptParts.push("Art style: High quality fantasy digital illustration, detailed lighting, cinematic atmosphere, 8k resolution, artstation masterpiece.");
+
+  return promptParts.join(" ").slice(0, 3500);
+}
+
 export async function POST(request) {
   try {
     const { characterId } = await request.json();
@@ -33,58 +81,79 @@ export async function POST(request) {
       return NextResponse.json({ error: "캐릭터 정보를 찾을 수 없습니다." }, { status: 404 });
     }
 
-    const promptText = `A detailed digital fantasy portrait of ${char.name || "a character"}, ${char.gender || ""} ${char.race || "human"} ${char.job_role || "adventurer"}, ${char.appearance || "stylish outfit"}, ${char.worlds?.theme || "fantasy"} background, 8k resolution, artstation masterpiece.`;
+    const promptText = buildCharacterPrompt(char);
 
     const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "OpenAI API 키가 설정되지 않았습니다. .env.local 파일의 OPENAI_API_KEY를 확인해주세요." },
+        { status: 500 }
+      );
+    }
+
     let tempImageUrl = "";
+    let tempImageBase64 = "";
     let lastErrorMsg = "";
 
-    if (apiKey) {
-      const modelsToTry = ["dall-e-3", "dall-e-2"];
-      for (const modelName of modelsToTry) {
-        try {
-          const openaiRes = await fetch("https://api.openai.com/v1/images/generations", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-              model: modelName,
-              prompt: promptText,
-              n: 1,
-              size: "1024x1024",
-            }),
-          });
+    const modelsToTry = ["gpt-image-2"];
+    for (const modelName of modelsToTry) {
+      try {
+        const openaiRes = await fetch("https://api.openai.com/v1/images/generations", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: modelName,
+            prompt: promptText,
+            n: 1,
+            size: "1024x1024",
+          }),
+        });
 
-          const openaiData = await openaiRes.json();
+        const openaiData = await openaiRes.json();
 
-          if (openaiRes.ok && openaiData?.data?.[0]?.url) {
+        if (openaiRes.ok) {
+          if (openaiData?.data?.[0]?.url) {
             tempImageUrl = openaiData.data[0].url;
             break;
-          } else if (openaiData?.error?.message) {
-            lastErrorMsg = openaiData.error.message;
-            console.warn(`OpenAI 재생성 모델 (${modelName}) 응답 에러:`, lastErrorMsg);
+          } else if (openaiData?.data?.[0]?.b64_json) {
+            tempImageBase64 = openaiData.data[0].b64_json;
+            break;
           }
-        } catch (err) {
-          lastErrorMsg = err.message;
         }
+        
+        if (openaiData?.error?.message) {
+          lastErrorMsg = openaiData.error.message;
+          console.warn(`OpenAI 재생성 모델 (${modelName}) 응답 에러:`, lastErrorMsg);
+        }
+      } catch (err) {
+        lastErrorMsg = err.message;
       }
     }
 
-    if (!tempImageUrl) {
-      console.warn("OpenAI 재생성 실패로 무료 AI 엔진 폴백 사용:", lastErrorMsg);
-      const encodedPrompt = encodeURIComponent(promptText);
-      const seed = Math.floor(Math.random() * 1000000);
-      tempImageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&seed=${seed}`;
+    if (!tempImageUrl && !tempImageBase64) {
+      return NextResponse.json(
+        { error: `OpenAI 이미지 재생성 실패: ${lastErrorMsg || "알 수 없는 오류"}` },
+        { status: 500 }
+      );
     }
 
-    let publicUrl = tempImageUrl;
+    let publicUrl = tempImageUrl || "";
 
     try {
-      const imgFetchRes = await fetch(tempImageUrl);
-      if (imgFetchRes.ok) {
-        const imgBuffer = await imgFetchRes.arrayBuffer();
+      let imgBuffer;
+      if (tempImageBase64) {
+        imgBuffer = Buffer.from(tempImageBase64, "base64");
+      } else if (tempImageUrl) {
+        const imgFetchRes = await fetch(tempImageUrl);
+        if (imgFetchRes.ok) {
+          imgBuffer = await imgFetchRes.arrayBuffer();
+        }
+      }
+
+      if (imgBuffer) {
         const fileName = `character_${characterId}_${Date.now()}.png`;
 
         const { data: uploadData, error: uploadErr } = await supabase.storage

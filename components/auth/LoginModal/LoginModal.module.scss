@@ -124,18 +124,3 @@
     height: 48px;
   }
 }
-
-.demoButton {
-  background: transparent;
-  border: 1px dashed colors.$color_tag_stroke;
-  color: colors.$color_secondary_dark;
-  padding: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
-
-  &:hover {
-    color: colors.$color_white;
-    border-color: colors.$color_primary;
-  }
-}

@@ -17,7 +17,7 @@ export async function POST(request) {
     const supabase = await getSupabaseServerClient();
     let insertedWorld = null;
 
-    const userId = data.userId || "1d742f2b-17f7-436f-b0e2-fcc8e4957247";
+    const userId = data.userId || null;
     let worldId = data.existingWorldId;
     let isNewWorldCreated = false;
 
