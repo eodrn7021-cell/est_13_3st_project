@@ -81,6 +81,21 @@ const SignupPage = () => {
     setIsLoading(false);
   };
 
+  const handleGoogleLogin = async () => {
+    setSignupError("");
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      },
+    });
+
+    if (error) {
+      setSignupError("Google 로그인 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <main className={styles.page}>
       <div className={styles.overlay} />
@@ -251,7 +266,7 @@ const SignupPage = () => {
             <span>또는 다른 방법으로 가입</span>
           </div>
 
-          <AuthButton type="button" variant="google">
+          <AuthButton type="button" variant="google" onClick={handleGoogleLogin}>
             <Image
               src="/images/icons/google.png"
               alt=""
