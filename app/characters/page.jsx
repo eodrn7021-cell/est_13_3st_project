@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import Link from 'next/link';
 import Header from '@/components/layout/Header/Header';
 import Footer from '@/components/layout/Footer/Footer';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
@@ -19,9 +20,13 @@ const CharactersPage = () => {
 
   useEffect(() => {
     const fetchCharacters = async () => {
-      const { data, error } = await supabase.from('portfolio').select('*');
-      if (error) console.error('Error fetching data:', error);
-      else setCharacters(data || []);
+      const { data, error } = await supabase.from('characters').select('*');
+      if (error) {
+        console.error('Error fetching data:', error);
+      } else {
+        console.log('DB에서 온 실제 데이터 구조:', data);
+        setCharacters(data || []);
+      }
     };
 
     fetchCharacters();
@@ -61,23 +66,31 @@ const CharactersPage = () => {
 
   const MySidebarContent = (
     <>
-      {/* 상단 사이드 메뉴*/}
+      {/* 상단 사이드 메뉴 */}
       <ul className={styles.side_menu}>
         <li>
-          <span className="material-symbols-outlined">home</span>
-          <span>홈</span>
+          <Link href="/">
+            <span className="material-symbols-outlined">home</span>
+            <span>홈</span>
+          </Link>
         </li>
         <li>
-          <span className="material-symbols-outlined">favorite</span>
-          <span>추천</span>
+          <Link href="/characters?sort=popular">
+            <span className="material-symbols-outlined">favorite</span>
+            <span>추천</span>
+          </Link>
         </li>
         <li>
-          <span className="material-symbols-outlined">add_circle</span>
-          <span>만들기</span>
+          <Link href="/create-character">
+            <span className="material-symbols-outlined">add_circle</span>
+            <span>만들기</span>
+          </Link>
         </li>
         <li>
-          <span className="material-symbols-outlined">person</span>
-          <span>마이페이지</span>
+          <Link href="/mypage">
+            <span className="material-symbols-outlined">person</span>
+            <span>마이페이지</span>
+          </Link>
         </li>
       </ul>
 
@@ -127,14 +140,13 @@ const CharactersPage = () => {
 
           <div className={styles.drawer_body}>{MySidebarContent}</div>
 
-          {/* 사이드바 내부 아래쪽 푸터 */}
           <div className={styles.drawer_footer}>
             <Footer />
           </div>
         </div>
       </div>
 
-      {/* 3. 본문 영역 */}
+      {/* 본문 영역 */}
       <div className={styles.main_wrapper}>
         {/* PC용 사이드바 */}
         <div className={styles.pc_sidebar}>
@@ -186,7 +198,7 @@ const CharactersPage = () => {
                 <option>성별</option>
                 <option>여</option>
                 <option>남</option>
-                <option>없음</option>
+                <option>무성</option>
                 <option>비공개</option>
               </select>
               <span className={`material-symbols-outlined ${styles.select_arrow}`}>
@@ -201,14 +213,14 @@ const CharactersPage = () => {
               {displayList.map((item) => (
                 <div key={item.id} className={styles.card_item}>
                   <div className={styles.image_box}>
-                    {item.thumbnail && (
-                      <img src={item.thumbnail} alt={item.title || '캐릭터 이미지'} />
+                    {item.image_url && (
+                      <img src={item.image_url} alt={item.name || '캐릭터 이미지'} />
                     )}
                     {item.badge && <span className={styles.badge}>{item.badge}</span>}
                   </div>
                   <div className={styles.card_info}>
-                    <h3>{item.title}</h3>
-                    <p>{item.description}</p>
+                    <h3>{item.name}</h3>
+                    <p>{item.description || `${item.race} · ${item.gender}`}</p>
                   </div>
                 </div>
               ))}
