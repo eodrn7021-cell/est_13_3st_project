@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Header from "@/components/layout/Header/Header";
+import Footer from "@/components/layout/Footer/Footer";
 import { createClient } from "@/lib/supabase/client";
 import styles from "./HomeMobileMenu.module.scss";
 
@@ -207,6 +208,9 @@ const HomeMobileMenu = () => {
                 </Link>
               ))}
             </nav>
+            <div className={styles.mobile_footer}>
+              <Footer variant="mobileMenu" />
+            </div>
           </aside>
         </div>
       )}

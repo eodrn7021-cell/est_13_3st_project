@@ -228,6 +228,12 @@
   color: colors.$color_white;
 }
 
+.mobile_footer {
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid colors.$color_tag;
+}
+
 // 왼쪽에서 등장
 @keyframes drawer_open {
   from {
@@ -281,6 +287,11 @@
 
   .navigation_item {
     height: 46px;
+  }
+
+  .mobile_footer {
+    margin-top: 30px;
+    padding-top: 24px;
   }
 }
 
