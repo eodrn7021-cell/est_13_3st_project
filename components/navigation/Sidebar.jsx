@@ -35,7 +35,6 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
     },
   ];
 
-  // 내 캐릭터 목록, 휴지통에서만 휴지통 메뉴 표시
   if (page === "character" || page === "trash") {
     menus.push({
       icon: "delete",
@@ -46,7 +45,7 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
 
   return (
     <>
-      {/* 모바일 사이드바 배경 */}
+      {/* 모바일 / 태블릿 배경 */}
       <div
         className={`${styles.backdrop} ${open ? styles.show : ""}`}
         onClick={onClose}
@@ -73,6 +72,7 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
             </Link>
           ))}
 
+          {/* 로그아웃 */}
           <button type="button" className={styles.logout}>
             <span className="material-symbols-rounded" aria-hidden="true">
               logout

@@ -29,19 +29,23 @@
 }
 
 /* ========================================
-   Content Layout
    Sidebar + Main
 ======================================== */
 
 .contentLayout {
-  position: relative;
-
   display: flex;
-  align-items: stretch;
+  align-items: flex-start;
 
-  width: 100%;
+  width: calc(100% - 80px);
+  max-width: 1460px;
+
+  margin: 0 auto;
+
+  gap: 24px;
 
   min-width: 0;
+
+  box-sizing: border-box;
 }
 
 /* ========================================
@@ -49,60 +53,33 @@
 ======================================== */
 
 .main {
-  width: 100%;
+  flex: 1 1 auto;
 
+  width: auto;
   min-width: 0;
-}
 
-/* ========================================
-   Container
-======================================== */
+  margin: 0;
 
-.container {
-  width: calc(100% - 80px);
-
-  max-width: 688px;
-
-  margin: 0 auto;
-
-  padding: 38px 0 30px;
+  padding: 22px 0 30px;
 
   box-sizing: border-box;
 }
 
 /* ========================================
-   Desktop
-   1201px 이상
+   Container
 
-   Sidebar + Main
+   ★ Main은 추가 중앙정렬하지 않는다.
 ======================================== */
 
-@media (min-width: 1201px) {
-  .contentLayout {
-    width: 100%;
-  }
+.container {
+  width: 100%;
+  max-width: 770px;
 
-  .main {
-    width: min(1290px, calc(100% - 48px));
+  margin: 0 auto;
 
-    margin: 0 auto;
+  padding: 0;
 
-    padding-left: 260px;
-
-    box-sizing: border-box;
-  }
-
-  .container {
-    width: 770px;
-
-    max-width: 770px;
-
-    margin: 0;
-
-    padding-top: 38px;
-
-    padding-bottom: 28px;
-  }
+  box-sizing: border-box;
 }
 
 /* ========================================
@@ -113,10 +90,11 @@
   display: flex;
 
   align-items: center;
-
   justify-content: space-between;
 
-  gap: 32px;
+  width: 100%;
+
+  gap: 24px;
 
   margin-bottom: 28px;
 }
@@ -126,7 +104,7 @@
 
   align-items: center;
 
-  gap: 18px;
+  gap: 14px;
 
   min-width: 0;
 }
@@ -134,8 +112,8 @@
 .profileImage {
   position: relative;
 
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
 
   flex-shrink: 0;
 
@@ -164,13 +142,13 @@
 }
 
 .profileText h1 {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
 
   color: $color_white;
 
   font-family: $font_family_kr;
 
-  font-size: 32px;
+  font-size: 26px;
 
   font-weight: $font_weight_regular;
 
@@ -184,7 +162,7 @@
 
   font-family: $font_family_kr;
 
-  font-size: 16px;
+  font-size: 14px;
 
   font-weight: $font_weight_regular;
 
@@ -199,18 +177,16 @@
   display: inline-flex;
 
   align-items: center;
-
   justify-content: center;
 
-  gap: 10px;
+  gap: 8px;
 
   flex-shrink: 0;
 
   min-width: 170px;
+  height: 52px;
 
-  height: 58px;
-
-  padding: 0 24px;
+  padding: 0 20px;
 
   border-radius: 14px;
 
@@ -224,7 +200,7 @@
 
   font-family: $font_family_kr;
 
-  font-size: 20px;
+  font-size: 18px;
 
   font-weight: $font_weight_regular;
 
@@ -245,7 +221,7 @@
 }
 
 .createButton span:first-child {
-  font-size: 36px;
+  font-size: 32px;
 
   line-height: 1;
 }
@@ -261,11 +237,11 @@
 
   width: 100%;
 
-  margin-bottom: 38px;
+  margin-bottom: 36px;
 
   overflow: hidden;
 
-  border-radius: 20px;
+  border-radius: 18px;
 
   background: rgba(18, 21, 37, 0.72);
 
@@ -277,17 +253,16 @@
 .statCard {
   position: relative;
 
-  min-height: 84px;
+  min-height: 76px;
 
   display: flex;
 
   flex-direction: column;
 
   align-items: center;
-
   justify-content: center;
 
-  gap: 8px;
+  gap: 6px;
 }
 
 .statCard:not(:last-child)::after {
@@ -299,7 +274,7 @@
   right: 0;
 
   width: 1px;
-  height: 38px;
+  height: 36px;
 
   transform: translateY(-50%);
 
@@ -341,7 +316,7 @@
 }
 
 .sectionTitle {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .sectionTitle h2 {
@@ -448,19 +423,17 @@
 .status {
   position: absolute;
 
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
 
   z-index: 3;
 
   display: inline-flex;
 
   align-items: center;
-
   justify-content: center;
 
   min-width: 40px;
-
   height: 24px;
 
   padding: 0 8px;
@@ -511,7 +484,7 @@
 
   z-index: 2;
 
-  padding: 18px 16px 16px;
+  padding: 16px 14px 14px;
 }
 
 .recommended {
@@ -519,11 +492,11 @@
 
   align-items: center;
 
-  height: 22px;
+  height: 21px;
 
-  padding: 0 9px;
+  padding: 0 8px;
 
-  margin-bottom: 8px;
+  margin-bottom: 7px;
 
   border-radius: 999px;
 
@@ -533,7 +506,7 @@
 
   font-family: $font_family_kr;
 
-  font-size: 12px;
+  font-size: 11px;
 
   font-weight: $font_weight_regular;
 
@@ -541,7 +514,7 @@
 }
 
 .cardContent h3 {
-  margin: 0 0 8px;
+  margin: 0 0 7px;
 
   color: $color_white;
 
@@ -551,23 +524,23 @@
 
   font-weight: $font_weight_bold;
 
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .cardContent p {
   display: -webkit-box;
 
-  margin: 0 0 12px;
+  margin: 0 0 10px;
 
   color: $color_secondary;
 
   font-family: $font_family_kr;
 
-  font-size: 12px;
+  font-size: 11px;
 
   font-weight: $font_weight_regular;
 
-  line-height: 1.45;
+  line-height: 1.4;
 
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -582,9 +555,9 @@
 
   align-items: center;
 
-  min-height: 24px;
+  min-height: 23px;
 
-  padding: 0 10px;
+  padding: 0 9px;
 
   border-radius: 999px;
 
@@ -594,7 +567,7 @@
 
   font-family: $font_family_kr;
 
-  font-size: 12px;
+  font-size: 11px;
 
   font-weight: $font_weight_regular;
 
@@ -604,30 +577,21 @@
 /* ========================================
    Tablet
    769px ~ 1200px
-
-   Sidebar = Sticky
-   Footer 침범 방지
 ======================================== */
 
 @media (min-width: 769px) and (max-width: 1200px) {
   .contentLayout {
-    display: flex;
+    display: block;
 
     width: 100%;
 
-    max-width: 1290px;
-
-    margin: 0 auto;
+    margin: 0;
   }
 
   .main {
-    flex: 1;
+    width: 100%;
 
-    width: auto;
-
-    min-width: 0;
-
-    padding-left: 0;
+    padding: 32px 0 30px;
   }
 
   .container {
@@ -636,10 +600,6 @@
     max-width: 960px;
 
     margin: 0 auto;
-
-    padding-top: 32px;
-
-    padding-bottom: 28px;
   }
 
   .characterGrid {
@@ -664,11 +624,7 @@
   .main {
     width: 100%;
 
-    padding-left: 0;
-  }
-
-  .page {
-    min-height: 100vh;
+    padding: 32px 0 30px;
   }
 
   .container {
@@ -676,9 +632,7 @@
 
     max-width: 688px;
 
-    padding-top: 32px;
-
-    padding-bottom: 30px;
+    margin: 0 auto;
   }
 
   .profileSection {
@@ -728,47 +682,22 @@
 
   .statCard {
     min-height: 76px;
-
-    gap: 6px;
-  }
-
-  .statCard h3,
-  .statCard strong {
-    font-size: 16px;
-  }
-
-  .statCard:not(:last-child)::after {
-    height: 32px;
-  }
-
-  .sectionTitle {
-    margin-bottom: 16px;
-  }
-
-  .sectionTitle h2 {
-    font-size: 24px;
   }
 
   .characterGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 
-    gap: 20px;
+    gap: 16px;
   }
 
   .characterCard {
     border-radius: 16px;
-  }
-
-  .imageWrapper {
-    aspect-ratio: 0.78;
   }
 }
 
 /* ========================================
    Mobile
    480px 이하
-
-   ★ 카드 2개만 표시
 ======================================== */
 
 @media (max-width: 480px) {
@@ -781,32 +710,22 @@
   .main {
     width: 100%;
 
-    padding-left: 0;
+    padding: 24px 0 20px;
   }
 
   .page {
-    min-height: 100vh;
-
     padding-bottom: 85px;
 
     background-position: center top;
   }
 
   .container {
-    width: calc(100% - 80px);
+    width: calc(100% - 40px);
 
     max-width: none;
 
     margin: 0 auto;
-
-    padding-top: 24px;
-
-    padding-bottom: 20px;
   }
-
-  /* ======================================
-     Profile
-  ====================================== */
 
   .profileSection {
     gap: 10px;
@@ -845,13 +764,8 @@
     line-height: 1.4;
   }
 
-  /* ======================================
-     Create
-  ====================================== */
-
   .createButton {
     width: 88px;
-
     min-width: 88px;
 
     height: 38px;
@@ -868,10 +782,6 @@
   .createButton span:first-child {
     font-size: 24px;
   }
-
-  /* ======================================
-     Statistics
-  ====================================== */
 
   .stats {
     margin-bottom: 28px;
@@ -893,14 +803,6 @@
     font-size: 12px;
   }
 
-  .statCard:not(:last-child)::after {
-    height: 28px;
-  }
-
-  /* ======================================
-     Recent
-  ====================================== */
-
   .sectionTitle {
     margin-bottom: 14px;
   }
@@ -909,26 +811,15 @@
     font-size: 16px;
   }
 
-  /* ======================================
-     Cards
-
-     ★ 정확히 2개만 표시
-  ====================================== */
-
   .characterGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    gap: 20px;
+    gap: 12px;
   }
 
   .characterCard {
     border-radius: 14px;
   }
-
-  /*
-    3번째 카드부터는
-    아예 표시하지 않는다.
-  */
 
   .characterCard:nth-child(n + 3) {
     display: none;
@@ -941,14 +832,6 @@
   .status {
     top: 8px;
     right: 8px;
-
-    min-width: 40px;
-
-    height: 24px;
-
-    padding: 0 7px;
-
-    font-size: 12px;
   }
 
   .cardContent {
@@ -956,13 +839,7 @@
   }
 
   .recommended {
-    height: 22px;
-
-    padding: 0 7px;
-
     margin-bottom: 6px;
-
-    font-size: 12px;
   }
 
   .cardContent h3 {
@@ -985,5 +862,55 @@
     padding: 0 8px;
 
     font-size: 12px;
+  }
+}
+
+/* ========================================
+   PC Layout
+   1201px 이상
+
+   시안처럼 전체 구성을 가운데로 모음
+======================================== */
+
+/* ========================================
+   PC Layout
+   1201px 이상
+   메인페이지와 동일한 중앙 정렬 구조
+======================================== */
+
+@media (min-width: 1201px) {
+  .contentLayout {
+    display: flex;
+    align-items: flex-start;
+
+    width: calc(100% - 80px);
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    gap: 24px;
+  }
+
+  .main {
+    flex: 1 1 auto;
+
+    width: auto;
+    min-width: 0;
+
+    margin: 0;
+    padding: 0;
+
+    box-sizing: border-box;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 770px;
+
+    margin: 0 auto;
+
+    padding: 22px 0 30px;
+
+    box-sizing: border-box;
   }
 }

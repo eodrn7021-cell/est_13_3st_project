@@ -43,18 +43,14 @@ const MyPage = () => {
 
   return (
     <div className={styles.page}>
-      {/* Header */}
       <Header onMenuClick={() => setSidebarOpen(true)} />
 
-      {/* Sidebar + Main Content */}
       <div className={styles.contentLayout}>
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} page="mypage" />
 
         <main className={styles.main}>
           <div className={styles.container}>
-            {/* ========================================
-                Profile
-            ======================================== */}
+            {/* Profile */}
             <section className={styles.profileSection}>
               <div className={styles.profileInfo}>
                 <div className={styles.profileImage}>
@@ -81,9 +77,7 @@ const MyPage = () => {
               </Link>
             </section>
 
-            {/* ========================================
-                Statistics
-            ======================================== */}
+            {/* Statistics */}
             <section className={styles.stats} aria-label="마이페이지 통계">
               <div className={styles.statCard}>
                 <h3>내 캐릭터</h3>
@@ -101,9 +95,7 @@ const MyPage = () => {
               </div>
             </section>
 
-            {/* ========================================
-                Recent Characters
-            ======================================== */}
+            {/* Recent Characters */}
             <section className={styles.recentSection}>
               <div className={styles.sectionTitle}>
                 <h2>최근 생성한 작업물</h2>
@@ -149,10 +141,8 @@ const MyPage = () => {
         </main>
       </div>
 
-      {/* Footer */}
       <Footer />
 
-      {/* Mobile Bottom Navigation */}
       <MobileNavigation />
     </div>
   );
