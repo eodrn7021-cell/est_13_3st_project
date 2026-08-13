@@ -225,7 +225,7 @@ const CharactersPage = () => {
                   value={filters.world_id}
                   onChange={(e) => handleFilterChange('world_id', e.target.value)}
                 >
-                  <option value="">세계관 전체</option>
+                  <option value="">세계관</option>
                   <option value="1">1번 세계관</option>
                 </select>
                 <span className={`material-symbols-outlined ${styles.select_arrow}`}>
@@ -235,7 +235,7 @@ const CharactersPage = () => {
 
               <div className={styles.select_wrapper}>
                 <select className={styles.filter_select}>
-                  <option value="">소속 전체</option>
+                  <option value="">소속</option>
                 </select>
                 <span className={`material-symbols-outlined ${styles.select_arrow}`}>
                   expand_more
@@ -248,7 +248,7 @@ const CharactersPage = () => {
                   value={filters.job_role}
                   onChange={(e) => handleFilterChange('job_role', e.target.value)}
                 >
-                  <option value="">직업 전체</option>
+                  <option value="">직업</option>
                   <option value="무직">무직</option>
                   <option value="기사">기사</option>
                   <option value="마법사">마법사</option>
@@ -264,7 +264,7 @@ const CharactersPage = () => {
                   value={filters.gender}
                   onChange={(e) => handleFilterChange('gender', e.target.value)}
                 >
-                  <option value="">성별 전체</option>
+                  <option value="">성별</option>
                   <option value="여성">여성</option>
                   <option value="남성">남성</option>
                   <option value="무성">무성</option>
