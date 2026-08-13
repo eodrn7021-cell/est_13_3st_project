@@ -5,10 +5,44 @@
 }
 
 .recommended_list {
-  display: flex;
-  gap: 20px;
   width: 100%;
   overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.recommended_track {
+  display: flex;
+  width: 100%;
+
+  // 드래그를 놓았을 때 부드럽게 페이지 이동
+  transition: transform 0.35s ease;
+  will-change: transform;
+}
+
+// 드래그 중에는 마우스를 바로 따라오도록 transition 제거
+.is_dragging {
+  transition: none;
+}
+
+// 슬라이더 한 페이지
+.recommended_page {
+  display: flex;
+  flex: 0 0 100%;
+  gap: 20px;
+  width: 100%;
+  min-width: 0;
+
+  // PC / 넓은 태블릿: 한 페이지 3장
+  > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
 }
 
 .recommended_slider {
@@ -20,11 +54,17 @@
 }
 
 .slider_dot {
+  // 수정: button 기본 스타일 제거
   display: block;
   width: 10px;
   height: 10px;
-  background-color: colors.$color_secondary_dark;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
+
+  background-color: colors.$color_secondary_dark;
+
+  cursor: pointer;
 }
 
 .slider_dot_active {
@@ -51,7 +91,7 @@
     margin: 0;
   }
 
-  .recommended_list {
+  .recommended_page {
     gap: 17px;
   }
 
@@ -62,11 +102,7 @@
 
 /* 작은 태블릿 */
 @media (min-width: 481px) and (max-width: 767px) {
-  .recommended_list {
+  .recommended_page {
     gap: 16px;
-  }
-
-  .recommended_list > :nth-child(n + 3) {
-    display: none;
   }
 }
