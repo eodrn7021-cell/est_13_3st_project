@@ -82,10 +82,6 @@ const Header = ({ variant = "main", accountContent = null, onMenuClick }) => {
         {/* 메인·캐릭터 목록 페이지 */}
         {variant === "main" && (
           <div className={styles.header_actions}>
-            <div className={styles.header_pc_search}>
-              <SearchBar />
-            </div>
-
             <div className={styles.header_buttons}>
               {/* 로그인 상태에 따라 Header 버튼 변경 */}
               {user ? (
