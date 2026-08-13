@@ -46,28 +46,39 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
 
   return (
     <>
-      {/* 배경 */}
-      <div className={`${styles.backdrop} ${open ? styles.show : ""}`} onClick={onClose} />
+      {/* 모바일 사이드바 배경 */}
+      <div
+        className={`${styles.backdrop} ${open ? styles.show : ""}`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
-      <aside className={`${styles.sidebar} ${open ? styles.open : ""}`}>
+      <aside
+        className={`${styles.sidebar} ${open ? styles.open : ""}`}
+        aria-label="마이페이지 메뉴"
+      >
         <nav>
           {menus.map((menu) => (
             <Link
               key={menu.href}
               href={menu.href}
-              className={`${styles.menu}
-              ${pathname === menu.href ? styles.active : ""}`}
+              className={`${styles.menu} ${pathname === menu.href ? styles.active : ""}`}
               onClick={onClose}
             >
-              <span className="material-symbols-rounded">{menu.icon}</span>
+              <span className="material-symbols-rounded" aria-hidden="true">
+                {menu.icon}
+              </span>
 
               <span>{menu.label}</span>
             </Link>
           ))}
 
-          <button className={styles.logout}>
-            <span className="material-symbols-rounded">logout</span>
-            로그아웃
+          <button type="button" className={styles.logout}>
+            <span className="material-symbols-rounded" aria-hidden="true">
+              logout
+            </span>
+
+            <span>로그아웃</span>
           </button>
         </nav>
       </aside>

@@ -1,137 +1,377 @@
 @use "@/styles/abstracts/colors" as *;
+@use "@/styles/abstracts/variables" as *;
+
+/* ========================================
+   Backdrop
+   모바일 / 태블릿에서만 사용
+======================================== */
 
 .backdrop {
+  display: none;
+
   position: fixed;
+
   inset: 0;
 
   background: rgba(0, 0, 0, 0.55);
 
   opacity: 0;
+
   visibility: hidden;
 
-  transition: 0.3s;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 
   z-index: 98;
 }
 
-.show {
+.backdrop.show {
   opacity: 1;
+
   visibility: visible;
 }
+
+/* ========================================
+   Sidebar
+   Desktop
+   1201px 이상
+======================================== */
 
 .sidebar {
   position: fixed;
 
-  top: 80px;
-  left: -300px;
+  top: 100px;
 
-  width: 260px;
-  height: calc(100vh - 100px);
+  left: calc(50% - 645px);
 
-  padding: 20px;
+  width: 245px;
 
-  background: rgba(23, 24, 38, 0.97);
+  height: 590px;
 
-  border-radius: 18px;
+  padding: 16px;
 
-  transition: 0.35s;
+  box-sizing: border-box;
 
-  z-index: 99;
+  background: $color_background_surface;
 
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 8px;
+
+  overflow: hidden;
+
+  z-index: 100;
 }
 
-.open {
-  left: 20px;
-}
+/* ========================================
+   Navigation
+======================================== */
 
 .sidebar nav {
   display: flex;
+
   flex-direction: column;
+
+  width: 100%;
+
   height: 100%;
+
+  min-height: 0;
 }
+
+/* ========================================
+   Menu
+======================================== */
 
 .menu {
   display: flex;
+
   align-items: center;
 
   gap: 16px;
+
+  flex-shrink: 0;
+
+  width: 100%;
 
   height: 56px;
 
   padding: 0 18px;
 
+  box-sizing: border-box;
+
   border-radius: 14px;
 
-  color: #fff;
+  background: transparent;
 
-  transition: 0.2s;
+  color: $color_white;
+
+  text-decoration: none;
+
+  font-family: $font_family_kr;
+
+  font-size: 16px;
+
+  font-weight: $font_weight_regular;
+
+  line-height: 1;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
+
+/* ========================================
+   Menu Hover
+======================================== */
 
 .menu:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: $gradient_main;
+
+  color: $color_white;
 }
+
+/* ========================================
+   Active Menu
+   현재 페이지는 기본적으로
+   Sidebar 배경색과 동일하게 표시
+======================================== */
 
 .active {
-  background: linear-gradient(90deg, #7d4cff, #5d34e6);
+  background: $color_background_surface;
+
+  color: $color_white;
 }
+
+/*
+   현재 페이지 메뉴도 hover하면
+   Main Gradient 표시
+*/
+
+.active:hover {
+  background: $gradient_main;
+
+  color: $color_white;
+}
+
+/* ========================================
+   Menu Icon
+======================================== */
 
 .menu span:first-child {
+  flex-shrink: 0;
+
+  color: $color_white;
+
   font-size: 24px;
+
+  line-height: 1;
 }
 
-.logout {
-  margin-top: auto;
+/* ========================================
+   Logout
+======================================== */
 
+.logout {
   display: flex;
 
   align-items: center;
 
   gap: 16px;
 
+  width: 100%;
+
+  min-height: 56px;
+
   height: 56px;
+
+  margin-top: auto;
 
   padding: 0 18px;
 
-  background: none;
+  box-sizing: border-box;
 
-  border: none;
+  background: transparent;
 
-  color: #ff7b7b;
+  border: 0;
+
+  border-radius: 14px;
+
+  color: $color_highlight;
 
   cursor: pointer;
 
+  font-family: $font_family_kr;
+
   font-size: 16px;
+
+  font-weight: $font_weight_regular;
+
+  line-height: 1;
+
+  text-align: left;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
+
+/* ========================================
+   Logout Hover
+======================================== */
 
 .logout:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(244, 119, 119, 0.08);
 
-  border-radius: 14px;
+  color: $color_highlight;
 }
 
-@media (max-width: 768px) {
+/* ========================================
+   Logout Icon
+======================================== */
+
+.logout span:first-child {
+  flex-shrink: 0;
+
+  color: $color_highlight;
+
+  font-size: 24px;
+
+  line-height: 1;
+}
+
+/* ========================================
+   Tablet
+   769px ~ 1200px
+
+   Sidebar = Sticky
+   Footer 앞에서 자동 정지
+======================================== */
+
+@media (min-width: 769px) and (max-width: 1200px) {
+  .backdrop {
+    display: none;
+  }
+
   .sidebar {
-    top: 72px;
+    position: sticky;
 
-    width: 240px;
+    top: 100px;
 
-    height: calc(100vh - 90px);
+    align-self: flex-start;
+
+    flex-shrink: 0;
+
+    width: 245px;
+
+    height: min(590px, calc(100dvh - 120px));
+
+    margin-left: 0;
+
+    padding: 16px;
+
+    box-sizing: border-box;
+
+    background: $color_background_surface;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border-radius: 8px;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    z-index: 10;
   }
 }
+
+/* ========================================
+   Tablet / Mobile Drawer
+   768px 이하
+======================================== */
+
+@media (max-width: 768px) {
+  .backdrop {
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+
+    top: 72px;
+
+    bottom: 80px;
+
+    left: -290px;
+
+    width: 290px;
+
+    height: auto;
+
+    max-height: none;
+
+    padding: 20px;
+
+    box-sizing: border-box;
+
+    background: $color_background_surface;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border-radius: 0 18px 18px 0;
+
+    overflow-x: hidden;
+
+    overflow-y: auto;
+
+    transition: left 0.35s ease;
+
+    z-index: 100;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+}
+
+/* ========================================
+   Mobile
+   480px 이하
+======================================== */
 
 @media (max-width: 480px) {
   .sidebar {
-    top: 68px;
+    position: fixed;
 
-    width: 220px;
+    top: 64px;
+
+    bottom: 85px;
 
     left: -240px;
-  }
 
-  .open {
-    left: 0;
+    width: 240px;
+
+    height: auto;
+
+    max-height: none;
+
+    padding: 16px;
+
+    box-sizing: border-box;
+
+    background: $color_background_surface;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
 
     border-radius: 0 18px 18px 0;
+
+    overflow-x: hidden;
+
+    overflow-y: auto;
+  }
+
+  .sidebar.open {
+    left: 0;
   }
 }
