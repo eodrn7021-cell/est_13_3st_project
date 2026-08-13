@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthButton from "@/components/form/AuthButton/AuthButton";
 import AuthInput from "@/components/form/AuthInput/AuthInput";
 import { createClient } from "@/lib/supabase/client";
@@ -17,7 +17,32 @@ const LoginPage = () => {
   const [loginError, setLoginError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const [loginNotice, setLoginNotice] = useState("");
+
   const supabase = createClient();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("reason") === "protected") {
+      setLoginNotice("로그인 후 이용해주세요.");
+    }
+  }, []);
+
+  // 로그인 후 이동할 주소 확인
+  const getRedirectPath = () => {
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get("redirect");
+
+    // 허용된 내부 경로만 이동
+    const allowedRedirects = ["/my-page", "/my-characters", "/characters/create"];
+
+    if (redirect && allowedRedirects.includes(redirect)) {
+      return redirect;
+    }
+
+    return "/";
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,9 +62,10 @@ const LoginPage = () => {
     }
 
     setIsLoading(false);
+    // 로그인 성공 → 원래 이용하려던 페이지로 이동
+    const redirectPath = getRedirectPath();
 
-    // 로그인 성공 → 메인페이지
-    router.push("/");
+    router.push(redirectPath);
     router.refresh();
   };
 
@@ -97,6 +123,13 @@ const LoginPage = () => {
             <h2 className={styles.card_title}>로그인</h2>
             <p className={styles.card_sub}>계정에 로그인하여 계속 이용하세요.</p>
           </div>
+
+          {/* 보호 페이지 접근 안내 */}
+          {loginNotice && (
+            <p className={styles.error_message} role="status">
+              {loginNotice}
+            </p>
+          )}
 
           <form className={styles.form} onSubmit={handleSubmit}>
             <AuthInput
