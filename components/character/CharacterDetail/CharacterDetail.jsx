@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./CharacterDetail.module.scss";
 
 // 한글/영문 감지하여 적절한 Typography 클래스 반환하는 헬퍼 함수
@@ -17,6 +17,7 @@ export default function CharacterDetail({
   isRegenerating = false,
   isGeneratingMode = false,
   isOwner = false,
+  currentUser = null,
 }) {
   // 기본 더미 코멘트 (시안 참고)
   const defaultComments = [
@@ -30,6 +31,12 @@ export default function CharacterDetail({
   );
   const [newAuthor, setNewAuthor] = useState("");
   const [newContent, setNewContent] = useState("");
+
+  useEffect(() => {
+    if (currentUser?.profile?.nickname) {
+      setNewAuthor(currentUser.profile.nickname);
+    }
+  }, [currentUser]);
 
   const handleAddComment = (e) => {
     e.preventDefault();
@@ -79,8 +86,19 @@ export default function CharacterDetail({
     character?.background_story ||
     "캐릭터 설명이 없습니다.";
 
-  // 우측 카드 태그 목록 (존재하는 값만 필터링)
-  const rightTags = [race, jobRole].filter(Boolean);
+  // 우측 카드 태그 목록 (세계관 테마, 장르, 종족, 직업 등을 모아 보기 좋게 정리)
+  const rawTags = [
+    character?.worlds?.theme,
+    character?.worlds?.genre,
+    character?.race,
+    character?.job_role,
+  ].filter(Boolean);
+
+  const rightTags = rawTags
+    .flatMap((tag) => tag.split(","))
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .slice(0, 4);
 
   return (
     <div className={styles.container2Col}>
@@ -166,13 +184,23 @@ export default function CharacterDetail({
           {!isOwner && (
             <form onSubmit={handleAddComment} className={styles.commentForm}>
               <div className={styles.formInputGroup}>
-                <input
-                  type="text"
-                  placeholder="작성자 이름 (선택)"
-                  value={newAuthor}
-                  onChange={(e) => setNewAuthor(e.target.value)}
-                  className={`kr_caption ${styles.authorInput}`}
-                />
+                {currentUser?.profile?.nickname ? (
+                  <input
+                    type="text"
+                    value={newAuthor}
+                    className={`kr_caption ${styles.authorInput}`}
+                    disabled
+                    style={{ backgroundColor: "transparent", color: "white" }}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    placeholder="작성자 이름 (선택)"
+                    value={newAuthor}
+                    onChange={(e) => setNewAuthor(e.target.value)}
+                    className={`kr_caption ${styles.authorInput}`}
+                  />
+                )}
                 <button type="submit" className={`kr_body ${styles.submitBtn}`}>
                   등록
                 </button>
@@ -226,27 +254,29 @@ export default function CharacterDetail({
         </div>
 
         {/* 하단 버튼 그룹 (이미지 재생성, 이미지 저장) */}
-        <div className={styles.actionButtonGroup}>
-          <button
-            type="button"
-            className={styles.regenerateActionButton}
-            onClick={onRegenerateImage}
-            disabled={isRegenerating}
-          >
-            <span className="kr_body_b">
-              {isRegenerating ? "생성 중..." : "이미지 재생성"}
-            </span>
-          </button>
+        {isOwner && (
+          <div className={styles.actionButtonGroup}>
+            <button
+              type="button"
+              className={styles.regenerateActionButton}
+              onClick={onRegenerateImage}
+              disabled={isRegenerating}
+            >
+              <span className="kr_body_b">
+                {isRegenerating ? "생성 중..." : "이미지 재생성"}
+              </span>
+            </button>
 
-          <button
-            type="button"
-            className={styles.saveActionButton}
-            onClick={handleSaveImage}
-            disabled={isRegenerating || !character?.image_url}
-          >
-            <span className="kr_body_b">이미지 저장</span>
-          </button>
-        </div>
+            <button
+              type="button"
+              className={styles.saveActionButton}
+              onClick={handleSaveImage}
+              disabled={isRegenerating || !character?.image_url}
+            >
+              <span className="kr_body_b">이미지 저장</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
