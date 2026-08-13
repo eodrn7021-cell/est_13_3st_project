@@ -20,11 +20,17 @@
 }
 
 .slider_dot {
+  // 수정: button 기본 스타일 제거
   display: block;
   width: 10px;
   height: 10px;
-  background-color: colors.$color_secondary_dark;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
+
+  background-color: colors.$color_secondary_dark;
+
+  cursor: pointer;
 }
 
 .slider_dot_active {
@@ -66,7 +72,8 @@
     gap: 16px;
   }
 
-  .recommended_list > :nth-child(n + 3) {
-    display: none;
-  }
+  // 삭제:
+  // .recommended_list > :nth-child(n + 3) {
+  //   display: none;
+  // }
 }
