@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Header from '@/components/layout/Header/Header';
 import Footer from '@/components/layout/Footer/Footer';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
@@ -14,14 +14,15 @@ import styles from './characters.module.scss';
 import Image from 'next/image';
 
 const CharactersPage = () => {
+  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [characters, setCharacters] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // actual DB 컬럼 구조에 맞춘 필터 상태
   const [filters, setFilters] = useState({
     sort: searchParams.get('sort') === 'popular' ? '인기순' : '최신순',
     world_id: '',
@@ -32,9 +33,35 @@ const CharactersPage = () => {
   const supabase = createClient();
   const tags = ['판타지', '기사', '마법사', '엘프', '악역', '성장', '악마'];
 
+  // 검색
+  const searchQuery =
+    searchParams.get('search') || searchParams.get('q') || searchParams.get('query') || '';
+
+  const handleHeaderCapture = (e) => {
+    const hamburgerBtn = e.target.closest('[class*="header_menu_button"]');
+    if (hamburgerBtn) {
+      setIsMobileMenuOpen(true);
+      return;
+    }
+
+    if (e.type === 'submit' || (e.type === 'keydown' && e.key === 'Enter')) {
+      const searchInput = e.currentTarget.querySelector(
+        'input[type="text"], input[type="search"], input',
+      );
+
+      if (searchInput && searchInput.value.trim()) {
+        e.preventDefault();
+        const val = searchInput.value.trim();
+        router.push(`/characters?search=${encodeURIComponent(val)}`);
+      }
+    }
+  };
+
   // DB 필터링 로직
   useEffect(() => {
     const fetchCharacters = async () => {
+      setIsLoading(true);
+
       let query = supabase.from('characters').select('*');
 
       if (filters.world_id) {
@@ -46,21 +73,34 @@ const CharactersPage = () => {
       if (filters.gender) {
         query = query.eq('gender', filters.gender);
       }
-      if (selectedTags.length > 0) {
-        query = query.contains('tags', selectedTags);
+
+      // 검색어 필터링
+      if (searchQuery.trim()) {
+        const keyword = `%${searchQuery.trim()}%`;
+        query = query.or(
+          `name.ilike.${keyword},race.ilike.${keyword},job_role.ilike.${keyword},background_story.ilike.${keyword},personality.ilike.${keyword}`,
+        );
       }
+
       if (filters.sort === '인기순') {
         query = query.order('id', { ascending: false });
       } else {
         query = query.order('id', { ascending: false });
       }
 
-      const { data } = await query;
-      setCharacters(data || []);
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Supabase 에러:', error);
+      } else {
+        setCharacters(data || []);
+      }
+
+      setIsLoading(false);
     };
 
     fetchCharacters();
-  }, [filters, selectedTags]);
+  }, [filters, searchQuery]);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({
@@ -75,23 +115,7 @@ const CharactersPage = () => {
     );
   };
 
-  const handleHeaderClick = (e) => {
-    const hamburgerBtn = e.target.closest('[class*="header_menu_button"]');
-    if (hamburgerBtn) {
-      setIsMobileMenuOpen(true);
-    }
-  };
-
-  const displayList =
-    characters.length > 0
-      ? characters
-      : Array.from({ length: 8 }, (_, i) => ({
-          id: `mock-${i}`,
-          title: `테스트 캐릭터 ${i + 1}`,
-          description: '스타일 확인용 임시입니다. 피그마 레이아웃에 맞춰 표시됩니다.',
-          badge: i % 2 === 0 ? 'RECOMMEND' : null,
-          thumbnail: null,
-        }));
+  const displayList = characters;
 
   const PcSidebarContent = (
     <div className={styles.sidebar_inner}>
@@ -150,21 +174,23 @@ const CharactersPage = () => {
 
   return (
     <div className={styles.page_container}>
-      <div onClick={handleHeaderClick}>
+      <div
+        onClick={handleHeaderCapture}
+        onSubmitCapture={handleHeaderCapture}
+        onKeyDownCapture={handleHeaderCapture}
+      >
         <Header />
       </div>
 
       {/* 모바일 전용 드로어 사이드바 */}
       <div className={`${styles.mobile_drawer} ${isMobileMenuOpen ? styles.is_open : ''}`}>
         <div className={styles.backdrop} onClick={() => setIsMobileMenuOpen(false)} />
-
         <div className={styles.drawer_content}>
           <div className={styles.drawer_header}>
             <button type="button" onClick={() => setIsMobileMenuOpen(false)}>
               <span className="material-symbols-outlined">close</span>
             </button>
           </div>
-
           <div className={styles.mobile_drawer_top}>
             <div className={styles.mobile_logo_box}>
               <Image
@@ -185,7 +211,6 @@ const CharactersPage = () => {
               </Link>
             </div>
           </div>
-
           <div className={styles.mobile_drawer_footer}>
             <Footer />
           </div>
@@ -194,16 +219,12 @@ const CharactersPage = () => {
 
       {/* 메인 래퍼 */}
       <div className={styles.main_wrapper}>
-        {/* 사이드바 + 메인 콘텐츠를 감싸는 본체 바디 */}
         <div className={styles.layout_body}>
-          {/* PC용 사이드바 */}
           <div className={styles.pc_sidebar}>
             <Sidebar variant="world" topContent={PcSidebarContent} />
           </div>
 
-          {/* 우측 메인 콘텐츠 */}
           <main className={styles.content_area}>
-            {/* 필터 바 영역 */}
             <div className={styles.filter_bar}>
               <div className={styles.select_wrapper}>
                 <select
@@ -225,7 +246,7 @@ const CharactersPage = () => {
                   value={filters.world_id}
                   onChange={(e) => handleFilterChange('world_id', e.target.value)}
                 >
-                  <option value="">세계관 전체</option>
+                  <option value="">세계관</option>
                   <option value="1">1번 세계관</option>
                 </select>
                 <span className={`material-symbols-outlined ${styles.select_arrow}`}>
@@ -235,7 +256,7 @@ const CharactersPage = () => {
 
               <div className={styles.select_wrapper}>
                 <select className={styles.filter_select}>
-                  <option value="">소속 전체</option>
+                  <option value="">소속</option>
                 </select>
                 <span className={`material-symbols-outlined ${styles.select_arrow}`}>
                   expand_more
@@ -248,7 +269,7 @@ const CharactersPage = () => {
                   value={filters.job_role}
                   onChange={(e) => handleFilterChange('job_role', e.target.value)}
                 >
-                  <option value="">직업 전체</option>
+                  <option value="">직업</option>
                   <option value="무직">무직</option>
                   <option value="기사">기사</option>
                   <option value="마법사">마법사</option>
@@ -264,7 +285,7 @@ const CharactersPage = () => {
                   value={filters.gender}
                   onChange={(e) => handleFilterChange('gender', e.target.value)}
                 >
-                  <option value="">성별 전체</option>
+                  <option value="">성별</option>
                   <option value="여성">여성</option>
                   <option value="남성">남성</option>
                   <option value="무성">무성</option>
@@ -276,35 +297,44 @@ const CharactersPage = () => {
               </div>
             </div>
 
-            {/* 카드 그리드 영역 */}
             <div className={styles.card_grid_container}>
-              <div className={styles.card_grid}>
-                {displayList.map((item) => (
-                  <div key={item.id} className={styles.card_item}>
-                    <div className={styles.image_box}>
-                      {item.image_url && (
-                        <img src={item.image_url} alt={item.name || '캐릭터 이미지'} />
-                      )}
-                      {item.badge && <span className={styles.badge}>{item.badge}</span>}
+              {isLoading ? null : displayList && displayList.length > 0 ? (
+                <div className={styles.card_grid}>
+                  {displayList.map((item) => (
+                    <div key={item.id} className={styles.card_item}>
+                      <div className={styles.image_box}>
+                        {item.image_url && (
+                          <img src={item.image_url} alt={item.name || '캐릭터 이미지'} />
+                        )}
+
+                        <div className={styles.card_overlay}>
+                          {item.badge && <span className={styles.badge}>{item.badge}</span>}
+                          <div className={styles.card_info}>
+                            <h3>{item.name}</h3>
+                            <p>
+                              {item.background_story || `${item.race || ''} · ${item.gender || ''}`}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className={styles.card_info}>
-                      <h3>{item.name || item.title}</h3>
-                      <p>{item.description || `${item.race || ''} · ${item.gender || ''}`}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className={styles.empty_state}>
+                  <span className={`material-symbols-outlined ${styles.empty_icon}`}>error</span>
+                  <p className={styles.empty_text}>검색 결과가 없습니다.</p>
+                </div>
+              )}
             </div>
           </main>
         </div>
 
-        {/* PC용 푸터 영역 (사이드바 밑까지 전체 너비 차지) */}
         <footer className={styles.pc_footer_wrapper}>
           <Footer />
         </footer>
       </div>
 
-      {/* 1200px 미만 하단 모바일 바 */}
       <div className={styles.mobile_nav_wrapper}>
         <MobileNavigation />
       </div>
