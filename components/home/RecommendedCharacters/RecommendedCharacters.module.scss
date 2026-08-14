@@ -45,6 +45,14 @@
   }
 }
 
+.recommended_placeholder {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 360px;
+  border-radius: 10px;
+  background-color: colors.$color_background_surface;
+}
+
 .recommended_slider {
   display: flex;
   align-items: center;
@@ -106,6 +114,10 @@
     margin: 0;
   }
 
+  .recommended_placeholder {
+    height: 340px;
+  }
+
   .recommended_page {
     gap: 17px;
   }
@@ -119,5 +131,20 @@
 @media (min-width: 481px) and (max-width: 767px) {
   .recommended_page {
     gap: 16px;
+  }
+  .recommended_placeholder:nth-child(3) {
+    display: none;
+  }
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+  .recommended_placeholder {
+    height: 340px;
+  }
+
+  .recommended_placeholder:nth-child(2),
+  .recommended_placeholder:nth-child(3) {
+    display: none;
   }
 }

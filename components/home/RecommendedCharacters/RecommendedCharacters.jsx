@@ -8,6 +8,8 @@ import styles from "./RecommendedCharacters.module.scss";
 const RecommendedCharacters = () => {
   const [recommendedCharacters, setRecommendedCharacters] = useState([]);
 
+  const [isLoading, setIsLoading] = useState(true);
+
   // 현재 페이지
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -57,6 +59,7 @@ const RecommendedCharacters = () => {
   // 추천 캐릭터 조회
   useEffect(() => {
     const fetchRecommendedCharacters = async () => {
+      setIsLoading(true);
       const supabase = createClient();
 
       const { data, error } = await supabase
@@ -66,6 +69,7 @@ const RecommendedCharacters = () => {
 
       if (error) {
         console.error("추천 캐릭터 조회 실패:", error);
+        setIsLoading(false);
         return;
       }
 
@@ -78,6 +82,7 @@ const RecommendedCharacters = () => {
       }));
 
       setRecommendedCharacters(formattedCharacters);
+      setIsLoading(false);
     };
 
     fetchRecommendedCharacters();
@@ -204,17 +209,30 @@ const RecommendedCharacters = () => {
           {/* 항상 3페이지 렌더링 */}
           {characterPages.map((pageCharacters, pageIndex) => (
             <div key={pageIndex} className={styles.recommended_page}>
-              {pageCharacters.map((character, index) => (
-                <RecommendedCharacterCard
-                  key={character.id}
-                  id={character.id}
-                  image={character.image}
-                  name={character.name}
-                  description={character.description}
-                  tags={character.tags}
-                  isPriority={pageIndex === 0 && index === 0}
-                />
-              ))}
+              {isLoading && pageIndex === 0 ? (
+                <>
+                  {/* 로딩 중 가벼운 placeholder 3개 */}
+                  {[0, 1, 2].map((index) => (
+                    <div
+                      key={`placeholder-${index}`}
+                      className={styles.recommended_placeholder}
+                      aria-hidden="true"
+                    />
+                  ))}
+                </>
+              ) : (
+                pageCharacters.map((character, index) => (
+                  <RecommendedCharacterCard
+                    key={character.id}
+                    id={character.id}
+                    image={character.image}
+                    name={character.name}
+                    description={character.description}
+                    tags={character.tags}
+                    isPriority={pageIndex === 0 && index === 0}
+                  />
+                ))
+              )}
             </div>
           ))}
         </div>
