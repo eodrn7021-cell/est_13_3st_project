@@ -27,6 +27,8 @@
   position: absolute;
   top: 0;
   left: 0;
+  display: flex;
+  flex-direction: column;
   width: min(280px, 82vw);
   height: 100dvh;
   padding: 24px 30px;
@@ -229,7 +231,7 @@
 }
 
 .mobile_footer {
-  margin-top: 36px;
+  margin-top: auto;
   padding-top: 28px;
   border-top: 1px solid colors.$color_tag;
 }
@@ -290,7 +292,7 @@
   }
 
   .mobile_footer {
-    margin-top: 30px;
+    margin-top: auto;
     padding-top: 24px;
   }
 }
