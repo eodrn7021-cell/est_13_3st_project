@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Header from "@/components/layout/Header/Header";
 import Footer from "@/components/layout/Footer/Footer";
-import { createClient } from "@/lib/supabase/client";
 import styles from "./HomeMobileMenu.module.scss";
 
 const HomeMobileMenu = () => {
@@ -13,30 +12,42 @@ const HomeMobileMenu = () => {
   const [user, setUser] = useState(null);
   const [isClosing, setIsClosing] = useState(false);
 
-  const supabase = createClient();
-
   // 로그인 상태 확인
   useEffect(() => {
+    if (!isOpen) return;
+
+    let subscription;
+    let isCancelled = false; // 여기 추가
+
     const checkUser = async () => {
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
+      // 여기 추가
+      if (isCancelled) return;
+
       setUser(user);
+
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (!isCancelled) {
+          setUser(session?.user ?? null);
+        }
+      });
+
+      subscription = data.subscription;
     };
 
     checkUser();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
     return () => {
-      subscription.unsubscribe();
+      isCancelled = true; // 여기 추가
+      subscription?.unsubscribe();
     };
-  }, []);
+  }, [isOpen]);
 
   // 메뉴가 열렸을 때 뒤쪽 스크롤 + 스크롤바 숨기기
   useEffect(() => {
@@ -82,6 +93,9 @@ const HomeMobileMenu = () => {
 
   // 로그아웃
   const handleLogout = async () => {
+    const { createClient } = await import("@/lib/supabase/client");
+    const supabase = createClient();
+
     const { error } = await supabase.auth.signOut({
       scope: "local",
     });
@@ -144,7 +158,6 @@ const HomeMobileMenu = () => {
             className={`${styles.drawer} ${isClosing ? styles.drawer_closing : ""}`}
             aria-label="모바일 메뉴"
           >
-            {" "}
             {/* 상단 로고 */}
             <div className={styles.drawer_header}>
               <Link href="/" className={styles.logo} onClick={handleClose}>
