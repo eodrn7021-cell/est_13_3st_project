@@ -39,6 +39,21 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // 뒤쪽 스크롤 방지
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [isMobileMenuOpen]);
+
   const [isLiked, setIsLiked] = useState(() => Boolean(cachedCharacter?.initialIsLiked));
   const [isBookmarked, setIsBookmarked] = useState(() => Boolean(cachedCharacter?.initialIsBookmarked));
   const [likes, setLikes] = useState(() => cachedCharacter?.likes || 0);
@@ -467,8 +482,6 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
   // 현재 캐릭터의 DB 히스토리 중 가장 최근 4개 이미지 추출
   const imageHistory = dbImageHistory.slice(0, 4);
 
-
-
   const handleSelectWorld = () => {
     setActiveNav("world");
     setIsCharacterOpen(false);
@@ -479,10 +492,186 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
     setActiveNav("character");
   };
 
+  const sidebarTopContent = (
+    <>
+      {/* 세계관 아코디언 */}
+      <button
+        type="button"
+        className={`${sidebarStyles.accordionButton} ${activeNav === "world" ? sidebarStyles.active : ""}`}
+        onClick={handleSelectWorld}
+      >
+        <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+          history_edu
+        </span>
+        <span className="kr_body_b">{worldTitle}</span>
+      </button>
+
+      {/* 캐릭터 아코디언 */}
+      <div>
+        <button
+          type="button"
+          className={sidebarStyles.accordionButton}
+          onClick={handleToggleCharacterAccordion}
+        >
+          <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+            person
+          </span>
+          <span className="kr_body_b">캐릭터</span>
+        </button>
+
+        {isCharacterOpen && (
+          <div className={sidebarStyles.accordionList}>
+            {worldCharacters.length > 0 ? (
+              worldCharacters.map((char) => (
+                <div
+                  key={char.id}
+                  className={`${sidebarStyles.subItem} ${String(char.id) === String(id) ? sidebarStyles.active : ""}`}
+                  onClick={() => router.push(`/characters/${char.id}`)}
+                >
+                  <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+                    auto_stories
+                  </span>
+                  <span className="kr_body_b">{char.name}</span>
+                </div>
+              ))
+            ) : (
+              <div className={`${createStyles.topSubItem} ${createStyles.active}`}>
+                <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+                  auto_stories
+                </span>
+                <span className="kr_body_b">{characterName}</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* 사용된 이미지 (이전 생성 이미지 갤러리) */}
+      {isOwner && (
+        <div className={sidebarStyles.usedImagesSection}>
+          <div className={sidebarStyles.usedImagesTitle}>사용된 이미지</div>
+          <div className={sidebarStyles.imageGrid}>
+            {imageHistory.map((imgSrc, idx) => (
+              <div
+                key={idx}
+                className={sidebarStyles.thumbBox}
+                onClick={() => setSelectedImage(imgSrc)}
+                style={{ cursor: "pointer" }}
+              >
+                <img src={imgSrc} alt={`생성 이미지 ${idx + 1}`} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  const sidebarBottomContent = (
+    <>
+      {/* 캐릭터 통계 메타정보 (하단 버튼 바로 위에 배치) */}
+      <div className={sidebarStyles.metaStatsSection}>
+        <div className={sidebarStyles.statRow}>
+          <span className="kr_body">작성자 :</span>
+          <span className="en_body">{character?.author_name || "알 수 없음"}</span>
+        </div>
+        <div className={sidebarStyles.statRow}>
+          <span className="kr_body">생성일 :</span>
+          <span className="kr_body">
+            {character?.created_at ? new Date(character.created_at).toLocaleDateString("ko-KR") : "-"}
+          </span>
+        </div>
+        <div className={sidebarStyles.statRow}>
+          <span className="kr_body">조회수 :</span>
+          <span className="kr_body">{character?.view_count ?? 0}</span>
+        </div>
+        <div className={sidebarStyles.statRow}>
+          <span className="kr_body">좋아요 :</span>
+          <span className="kr_body">{likes}</span>
+        </div>
+      </div>
+
+      {!isOwner && (
+        <div className={sidebarStyles.nonOwnerActionGroup}>
+          <button
+            type="button"
+            aria-label="좋아요"
+            className={isLiked ? sidebarStyles.active : ""}
+            onClick={handleLikeToggle}
+            disabled={isLiking}
+          >
+            <span
+              className="material-symbols-outlined icon_36"
+              style={isLiked ? { fontVariationSettings: "'FILL' 1" } : undefined}
+            >
+              favorite
+            </span>
+          </button>
+          <button type="button" aria-label="공유" onClick={handleShare}>
+            <span className="material-symbols-outlined icon_36">share</span>
+          </button>
+          <button
+            type="button"
+            aria-label="북마크"
+            className={isBookmarked ? sidebarStyles.activeBookmark : ""}
+            onClick={handleBookmarkToggle}
+            disabled={isBookmarking}
+          >
+            <span
+              className="material-symbols-outlined icon_36"
+              style={isBookmarked ? { fontVariationSettings: "'FILL' 1" } : undefined}
+            >
+              bookmark
+            </span>
+          </button>
+        </div>
+      )}
+
+      <button type="button" className={sidebarStyles.sideButton}>
+        <span className={sidebarStyles.buttonIcon}>
+          <HelpOutlineIcon />
+        </span>
+        <span className="kr_body_b">도움말</span>
+      </button>
+
+      {isOwner && (
+        <>
+          <button type="button" className={sidebarStyles.sideButton}>
+            <span className="kr_body_b">수정</span>
+          </button>
+
+          <button type="button" className={sidebarStyles.sideButton}>
+            <span className="kr_body_b">삭제</span>
+          </button>
+        </>
+      )}
+    </>
+  );
+
   return (
     <div className={createStyles.pageContainer}>
       {/* 상단 헤더 */}
-      <Header variant="account" />
+      <Header variant="main" onMenuClick={() => setIsMobileMenuOpen(true)} />
+
+      {/* 모바일 햄버거 메뉴 사이드바 */}
+      {isMobileMenuOpen && (
+        <div className={createStyles.mobileDrawerWrapper}>
+          <div className={createStyles.mobileDrawerOverlay} onClick={() => setIsMobileMenuOpen(false)} />
+          <div className={createStyles.mobileDrawer}>
+            <div className={createStyles.drawerHeader}>
+              <button type="button" className={createStyles.drawerCloseBtn} onClick={() => setIsMobileMenuOpen(false)}>
+                <span className="material-symbols-rounded">close</span>
+              </button>
+            </div>
+            <div className={createStyles.drawerContent}>
+              <Sidebar
+                topContent={sidebarTopContent}
+                bottomContent={sidebarBottomContent}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 모바일/태블릿 (<= 1024px) 상단바 */}
       <div className={createStyles.topNavSection}>
@@ -541,163 +730,12 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
 
       {/* 메인 본문: 사이드바 + CharacterDetail */}
       <main className={createStyles.mainBody}>
-        <Sidebar
-          topContent={
-            <>
-              {/* 세계관 아코디언 */}
-              <button
-                type="button"
-                className={`${sidebarStyles.accordionButton} ${activeNav === "world" ? sidebarStyles.active : ""}`}
-                onClick={handleSelectWorld}
-              >
-                <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
-                  history_edu
-                </span>
-                <span className="kr_body_b">{worldTitle}</span>
-              </button>
-
-              {/* 캐릭터 아코디언 */}
-              <div>
-                <button
-                  type="button"
-                  className={sidebarStyles.accordionButton}
-                  onClick={handleToggleCharacterAccordion}
-                >
-                  <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
-                    person
-                  </span>
-                  <span className="kr_body_b">캐릭터</span>
-                </button>
-
-                {isCharacterOpen && (
-                  <div className={sidebarStyles.accordionList}>
-                    {worldCharacters.length > 0 ? (
-                      worldCharacters.map((char) => (
-                        <div
-                          key={char.id}
-                          className={`${sidebarStyles.subItem} ${String(char.id) === String(id) ? sidebarStyles.active : ""}`}
-                          onClick={() => router.push(`/characters/${char.id}`)}
-                        >
-                          <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
-                            auto_stories
-                          </span>
-                          <span className="kr_body_b">{char.name}</span>
-                        </div>
-                      ))
-                    ) : (
-                      <div className={`${sidebarStyles.subItem} ${sidebarStyles.active}`}>
-                        <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
-                          auto_stories
-                        </span>
-                        <span className="kr_body_b">{characterName}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* 사용된 이미지 (이전 생성 이미지 갤러리) */}
-              {isOwner && (
-                <div className={sidebarStyles.usedImagesSection}>
-                  <div className={sidebarStyles.usedImagesTitle}>사용된 이미지</div>
-                  <div className={sidebarStyles.imageGrid}>
-                    {imageHistory.map((imgSrc, idx) => (
-                      <div
-                        key={idx}
-                        className={sidebarStyles.thumbBox}
-                        onClick={() => setSelectedImage(imgSrc)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <img src={imgSrc} alt={`생성 이미지 ${idx + 1}`} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
-          }
-          bottomContent={
-            <>
-              {/* 캐릭터 통계 메타정보 (하단 버튼 바로 위에 배치) */}
-              <div className={sidebarStyles.metaStatsSection}>
-                <div className={sidebarStyles.statRow}>
-                  <span className="kr_body">작성자 :</span>
-                  <span className="en_body">{character?.author_name || "알 수 없음"}</span>
-                </div>
-                <div className={sidebarStyles.statRow}>
-                  <span className="kr_body">생성일 :</span>
-                  <span className="kr_body">
-                    {character?.created_at ? new Date(character.created_at).toLocaleDateString("ko-KR") : "-"}
-                  </span>
-                </div>
-                <div className={sidebarStyles.statRow}>
-                  <span className="kr_body">조회수 :</span>
-                  <span className="kr_body">{character?.view_count ?? 0}</span>
-                </div>
-                <div className={sidebarStyles.statRow}>
-                  <span className="kr_body">좋아요 :</span>
-                  <span className="kr_body">{likes}</span>
-                </div>
-
-              </div>
-
-              {!isOwner && (
-                <div className={sidebarStyles.nonOwnerActionGroup}>
-                  <button
-                    type="button"
-                    aria-label="좋아요"
-                    className={isLiked ? sidebarStyles.active : ""}
-                    onClick={handleLikeToggle}
-                    disabled={isLiking}
-                  >
-                    <span
-                      className="material-symbols-outlined icon_36"
-                      style={isLiked ? { fontVariationSettings: "'FILL' 1" } : undefined}
-                    >
-                      favorite
-                    </span>
-                  </button>
-                  <button type="button" aria-label="공유" onClick={handleShare}>
-                    <span className="material-symbols-outlined icon_36">share</span>
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="북마크"
-                    className={isBookmarked ? sidebarStyles.activeBookmark : ""}
-                    onClick={handleBookmarkToggle}
-                    disabled={isBookmarking}
-                  >
-                    <span
-                      className="material-symbols-outlined icon_36"
-                      style={isBookmarked ? { fontVariationSettings: "'FILL' 1" } : undefined}
-                    >
-                      bookmark
-                    </span>
-                  </button>
-                </div>
-              )}
-
-              <button type="button" className={sidebarStyles.sideButton}>
-                <span className={sidebarStyles.buttonIcon}>
-                  <HelpOutlineIcon />
-                </span>
-                <span className="kr_body_b">도움말</span>
-              </button>
-
-              {isOwner && (
-                <>
-                  <button type="button" className={sidebarStyles.sideButton}>
-                    <span className="kr_body_b">수정</span>
-                  </button>
-
-                  <button type="button" className={sidebarStyles.sideButton}>
-                    <span className="kr_body_b">삭제</span>
-                  </button>
-                </>
-              )}
-            </>
-          }
-        />
+        <div className={createStyles.desktopSidebarWrapper}>
+          <Sidebar
+            topContent={sidebarTopContent}
+            bottomContent={sidebarBottomContent}
+          />
+        </div>
 
         {/* 메인 폼 위치에 CharacterDetail 컴포넌트 배치 */}
         <div style={{ flex: 1, minWidth: 0, height: "100%", position: "relative" }}>

@@ -553,25 +553,7 @@
 
 /* Media Queries (Responsive Breakpoints) */
 
-  li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    color: $color_white;
-    cursor: pointer;
-    transition:
-      background-color 0.2s ease,
-      transform 0.1s ease;
 
-    &:hover {
-      background: $gradient_main;
-    }
-
-    &:active {
-      background: $gradient_main;
-      transform: scale(0.98);
 /* Desktop / Tablet Breakpoint (1200px 이하) */
 @media (max-width: 1200px) {
   .main_wrapper {
