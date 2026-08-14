@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
@@ -9,13 +9,10 @@ export async function POST(req) {
       return NextResponse.json({ error: "캐릭터 ID가 필요합니다." }, { status: 400 });
     }
 
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
+    const supabase = await createClient();
 
     // 1. 현재 조회수 가져오기
-    const { data: character, error: fetchError } = await supabaseAdmin
+    const { data: character, error: fetchError } = await supabase
       .from("characters")
       .select("view_count")
       .eq("id", characterId)
@@ -28,7 +25,7 @@ export async function POST(req) {
 
     // 2. 조회수 1 증가 (기존 값이 null이면 0으로 간주)
     const currentViewCount = character.view_count || 0;
-    const { error: updateError } = await supabaseAdmin
+    const { error: updateError } = await supabase
       .from("characters")
       .update({ view_count: currentViewCount + 1 })
       .eq("id", characterId);
