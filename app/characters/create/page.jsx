@@ -720,6 +720,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         worlds={userWorlds}
         onSelectNewWorld={handleSelectNewWorld}
         onSelectExistingWorld={handleSelectExistingWorld}
+        onClose={() => router.back()}
       />
 
       <Footer />

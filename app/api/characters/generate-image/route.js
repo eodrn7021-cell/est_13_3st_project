@@ -67,9 +67,11 @@ export async function POST(request) {
       return NextResponse.json({ error: "characterId가 필요합니다." }, { status: 400 });
     }
 
-    const supabase = await getSupabaseServerClient();
-    const { data: authData } = await supabase.auth.getUser();
+    const authSupabase = await createClient();
+    const { data: authData } = await authSupabase.auth.getUser();
     const realUserId = authData?.user?.id || null;
+
+    const supabase = await getSupabaseServerClient();
 
     // 1. DB에서 캐릭터 및 세계관 정보 조회
     const { data: char, error: charErr } = await supabase

@@ -101,7 +101,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, colors.$color_primary 0%, #1f1b33 100%);
+    background: colors.$gradient_main;
     opacity: 0;
     transition: opacity 300ms ease-out;
     pointer-events: none;

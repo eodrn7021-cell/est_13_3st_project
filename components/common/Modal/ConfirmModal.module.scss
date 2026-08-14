@@ -1,0 +1,64 @@
+@use "@/styles/abstracts/_colors.scss" as colors;
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modalContent {
+  width: 100%;
+  max-width: 360px;
+  background-color: colors.$color_background_surface;
+  border: 1px solid colors.$color_tag_stroke;
+  border-radius: 16px;
+  padding: 32px 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.headerArea {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+  
+  h2 {
+    color: colors.$color_white;
+  }
+  
+  p {
+    color: colors.$color_text_muted;
+    white-space: pre-line;
+  }
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  
+  button {
+    flex: 1;
+  }
+}

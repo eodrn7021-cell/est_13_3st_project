@@ -67,9 +67,11 @@ export async function POST(request) {
       return NextResponse.json({ error: "characterId가 필요합니다." }, { status: 400 });
     }
 
-    const supabase = await getSupabaseServerClient();
-    const { data: authData } = await supabase.auth.getUser();
+    const authSupabase = await createClient();
+    const { data: authData } = await authSupabase.auth.getUser();
     const realUserId = authData?.user?.id || null;
+
+    const supabase = await getSupabaseServerClient();
 
     const { data: char, error: charErr } = await supabase
       .from("characters")
