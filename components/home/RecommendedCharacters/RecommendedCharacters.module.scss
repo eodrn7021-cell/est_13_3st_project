@@ -49,28 +49,43 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 0;
   margin-top: 20px;
 }
 
 .slider_dot {
-  // 수정: button 기본 스타일 제거
-  display: block;
-  width: 10px;
-  height: 10px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 32px;
   padding: 0;
   border: 0;
-  border-radius: 50%;
-
-  background-color: colors.$color_secondary_dark;
+  background: transparent;
 
   cursor: pointer;
+
+  // 실제 보이는 점
+  &::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: colors.$color_secondary_dark;
+    transition:
+      width 0.2s ease,
+      background-color 0.2s ease;
+  }
 }
 
 .slider_dot_active {
-  background-color: colors.$color_primary;
+  &::before {
+    width: 10px;
+    height: 10px;
+    background-color: colors.$color_primary;
+  }
 }
-
 .sr_only {
   position: absolute;
   width: 1px;
