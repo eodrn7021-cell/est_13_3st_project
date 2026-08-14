@@ -55,6 +55,7 @@ function buildCharacterPrompt(char) {
   }
 
   promptParts.push("Art style: High quality fantasy digital illustration, detailed lighting, cinematic atmosphere, 8k resolution, artstation masterpiece.");
+  promptParts.push("IMPORTANT: Do NOT include any text, letters, words, speech bubbles, dialogue boxes, stats panels, or UI elements in the image. Pure character art and background ONLY.");
 
   return promptParts.join(" ").slice(0, 3500);
 }
