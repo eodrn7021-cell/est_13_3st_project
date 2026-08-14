@@ -22,9 +22,11 @@ export async function POST(request) {
       );
     }
 
-    const supabase = await getSupabaseServerClient();
-    const { data: authData } = await supabase.auth.getUser();
+    const authSupabase = await createClient();
+    const { data: authData } = await authSupabase.auth.getUser();
     const currentUserId = authData?.user?.id || null;
+
+    const supabase = await getSupabaseServerClient();
 
     // 1. 해당 캐릭터의 모든 character_images의 is_main을 false로 초기화
     await supabase

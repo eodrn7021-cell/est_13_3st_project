@@ -452,11 +452,11 @@
       transform 0.1s ease;
 
     &:hover {
-      background: linear-gradient(90deg, $color_primary_dark 0%, #1f1b33 100%);
+      background: $gradient_main;
     }
 
     &:active {
-      background: linear-gradient(90deg, $color_primary_dark 0%, #100d1d 100%);
+      background: $gradient_main;
       transform: scale(0.98);
     }
   }

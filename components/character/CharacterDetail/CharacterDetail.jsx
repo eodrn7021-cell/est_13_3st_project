@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import styles from "./CharacterDetail.module.scss";
 
 // 한글/영문 감지하여 적절한 Typography 클래스 반환하는 헬퍼 함수
@@ -11,45 +11,23 @@ function getFontClass(text, krClass, enClass) {
 
 export default function CharacterDetail({
   character,
-  initialComments = [],
   onRegenerateImage,
   onSaveImage,
   isRegenerating = false,
   isGeneratingMode = false,
   isOwner = false,
   currentUser = null,
+  comments = [],
+  onAddComment,
+  isSubmittingComment = false,
 }) {
-  // 기본 더미 코멘트 (시안 참고)
-  const defaultComments = [
-    { id: 1, author: "지나가는 관찰자", content: "와 너무 잘만드셨다." },
-    { id: 2, author: "이쁜거 보면 짓는 사람", content: "왈! 왈! 왈!" },
-    { id: 3, author: "||||||||", content: "언니 완전 내 취향." },
-  ];
-
-  const [comments, setComments] = useState(
-    initialComments.length > 0 ? initialComments : defaultComments
-  );
-  const [newAuthor, setNewAuthor] = useState("");
   const [newContent, setNewContent] = useState("");
-
-  useEffect(() => {
-    if (currentUser?.profile?.nickname) {
-      setNewAuthor(currentUser.profile.nickname);
-    }
-  }, [currentUser]);
 
   const handleAddComment = (e) => {
     e.preventDefault();
-    if (!newContent.trim()) return;
+    if (!newContent.trim() || !onAddComment) return;
 
-    const newCommentObj = {
-      id: Date.now(),
-      author: newAuthor.trim() || "익명 관찰자",
-      content: newContent.trim(),
-    };
-
-    setComments((prev) => [newCommentObj, ...prev]);
-    setNewAuthor("");
+    onAddComment(newContent.trim());
     setNewContent("");
   };
 
@@ -156,63 +134,62 @@ export default function CharacterDetail({
 
           {/* 코멘트 리스트 */}
           <div className={styles.commentList}>
-            {comments.map((comment) => (
-              <div key={comment.id} className={styles.commentCard}>
-                <span
-                  className={`${getFontClass(
-                    comment.author,
-                    "kr_caption",
-                    "en_caption"
-                  )} ${styles.commentAuthor}`}
-                >
-                  작성자 : {comment.author}
-                </span>
-                <p
-                  className={`${getFontClass(
-                    comment.content,
-                    "kr_body",
-                    "en_body"
-                  )} ${styles.commentContent}`}
-                >
-                  {comment.content}
-                </p>
+            {comments.length > 0 ? (
+              comments.map((comment) => (
+                <div key={comment.id} className={styles.commentCard}>
+                  <span
+                    className={`${getFontClass(
+                      comment.author,
+                      "kr_caption",
+                      "en_caption"
+                    )} ${styles.commentAuthor}`}
+                  >
+                    작성자 : {comment.author}
+                  </span>
+                  <p
+                    className={`${getFontClass(
+                      comment.content,
+                      "kr_body",
+                      "en_body"
+                    )} ${styles.commentContent}`}
+                  >
+                    {comment.content}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className={styles.emptyComment}>
+                <span className="kr_body">아직 코멘트가 없습니다.</span>
               </div>
-            ))}
+            )}
           </div>
 
-          {/* 새 코멘트 작성 폼 (소유자가 아닐 때만 표시) */}
-          {!isOwner && (
-            <form onSubmit={handleAddComment} className={styles.commentForm}>
-              <div className={styles.formInputGroup}>
-                {currentUser?.profile?.nickname ? (
-                  <input
-                    type="text"
-                    value={newAuthor}
-                    className={`kr_caption ${styles.authorInput}`}
-                    disabled
-                    style={{ backgroundColor: "transparent", color: "white" }}
-                  />
-                ) : (
-                  <input
-                    type="text"
-                    placeholder="작성자 이름 (선택)"
-                    value={newAuthor}
-                    onChange={(e) => setNewAuthor(e.target.value)}
-                    className={`kr_caption ${styles.authorInput}`}
-                  />
-                )}
-                <button type="submit" className={`kr_body ${styles.submitBtn}`}>
-                  등록
-                </button>
-              </div>
-              <textarea
-                placeholder="코멘트를 입력하세요..."
-                value={newContent}
-                onChange={(e) => setNewContent(e.target.value)}
-                className={`kr_body ${styles.contentInput}`}
+          {/* 새 코멘트 작성 폼 */}
+          <form onSubmit={handleAddComment} className={styles.commentForm}>
+            <div className={styles.formInputGroup}>
+              <input
+                type="text"
+                value={currentUser?.profile?.nickname || ""}
+                className={`kr_caption ${styles.authorInput}`}
+                disabled
+                placeholder={currentUser ? "" : "로그인 후 작성 가능"}
+                style={{ backgroundColor: "transparent", color: "white" }}
               />
-            </form>
-          )}
+              <button
+                type="submit"
+                className={`kr_body ${styles.submitBtn}`}
+                disabled={isSubmittingComment || !newContent.trim()}
+              >
+                {isSubmittingComment ? "등록 중..." : "등록"}
+              </button>
+            </div>
+            <textarea
+              placeholder="코멘트를 입력하세요..."
+              value={newContent}
+              onChange={(e) => setNewContent(e.target.value)}
+              className={`kr_body ${styles.contentInput}`}
+            />
+          </form>
         </div>
       </div>
 

@@ -45,6 +45,8 @@ export default function WorldSelectModal({
     }
   };
 
+  const isSubmitDisabled = selectedType === "existing" && worlds.length === 0;
+
   return (
     <div className={styles.backdrop}>
       <div className={styles.modalBox}>
@@ -142,7 +144,12 @@ export default function WorldSelectModal({
               취소
             </button>
           )}
-          <button type="button" className={styles.confirmBtn} onClick={handleConfirm}>
+          <button 
+            type="button" 
+            className={styles.confirmBtn} 
+            onClick={handleConfirm}
+            disabled={isSubmitDisabled}
+          >
             생성 시작하기
           </button>
         </div>

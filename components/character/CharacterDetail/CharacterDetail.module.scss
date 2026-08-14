@@ -217,9 +217,22 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: colors.$color_primary_dark;
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.emptyComment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  color: colors.$color_text_muted;
 }
 
 /* Right Card: Figma Image 2 Specs (W: 488px, H: 810px, Gap: 9px, Padding: 30px 10px, Radius: 10px, Fill: Input color 70, Stroke: Tag Stroke 1px) */

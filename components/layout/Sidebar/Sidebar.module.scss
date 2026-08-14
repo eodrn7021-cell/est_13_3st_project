@@ -64,7 +64,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, colors.$color_primary 0%, #1f1b33 100%);
+    background: colors.$gradient_main;
     opacity: 0;
     transition: opacity 300ms ease-out;
     pointer-events: none;
@@ -119,7 +119,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, colors.$color_primary 0%, #1f1b33 100%);
+    background: colors.$gradient_main;
     opacity: 0;
     transition: opacity 300ms ease-out;
     pointer-events: none;
@@ -358,10 +358,23 @@
     align-items: center;
     justify-content: center;
     color: colors.$color_secondary_dark;
-    transition: color 0.2s ease-in-out;
+    transition: color 0.2s ease-in-out, transform 0.15s ease-in-out;
 
     &:hover {
       color: colors.$color_white;
+      transform: scale(1.08);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &.active {
+      color: colors.$color_highlight;
+    }
+
+    &.activeBookmark {
+      color: colors.$color_primary;
     }
   }
 }

@@ -9,6 +9,7 @@ import Sidebar from "@/components/layout/Sidebar/Sidebar";
 import CharacterDetail from "@/components/character/CharacterDetail/CharacterDetail";
 import Button from "@/components/common/Button/Button";
 import LoginModal from "@/components/auth/LoginModal/LoginModal";
+import ConfirmModal from "@/components/common/Modal/ConfirmModal";
 import { createClient } from "@/lib/supabase/client";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
 import createStyles from "@/app/characters/create/create.module.scss";
@@ -37,8 +38,12 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
   const [isGeneratingMode] = useState(searchParams.get("generating") === "true");
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
-
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isLiked, setIsLiked] = useState(() => Boolean(cachedCharacter?.initialIsLiked));
+  const [isBookmarked, setIsBookmarked] = useState(() => Boolean(cachedCharacter?.initialIsBookmarked));
+  const [likes, setLikes] = useState(() => cachedCharacter?.likes || 0);
+  const [isLiking, setIsLiking] = useState(false);
+  const [isBookmarking, setIsBookmarking] = useState(false);
 
   const [character, setCharacter] = useState(() => cachedCharacter);
   const [loading, setLoading] = useState(!cachedCharacter);
@@ -49,6 +54,10 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
   const [activeNav, setActiveNav] = useState("character");
   const [isCharacterOpen, setIsCharacterOpen] = useState(true);
   const [worldCharacters, setWorldCharacters] = useState(() => cachedWorldCharacters);
+
+  // 코멘트 상태
+  const [comments, setComments] = useState([]);
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
   // 현재 사용자 세션 정보 및 소유자 여부 상태
   const [currentUser, setCurrentUser] = useState(null);
@@ -133,8 +142,17 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
   };
 
   const generationTriggered = useRef(false);
+  const viewRecorded = useRef(false);
 
   useEffect(() => {
+    if (!isGeneratingMode && !viewRecorded.current) {
+      viewRecorded.current = true;
+      fetch("/api/characters/view", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ characterId: id }),
+      }).catch((err) => console.error("조회수 증가 호출 실패:", err));
+    }
     // 캐시가 없거나 다른 캐릭터를 처음 진입할 때만 초기화
     if (!cachedCharacter || cachedCharacter.id !== id) {
       setLoading(true);
@@ -167,23 +185,32 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
         .single();
 
       if (data) {
-        // 작성자 프로필, 좋아요 수 병렬 조회
+        // 작성자 프로필, 좋아요 수, 로그인한 유저의 좋아요/북마크 상태 병렬 조회
         const [
           { count: likesCount },
+          { data: userLikeData },
+          { data: userBookmarkData },
           { data: creatorProfile }
         ] = await Promise.all([
           supabase.from("character_likes").select("*", { count: "exact", head: true }).eq("character_id", id),
+          user ? supabase.from("character_likes").select("id").eq("character_id", id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
+          user ? supabase.from("character_bookmarks").select("id").eq("character_id", id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
           data.creator_id ? supabase.from("profiles").select("nickname").eq("id", data.creator_id).single() : Promise.resolve({ data: null })
         ]);
 
         const characterWithStats = {
           ...data,
           likes: likesCount || 0,
+          initialIsLiked: Boolean(userLikeData),
+          initialIsBookmarked: Boolean(userBookmarkData),
           author_name: creatorProfile?.nickname || "익명",
         };
 
         setCharacter(characterWithStats);
         cachedCharacter = characterWithStats;
+        setIsLiked(Boolean(userLikeData));
+        setIsBookmarked(Boolean(userBookmarkData));
+        setLikes(likesCount || 0);
         setLoading(false);
         
         // 현재 접속 중인 유저가 존재하고, 그 유저의 ID가 캐릭터의 creator_id와 같을 때만 소유자로 판단
@@ -205,6 +232,19 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
           }
         }
 
+        // 코멘트 조회
+        try {
+          const commentsRes = await fetch(`/api/characters/comments?characterId=${id}`);
+          if (commentsRes.ok) {
+            const commentsJson = await commentsRes.json();
+            if (commentsJson.success) {
+              setComments(commentsJson.comments || []);
+            }
+          }
+        } catch (commentErr) {
+          console.error("코멘트 조회 오류:", commentErr);
+        }
+
         await fetchImageHistory(data.id);
         // 새로고침 시 무한 자동 생성을 막기 위해, isGeneratingMode일 때만 1회 실행
         if (isGeneratingMode && !generationTriggered.current) {
@@ -220,6 +260,201 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
     fetchCharacterAndUser();
   }, [id, isGeneratingMode, router]);
 
+  const handleLikeToggle = async () => {
+    if (!currentUser) {
+      setIsConfirmModalOpen(true);
+      return;
+    }
+    if (isLiking || !id) return;
+
+    setIsLiking(true);
+    const prevIsLiked = isLiked;
+    const prevLikes = likes;
+
+    // 낙관적 업데이트 (Optimistic UI Update)
+    setIsLiked(!prevIsLiked);
+    setLikes((prev) => (prevIsLiked ? Math.max(0, prev - 1) : prev + 1));
+    setCharacter((prev) =>
+      prev
+        ? {
+            ...prev,
+            likes: prevIsLiked ? Math.max(0, (prev.likes || 0) - 1) : (prev.likes || 0) + 1,
+            initialIsLiked: !prevIsLiked,
+          }
+        : prev
+    );
+
+    try {
+      const res = await fetch("/api/characters/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ characterId: id }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        setIsLiked(prevIsLiked);
+        setLikes(prevLikes);
+        setCharacter((prev) =>
+          prev
+            ? {
+                ...prev,
+                likes: prevLikes,
+                initialIsLiked: prevIsLiked,
+              }
+            : prev
+        );
+        alert(result.error || "좋아요 처리 중 오류가 발생했습니다.");
+        return;
+      }
+
+      setIsLiked(result.isLiked);
+      setLikes(result.likes);
+      setCharacter((prev) =>
+        prev
+          ? {
+              ...prev,
+              likes: result.likes,
+              initialIsLiked: result.isLiked,
+            }
+          : prev
+      );
+    } catch (err) {
+      console.error("좋아요 처리 중 예외 발생:", err);
+      setIsLiked(prevIsLiked);
+      setLikes(prevLikes);
+      setCharacter((prev) =>
+        prev
+          ? {
+              ...prev,
+              likes: prevLikes,
+              initialIsLiked: prevIsLiked,
+            }
+          : prev
+      );
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
+  const handleLoginConfirm = () => {
+    setIsConfirmModalOpen(false);
+    router.push("/login");
+  };
+
+  const handleShare = async () => {
+    try {
+      if (typeof window !== "undefined") {
+        await navigator.clipboard.writeText(window.location.href);
+        alert("캐릭터 링크가 클립보드에 복사되었습니다.");
+      }
+    } catch (err) {
+      console.error("공유 링크 복사 실패:", err);
+    }
+  };
+
+  const handleAddComment = async (content) => {
+    if (!currentUser) {
+      setIsConfirmModalOpen(true);
+      return;
+    }
+    if (isSubmittingComment || !content?.trim() || !id) return;
+
+    setIsSubmittingComment(true);
+    try {
+      const res = await fetch("/api/characters/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ characterId: id, content: content.trim() }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        alert(result.error || "코멘트 등록 중 오류가 발생했습니다.");
+        return;
+      }
+
+      // 새 코멘트를 목록 맨 앞에 추가
+      setComments((prev) => [result.comment, ...prev]);
+    } catch (err) {
+      console.error("코멘트 등록 예외:", err);
+      alert("코멘트 등록 중 오류가 발생했습니다.");
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
+
+  const handleBookmarkToggle = async () => {
+    if (!currentUser) {
+      setIsConfirmModalOpen(true);
+      return;
+    }
+    if (isBookmarking || !id) return;
+
+    setIsBookmarking(true);
+    const prevIsBookmarked = isBookmarked;
+
+    // 낙관적 업데이트
+    setIsBookmarked(!prevIsBookmarked);
+    setCharacter((prev) =>
+      prev
+        ? {
+            ...prev,
+            initialIsBookmarked: !prevIsBookmarked,
+          }
+        : prev
+    );
+
+    try {
+      const res = await fetch("/api/characters/bookmark", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ characterId: id }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        setIsBookmarked(prevIsBookmarked);
+        setCharacter((prev) =>
+          prev
+            ? {
+                ...prev,
+                initialIsBookmarked: prevIsBookmarked,
+              }
+            : prev
+        );
+        alert(result.error || "북마크 처리 중 오류가 발생했습니다.");
+        return;
+      }
+
+      setIsBookmarked(result.isBookmarked);
+      setCharacter((prev) =>
+        prev
+          ? {
+              ...prev,
+              initialIsBookmarked: result.isBookmarked,
+            }
+          : prev
+      );
+    } catch (err) {
+      console.error("북마크 처리 중 예외 발생:", err);
+      setIsBookmarked(prevIsBookmarked);
+      setCharacter((prev) =>
+        prev
+          ? {
+              ...prev,
+              initialIsBookmarked: prevIsBookmarked,
+            }
+          : prev
+      );
+    } finally {
+      setIsBookmarking(false);
+    }
+  };
+
   const handleRegenerateImage = async () => {
     if (isRegenerating || !id) return;
     await triggerImageGeneration(id);
@@ -232,11 +467,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
   // 현재 캐릭터의 DB 히스토리 중 가장 최근 4개 이미지 추출
   const imageHistory = dbImageHistory.slice(0, 4);
 
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    window.location.reload();
-  };
+
 
   const handleSelectWorld = () => {
     setActiveNav("world");
@@ -251,22 +482,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
   return (
     <div className={createStyles.pageContainer}>
       {/* 상단 헤더 */}
-      <Header
-        variant="account"
-        accountContent={
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            {currentUser ? (
-              <Button type="button" variant="secondary" size="medium" onClick={handleLogout}>
-                <span className="kr_body">로그아웃</span>
-              </Button>
-            ) : (
-              <Button type="button" variant="secondary" size="medium" onClick={() => setIsLoginModalOpen(true)}>
-                <span className="kr_body">로그인</span>
-              </Button>
-            )}
-          </div>
-        }
-      />
+      <Header variant="account" />
 
       {/* 모바일/태블릿 (<= 1024px) 상단바 */}
       <div className={createStyles.topNavSection}>
@@ -285,7 +501,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
           <div>
             <button
               type="button"
-              className={`${createStyles.topTabButton} ${activeNav === "character" ? createStyles.active : ""}`}
+              className={createStyles.topTabButton}
               onClick={handleToggleCharacterAccordion}
             >
               <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
@@ -300,7 +516,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                   worldCharacters.map((char) => (
                     <div
                       key={char.id}
-                      className={`${createStyles.topSubItem} ${char.id === id ? createStyles.active : ""}`}
+                      className={`${createStyles.topSubItem} ${String(char.id) === String(id) ? createStyles.active : ""}`}
                       onClick={() => router.push(`/characters/${char.id}`)}
                     >
                       <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
@@ -344,7 +560,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
               <div>
                 <button
                   type="button"
-                  className={`${sidebarStyles.accordionButton} ${activeNav === "character" ? sidebarStyles.active : ""}`}
+                  className={sidebarStyles.accordionButton}
                   onClick={handleToggleCharacterAccordion}
                 >
                   <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
@@ -359,7 +575,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                       worldCharacters.map((char) => (
                         <div
                           key={char.id}
-                          className={`${sidebarStyles.subItem} ${char.id === id ? sidebarStyles.active : ""}`}
+                          className={`${sidebarStyles.subItem} ${String(char.id) === String(id) ? sidebarStyles.active : ""}`}
                           onClick={() => router.push(`/characters/${char.id}`)}
                         >
                           <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
@@ -420,21 +636,43 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                 </div>
                 <div className={sidebarStyles.statRow}>
                   <span className="kr_body">좋아요 :</span>
-                  <span className="kr_body">{character?.likes ?? 0}</span>
+                  <span className="kr_body">{likes}</span>
                 </div>
 
               </div>
 
               {!isOwner && (
                 <div className={sidebarStyles.nonOwnerActionGroup}>
-                  <button type="button" aria-label="좋아요">
-                    <span className="material-symbols-outlined icon_36">favorite_border</span>
+                  <button
+                    type="button"
+                    aria-label="좋아요"
+                    className={isLiked ? sidebarStyles.active : ""}
+                    onClick={handleLikeToggle}
+                    disabled={isLiking}
+                  >
+                    <span
+                      className="material-symbols-outlined icon_36"
+                      style={isLiked ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                    >
+                      favorite
+                    </span>
                   </button>
-                  <button type="button" aria-label="공유">
+                  <button type="button" aria-label="공유" onClick={handleShare}>
                     <span className="material-symbols-outlined icon_36">share</span>
                   </button>
-                  <button type="button" aria-label="북마크">
-                    <span className="material-symbols-outlined icon_36">bookmark_border</span>
+                  <button
+                    type="button"
+                    aria-label="북마크"
+                    className={isBookmarked ? sidebarStyles.activeBookmark : ""}
+                    onClick={handleBookmarkToggle}
+                    disabled={isBookmarking}
+                  >
+                    <span
+                      className="material-symbols-outlined icon_36"
+                      style={isBookmarked ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                    >
+                      bookmark
+                    </span>
                   </button>
                 </div>
               )}
@@ -473,12 +711,11 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                 <div style={{
                   position: "absolute",
                   top: 0, left: 0, right: 0, bottom: 0,
-                  backgroundColor: "rgba(18, 18, 24, 0.5)",
+                  backgroundColor: "#0f111a",
                   zIndex: 50,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  backdropFilter: "blur(2px)",
                   borderRadius: "16px"
                 }}>
                   <span className="kr_body_b" style={{ color: "rgba(255,255,255,0.8)" }}>캐릭터 변경 중...</span>
@@ -492,11 +729,25 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                 isGeneratingMode={isGeneratingMode}
                 isOwner={isOwner}
                 currentUser={currentUser}
+                comments={comments}
+                onAddComment={handleAddComment}
+                isSubmittingComment={isSubmittingComment}
               />
             </>
           )}
         </div>
       </main>
+
+      {/* 로그인 확인 모달 */}
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        title="로그인 필요"
+        message="로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?"
+        confirmText="이동하기"
+        cancelText="취소"
+        onConfirm={handleLoginConfirm}
+        onCancel={() => setIsConfirmModalOpen(false)}
+      />
 
       {/* 로그인 모달 */}
       <LoginModal
