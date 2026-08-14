@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 
 import styles from "./TagModal.module.scss";
 
-// 추가: 모달 카테고리와 DB 테이블 연결
+// 모달 카테고리와 DB 테이블 연결
 const TAG_GROUPS = [
   {
     id: "race",
@@ -36,10 +36,10 @@ const TAG_GROUPS = [
 const TagModal = ({ isOpen, onClose }) => {
   const router = useRouter();
 
-  // 추가: 현재 열려 있는 아코디언
+  // 현재 열려 있는 아코디언
   const [openGroup, setOpenGroup] = useState(null);
 
-  // 추가: DB에서 가져온 태그
+  // DB에서 가져온 태그
   const [tagOptions, setTagOptions] = useState({
     race: [],
     theme: [],
@@ -47,7 +47,7 @@ const TagModal = ({ isOpen, onClose }) => {
     genre: [],
   });
 
-  // 추가: 선택된 태그
+  // 선택된 태그
   const [selectedTags, setSelectedTags] = useState({
     race: [],
     theme: [],
@@ -55,10 +55,10 @@ const TagModal = ({ isOpen, onClose }) => {
     genre: [],
   });
 
-  // 추가: DB 로딩 상태
+  // DB 로딩 상태
   const [isLoading, setIsLoading] = useState(false);
 
-  // 추가: 4개 테이블에서 태그 목록 조회
+  // 4개 테이블에서 태그 목록 조회
   useEffect(() => {
     if (!isOpen) return;
 
@@ -66,7 +66,6 @@ const TagModal = ({ isOpen, onClose }) => {
       setIsLoading(true);
 
       const supabase = createClient();
-
       const [racesResult, themesResult, gendersResult, genresResult] = await Promise.all([
         supabase.from("races").select("id, name").order("id"),
         supabase.from("themes").select("id, name").order("id"),
@@ -75,7 +74,6 @@ const TagModal = ({ isOpen, onClose }) => {
       ]);
 
       const results = [racesResult, themesResult, gendersResult, genresResult];
-
       const error = results.find((result) => result.error)?.error;
 
       if (error) {
@@ -97,7 +95,7 @@ const TagModal = ({ isOpen, onClose }) => {
     fetchTags();
   }, [isOpen]);
 
-  // 추가: ESC 닫기 + 뒤 페이지 스크롤 방지
+  // ESC 닫기 + 뒤 페이지 스크롤 방지
   useEffect(() => {
     if (!isOpen) return;
 
@@ -120,16 +118,15 @@ const TagModal = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  // 추가: 하나의 아코디언만 열기
+  // 하나의 아코디언만 열기
   const handleGroupToggle = (groupId) => {
     setOpenGroup((prev) => (prev === groupId ? null : groupId));
   };
 
-  // 추가: 태그 선택 / 선택 해제
+  // 태그 선택 / 선택 해제
   const handleTagToggle = (groupId, tagName) => {
     setSelectedTags((prev) => {
       const currentTags = prev[groupId];
-
       const nextTags = currentTags.includes(tagName)
         ? currentTags.filter((tag) => tag !== tagName)
         : [...currentTags, tagName];
@@ -141,7 +138,7 @@ const TagModal = ({ isOpen, onClose }) => {
     });
   };
 
-  // 추가: 선택된 태그 전체 초기화
+  // 선택된 태그 전체 초기화
   const handleReset = () => {
     setSelectedTags({
       race: [],
@@ -151,7 +148,7 @@ const TagModal = ({ isOpen, onClose }) => {
     });
   };
 
-  // 추가: 목록페이지로 선택값 전달
+  // 목록페이지로 선택값 전달
   const handleApply = () => {
     const params = new URLSearchParams();
 
@@ -173,7 +170,7 @@ const TagModal = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  // 추가: 모달 바깥 클릭 시 닫기
+  // 모달 바깥 클릭 시 닫기
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -249,7 +246,7 @@ const TagModal = ({ isOpen, onClose }) => {
           })}
         </div>
 
-        {/* 추가: 하단 버튼 */}
+        {/* 하단 버튼 */}
         <div className={styles.modal_actions}>
           <Button type="button" variant="secondary" onClick={handleReset}>
             <span className="kr_body_b">초기화</span>

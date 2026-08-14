@@ -4,29 +4,21 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 24px;
-
   background: rgba(0, 0, 0, 0.65);
 }
 
 .modal {
   position: relative;
-
-  // 추천: 팀원 시안보다 조금 넓게
   width: min(720px, calc(100vw - 48px));
   max-height: 75vh;
-
   padding: 28px 24px;
-
   background-color: #0f111c;
   border: 1px solid colors.$color_tag_border_60;
   border-radius: 12px;
-
   box-sizing: border-box;
   overflow-y: auto;
 }
@@ -35,16 +27,12 @@
   position: absolute;
   top: 12px;
   right: 12px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   width: 32px;
   height: 32px;
-
   padding: 0;
-
   color: colors.$color_white;
   background: transparent;
   border: 0;
@@ -66,7 +54,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-
   margin-top: 16px;
 }
 
@@ -78,15 +65,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   width: 100%;
   min-height: 44px;
-
   padding: 0 14px;
-
   color: colors.$color_white;
   background-color: colors.$color_tag;
-
   border: 0;
   border-radius: 10px;
 
@@ -109,10 +92,7 @@
 .tag_list {
   display: flex;
   flex-wrap: wrap;
-
-  // 팀원 의견 반영
   gap: 10px;
-
   padding: 12px 8px 4px;
 }
 
@@ -123,7 +103,6 @@
 // 선택된 태그
 .tag_selected {
   flex-shrink: 0;
-
   background-color: colors.$color_primary_dark;
   border-color: colors.$color_primary;
 }
@@ -137,7 +116,6 @@
   .modal {
     width: calc(100vw - 32px);
     max-height: 80vh;
-
     padding: 24px 16px;
   }
 
@@ -151,23 +129,20 @@
     padding: 0 12px;
   }
 }
-// 추가: 태그 조회 중 안내
+// 태그 조회 중 안내
 .loading_text {
   margin: 0;
   color: colors.$color_text_muted;
 }
 
-// 추가: 하단 버튼 영역
+// 하단 버튼 영역
 .modal_actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-
   gap: 12px;
-
   margin-top: 24px;
   padding-top: 20px;
-
   border-top: 1px solid colors.$color_tag_border_60;
 }
 
