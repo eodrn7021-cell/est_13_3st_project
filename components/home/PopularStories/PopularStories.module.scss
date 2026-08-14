@@ -21,6 +21,11 @@
 .popular_stories_more {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-end;
+  min-width: 58px;
+  min-height: 20px;
+  gap: 2px;
+  white-space: nowrap;
   color: colors.$color_secondary;
   text-decoration: none;
   transition: color 300ms ease;
@@ -37,6 +42,13 @@
 }
 
 .popular_stories_more_icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  overflow: hidden;
   font-size: 16px;
   line-height: 1;
 }

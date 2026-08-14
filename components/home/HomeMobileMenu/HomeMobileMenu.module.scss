@@ -1,0 +1,340 @@
+@use "../../../styles/abstracts/colors" as colors;
+@use "../../../styles/abstracts/variables" as variables;
+
+// 전체 모바일 메뉴
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+}
+
+// 뒤쪽 어두운 배경
+.overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.55);
+
+  cursor: pointer;
+}
+
+// 왼쪽 드로어
+.drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(280px, 82vw);
+  height: 100dvh;
+  padding: 24px 30px;
+  box-sizing: border-box;
+  background: colors.$color_background_surface;
+  overflow-y: auto;
+  animation: drawer_open 0.25s ease;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  animation: overlay_open 0.25s ease;
+}
+
+.menu_closing {
+  .overlay {
+    animation: overlay_close 0.25s ease forwards;
+  }
+}
+
+.drawer_closing {
+  animation: drawer_close 0.25s ease forwards;
+}
+
+// 상단
+.drawer_header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+// 로고
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: colors.$color_white;
+  text-decoration: none;
+
+  img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+}
+
+.logo_text {
+  font-family: variables.$font_family_en;
+  font-size: 24px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+  color: colors.$color_white;
+}
+
+// 닫기
+.close_button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: colors.$color_secondary;
+
+  cursor: pointer;
+
+  &:hover {
+    color: colors.$color_white;
+    background: colors.$color_tag;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+  }
+
+  span {
+    font-size: 24px;
+  }
+}
+
+// 로그인 / 회원가입
+.auth_buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+// 로그인
+.auth_secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border: 1px solid colors.$color_secondary;
+  border-radius: 8px;
+  background: transparent;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 14px;
+  font-weight: variables.$font_weight_regular;
+  text-decoration: none;
+
+  cursor: pointer;
+
+  &:hover {
+    border-color: colors.$color_white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 3px;
+  }
+}
+
+// 회원가입 / 로그아웃
+.auth_primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: colors.$color_primary_dark;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 14px;
+  font-weight: variables.$font_weight_regular;
+  text-decoration: none;
+
+  cursor: pointer;
+
+  &:hover {
+    background: colors.$color_primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_white;
+    outline-offset: 3px;
+  }
+}
+
+// 메뉴
+.navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 36px;
+}
+
+.navigation_item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  height: 48px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  color: colors.$color_secondary;
+  text-decoration: none;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+
+  &:hover {
+    background: colors.$color_tag;
+    color: colors.$color_white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+  }
+}
+
+.navigation_icon {
+  flex-shrink: 0;
+  font-size: 24px;
+  color: colors.$color_white;
+}
+
+.mobile_footer {
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid colors.$color_tag;
+}
+
+// 왼쪽에서 등장
+@keyframes drawer_open {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+// PC에서는 사용 안 함
+@media (max-width: 1200px) {
+  .menu {
+    display: block;
+  }
+}
+
+// 모바일
+@media (max-width: 600px) {
+  .drawer {
+    width: min(260px, 84vw);
+    padding: 22px 24px;
+  }
+
+  .logo {
+    img {
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  .logo_text {
+    font-size: 20px;
+  }
+
+  .auth_buttons {
+    margin-top: 28px;
+  }
+
+  .auth_secondary,
+  .auth_primary {
+    height: 34px;
+    padding: 0 14px;
+    font-size: 12px;
+  }
+
+  .navigation {
+    margin-top: 30px;
+  }
+
+  .navigation_item {
+    height: 46px;
+  }
+
+  .mobile_footer {
+    margin-top: 30px;
+    padding-top: 24px;
+  }
+}
+
+// 메뉴 열기
+@keyframes drawer_open {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+// 메뉴 닫기
+@keyframes drawer_close {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+// 배경 나타나기
+@keyframes overlay_open {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+// 배경 사라지기
+@keyframes overlay_close {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}

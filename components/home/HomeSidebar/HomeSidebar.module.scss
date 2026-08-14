@@ -66,6 +66,12 @@
 }
 
 .sidebar_icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  overflow: hidden;
   flex-shrink: 0;
   color: colors.$color_white;
 }
@@ -110,6 +116,16 @@
   border-radius: 50px;
   box-sizing: border-box;
   overflow: hidden;
+
+  :global(.material-symbols-rounded) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    overflow: hidden;
+  }
 
   &::before {
     content: "";

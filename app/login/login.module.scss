@@ -310,6 +310,15 @@
   }
 }
 
+.error_message {
+  margin: 0;
+  color: colors.$color_highlight;
+  font-family: variables.$font_family_kr;
+  font-size: 12px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1.4;
+}
+
 // Tablet
 @media (max-width: 960px) {
   .page {

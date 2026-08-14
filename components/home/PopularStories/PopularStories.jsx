@@ -1,41 +1,44 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import PopularStoryCard from "./PopularStoryCard";
 import styles from "./PopularStories.module.scss";
 
-// 인기 스토리 임시 데이터
-// 추후 Supabase 데이터로 교체
-const popularStories = [
-  {
-    id: 1,
-    image: "/images/home/popular-story-neon-shadow.webp",
-    title: "네온 사이의 그림자",
-    description: "진실은 언제나 빛 뒤에 숨어 있다.",
-    tags: ["현대", "스릴러"],
-  },
-  {
-    id: 2,
-    image: "/images/home/popular-story-promise.webp",
-    title: "그날의 약속",
-    description: "시간이 흘러도, 마음은 기억한다.",
-    tags: ["로맨스", "드라마"],
-  },
-  {
-    id: 3,
-    image: "/images/home/popular-story-star-records.webp",
-    title: "별의 기록자들",
-    description: "우주 끝에서 마주한 잊힌 약속.",
-    tags: ["SF", "모험"],
-  },
-  {
-    id: 4,
-    image: "/images/home/popular-story-last-prayer.webp",
-    title: "성역의 마지막 기도",
-    description: "빛이 꺼져가는 순간, 기억이 시작된다.",
-    tags: ["판타지", "성장형"],
-  },
-];
-
 const PopularStories = () => {
+  const [popularStories, setPopularStories] = useState([]);
+
+  useEffect(() => {
+    const fetchPopularStories = async () => {
+      const supabase = createClient();
+
+      const { data, error } = await supabase
+        .from("characters")
+        .select("id, name, background_story, image_url, race, job_role, view_count, created_at")
+        .order("view_count", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(4);
+
+      if (error) {
+        console.error("인기 스토리 조회 실패:", error);
+        return;
+      }
+
+      const formattedStories = (data || []).map((character) => ({
+        id: character.id,
+        image: character.image_url || "/images/home/popular-story-neon-shadow.webp",
+        title: character.name,
+        description: character.background_story || "캐릭터 소개가 아직 없습니다.",
+        tags: [character.race, character.job_role].filter(Boolean),
+      }));
+
+      setPopularStories(formattedStories);
+    };
+
+    fetchPopularStories();
+  }, []);
+
   return (
     <section className={styles.popular_stories}>
       {/* 제목 + 더보기 */}
@@ -59,6 +62,7 @@ const PopularStories = () => {
         {popularStories.map((story) => (
           <PopularStoryCard
             key={story.id}
+            id={story.id}
             image={story.image}
             title={story.title}
             description={story.description}
