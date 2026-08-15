@@ -2,6 +2,7 @@ import localFont from "next/font/local";
 import { Lora } from "next/font/google";
 import "@/styles/base/_reset.scss";
 import "./globals.scss";
+import { AuthProvider } from "@/context/AuthContext";
 
 const Pretendard = localFont({
   src: [
@@ -65,7 +66,7 @@ const RootLayout = ({ children }) => {
       <body
         className={`${Pretendard.variable} ${LoraFont.variable} ${MaterialSymbolsRounded.variable} ${MaterialSymbolsOutlined.variable} ${MaterialIconsOutlined.variable}`}
       >
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
