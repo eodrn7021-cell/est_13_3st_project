@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./WorldSelectModal.module.scss";
 
 export default function WorldSelectModal({
@@ -15,15 +15,28 @@ export default function WorldSelectModal({
     worlds.length > 0 ? worlds[0].id : ""
   );
 
+  useEffect(() => {
+    if (
+      worlds.length > 0 &&
+      (!selectedWorldId || !worlds.some((w) => String(w.id) === String(selectedWorldId)))
+    ) {
+      setSelectedWorldId(worlds[0].id);
+    }
+  }, [worlds, selectedWorldId]);
+
   if (!isOpen) return null;
 
   const handleConfirm = () => {
     if (selectedType === "new") {
       onSelectNewWorld();
     } else {
-      const chosenWorld = worlds.find(
+      let chosenWorld = worlds.find(
         (w) => String(w.id) === String(selectedWorldId)
       );
+      if (!chosenWorld && worlds.length > 0) {
+        chosenWorld = worlds[0];
+      }
+
       if (chosenWorld) {
         onSelectExistingWorld(chosenWorld);
       } else {
@@ -31,6 +44,8 @@ export default function WorldSelectModal({
       }
     }
   };
+
+  const isSubmitDisabled = selectedType === "existing" && worlds.length === 0;
 
   return (
     <div className={styles.backdrop}>
@@ -129,7 +144,12 @@ export default function WorldSelectModal({
               취소
             </button>
           )}
-          <button type="button" className={styles.confirmBtn} onClick={handleConfirm}>
+          <button 
+            type="button" 
+            className={styles.confirmBtn} 
+            onClick={handleConfirm}
+            disabled={isSubmitDisabled}
+          >
             생성 시작하기
           </button>
         </div>

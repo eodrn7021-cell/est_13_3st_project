@@ -5,32 +5,95 @@
 }
 
 .recommended_list {
-  display: flex;
-  gap: 20px;
   width: 100%;
   overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.recommended_track {
+  display: flex;
+  width: 100%;
+
+  // 드래그를 놓았을 때 부드럽게 페이지 이동
+  transition: transform 0.35s ease;
+  will-change: transform;
+}
+
+// 드래그 중에는 마우스를 바로 따라오도록 transition 제거
+.is_dragging {
+  transition: none;
+}
+
+// 슬라이더 한 페이지
+.recommended_page {
+  display: flex;
+  flex: 0 0 100%;
+  gap: 20px;
+  width: 100%;
+  min-width: 0;
+
+  // PC / 넓은 태블릿: 한 페이지 3장
+  > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+.recommended_placeholder {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 360px;
+  border-radius: 10px;
+  background-color: colors.$color_background_surface;
 }
 
 .recommended_slider {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 0;
   margin-top: 20px;
 }
 
 .slider_dot {
-  display: block;
-  width: 10px;
-  height: 10px;
-  background-color: colors.$color_secondary_dark;
-  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+
+  cursor: pointer;
+
+  // 실제 보이는 점
+  &::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: colors.$color_secondary_dark;
+    transition:
+      width 0.2s ease,
+      background-color 0.2s ease;
+  }
 }
 
 .slider_dot_active {
-  background-color: colors.$color_primary;
+  &::before {
+    width: 10px;
+    height: 10px;
+    background-color: colors.$color_primary;
+  }
 }
-
 .sr_only {
   position: absolute;
   width: 1px;
@@ -51,7 +114,11 @@
     margin: 0;
   }
 
-  .recommended_list {
+  .recommended_placeholder {
+    height: 340px;
+  }
+
+  .recommended_page {
     gap: 17px;
   }
 
@@ -62,11 +129,22 @@
 
 /* 작은 태블릿 */
 @media (min-width: 481px) and (max-width: 767px) {
-  .recommended_list {
+  .recommended_page {
     gap: 16px;
   }
+  .recommended_placeholder:nth-child(3) {
+    display: none;
+  }
+}
 
-  .recommended_list > :nth-child(n + 3) {
+/* 모바일 */
+@media (max-width: 480px) {
+  .recommended_placeholder {
+    height: 340px;
+  }
+
+  .recommended_placeholder:nth-child(2),
+  .recommended_placeholder:nth-child(3) {
     display: none;
   }
 }

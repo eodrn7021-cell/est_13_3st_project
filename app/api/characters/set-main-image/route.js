@@ -1,5 +1,15 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/client";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
+
+async function getSupabaseServerClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (url && serviceKey) {
+    return createSupabaseClient(url, serviceKey);
+  }
+  return await createClient();
+}
 
 export async function POST(request) {
   try {
@@ -12,9 +22,11 @@ export async function POST(request) {
       );
     }
 
-    const supabase = createClient();
-    const { data: authData } = await supabase.auth.getUser();
-    const currentUserId = authData?.user?.id || "1d742f2b-17f7-436f-b0e2-fcc8e4957247";
+    const authSupabase = await createClient();
+    const { data: authData } = await authSupabase.auth.getUser();
+    const currentUserId = authData?.user?.id || null;
+
+    const supabase = await getSupabaseServerClient();
 
     // 1. 해당 캐릭터의 모든 character_images의 is_main을 false로 초기화
     await supabase

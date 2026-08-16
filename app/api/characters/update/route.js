@@ -1,5 +1,15 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/client";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
+
+async function getSupabaseServerClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (url && serviceKey) {
+    return createSupabaseClient(url, serviceKey);
+  }
+  return await createClient();
+}
 
 export async function POST(request) {
   try {
@@ -10,7 +20,7 @@ export async function POST(request) {
       return NextResponse.json({ error: "characterId가 필요합니다." }, { status: 400 });
     }
 
-    const supabase = createClient();
+    const supabase = await getSupabaseServerClient();
 
     // 1. 캐릭터 테이블 (characters) 데이터 업데이트
     const { data: updatedChar, error: charError } = await supabase

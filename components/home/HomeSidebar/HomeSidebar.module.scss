@@ -66,6 +66,12 @@
 }
 
 .sidebar_icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  overflow: hidden;
   flex-shrink: 0;
   color: colors.$color_white;
 }
@@ -99,25 +105,46 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
+
   width: 244px;
   height: 60px;
+
   margin-top: 16px;
   padding: 0 36px;
+
   color: colors.$color_white;
-  text-decoration: none;
+  font: inherit;
+
   background: colors.$gradient_tag;
   border: 1px solid colors.$color_tag_border_60;
   border-radius: 50px;
+
   box-sizing: border-box;
   overflow: hidden;
+
+  cursor: pointer;
+
+  :global(.material-symbols-rounded) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 24px;
+    height: 24px;
+
+    flex: 0 0 24px;
+    overflow: hidden;
+  }
 
   &::before {
     content: "";
 
     position: absolute;
     inset: 0;
+
     background: colors.$gradient_side;
     opacity: 0;
+
     transition: opacity 300ms ease;
     pointer-events: none;
   }

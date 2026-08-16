@@ -1,0 +1,159 @@
+@use "../../../styles/abstracts/_colors.scss" as colors;
+
+.modal_backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.modal {
+  position: relative;
+  width: min(720px, calc(100vw - 48px));
+  max-height: 75vh;
+  padding: 28px 24px;
+  background-color: #0f111c;
+  border: 1px solid colors.$color_tag_border_60;
+  border-radius: 12px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.close_button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: colors.$color_white;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  &:hover {
+    background-color: colors.$color_tag;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+  }
+}
+
+.tag_groups {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.tag_group {
+  width: 100%;
+}
+
+.group_button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  color: colors.$color_white;
+  background-color: colors.$color_tag;
+  border: 0;
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  &:hover {
+    background-color: colors.$color_primary_dark;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+  }
+}
+
+.group_icon {
+  font-size: 18px;
+}
+
+.tag_list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 8px 4px;
+}
+
+.modal_tag {
+  flex-shrink: 0;
+}
+
+// 선택된 태그
+.tag_selected {
+  flex-shrink: 0;
+  background-color: colors.$color_primary_dark;
+  border-color: colors.$color_primary;
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+  .modal_backdrop {
+    padding: 16px;
+  }
+
+  .modal {
+    width: calc(100vw - 32px);
+    max-height: 80vh;
+    padding: 24px 16px;
+  }
+
+  .tag_list {
+    gap: 8px;
+    padding: 10px 4px 2px;
+  }
+
+  .group_button {
+    min-height: 42px;
+    padding: 0 12px;
+  }
+}
+// 태그 조회 중 안내
+.loading_text {
+  margin: 0;
+  color: colors.$color_text_muted;
+}
+
+// 하단 버튼 영역
+.modal_actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid colors.$color_tag_border_60;
+}
+
+@media (max-width: 480px) {
+  .modal_actions {
+    gap: 8px;
+    margin-top: 20px;
+    padding-top: 16px;
+
+    > * {
+      flex: 1;
+    }
+  }
+}

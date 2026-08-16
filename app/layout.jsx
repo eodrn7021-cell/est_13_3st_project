@@ -2,6 +2,7 @@ import localFont from "next/font/local";
 import { Lora } from "next/font/google";
 import "@/styles/base/_reset.scss";
 import "./globals.scss";
+import { AuthProvider } from "@/context/AuthContext";
 
 const Pretendard = localFont({
   src: [
@@ -32,6 +33,27 @@ const LoraFont = Lora({
   preload: false,
 });
 
+const MaterialSymbolsRounded = localFont({
+  src: "../public/fonts/MaterialSymbolsRounded.woff2",
+  variable: "--font_material_symbols_rounded",
+  display: "swap",
+  preload: false,
+});
+
+const MaterialSymbolsOutlined = localFont({
+  src: "../public/fonts/MaterialSymbolsOutlined.woff2",
+  variable: "--font_material_symbols_outlined",
+  display: "swap",
+  preload: false,
+});
+
+const MaterialIconsOutlined = localFont({
+  src: "../public/fonts/MaterialIconsOutlined-Regular.otf",
+  variable: "--font_material_icons_outlined",
+  display: "swap",
+  preload: false,
+});
+
 export const metadata = {
   title: "VisuLore",
   description: "캐릭터와 세계관 아카이빙 서비스",
@@ -40,26 +62,12 @@ export const metadata = {
 const RootLayout = ({ children }) => {
   return (
     <html lang="ko">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
-          precedence="default"
-        />
-
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined&display=swap"
-          precedence="default"
-        />
-
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
-          precedence="default"
-        />
-      </head>
-      <body className={`${Pretendard.variable} ${LoraFont.variable}`}>{children}</body>
+      <head></head>
+      <body
+        className={`${Pretendard.variable} ${LoraFont.variable} ${MaterialSymbolsRounded.variable} ${MaterialSymbolsOutlined.variable} ${MaterialIconsOutlined.variable}`}
+      >
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 };

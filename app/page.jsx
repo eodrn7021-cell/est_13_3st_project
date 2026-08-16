@@ -1,6 +1,6 @@
-import Header from "@/components/layout/Header/Header";
 import Footer from "@/components/layout/Footer/Footer";
 import HomeSidebar from "@/components/home/HomeSidebar/HomeSidebar";
+import HomeMobileMenu from "@/components/home/HomeMobileMenu/HomeMobileMenu";
 import Hero from "@/components/home/Hero/Hero";
 import RecommendedCharacters from "@/components/home/RecommendedCharacters/RecommendedCharacters";
 import QuickMenu from "@/components/home/QuickMenu/QuickMenu";
@@ -12,7 +12,7 @@ import styles from "./page.module.scss";
 const HomePage = () => {
   return (
     <>
-      <Header />
+      <HomeMobileMenu />
 
       <main className={styles.home}>
         {/* 사이드바 + 메인 콘텐츠 */}
