@@ -1,13 +1,12 @@
-import Image from "next/image";
-import Link from "next/link";
-import styles from "./Footer.module.scss";
+import Image from 'next/image';
+import Link from 'next/link';
+import styles from './Footer.module.scss';
 
-const Footer = ({ variant = "default" }) => {
+const Footer = ({ variant = 'default', onLinkClick }) => {
   return (
     <footer
-      className={`${styles.footer} ${variant === "mobileMenu" ? styles.footer_mobile_menu : ""}`}
+      className={`${styles.footer} ${variant === 'mobileMenu' ? styles.footer_mobile_menu : ''}`}
     >
-      {" "}
       <div className={styles.footer_inner}>
         {/* 왼쪽 브랜드 영역 */}
         <div className={styles.footer_brand}>
@@ -77,9 +76,15 @@ const Footer = ({ variant = "default" }) => {
             <h3 className={`kr_caption ${styles.footer_menu_title}`}>서비스</h3>
             <span className={styles.footer_menu_line} />
             <div className={styles.footer_menu_links}>
-              <Link href="/characters">캐릭터 둘러보기</Link>
-              <Link href="/characters/create">캐릭터 만들기</Link>
-              <span>인기 스토리</span>
+              <Link href="/characters" scroll={true} onClick={onLinkClick}>
+                캐릭터 둘러보기
+              </Link>
+              <Link href="/characters/create" onClick={onLinkClick}>
+                캐릭터 만들기
+              </Link>
+              <Link href="/characters?sort=popular" scroll={true} onClick={onLinkClick}>
+                인기 스토리
+              </Link>
             </div>
           </div>
 
