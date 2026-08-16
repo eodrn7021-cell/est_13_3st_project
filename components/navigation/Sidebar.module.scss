@@ -1,6 +1,13 @@
-@use "@/styles/abstracts/colors" as *;
+@use "../../styles/abstracts/_colors.scss" as colors;
+@use "../../styles/abstracts/_variables.scss" as variables;
+
+/* ========================================
+   Backdrop
+======================================== */
 
 .backdrop {
+  display: none;
+
   position: fixed;
   inset: 0;
 
@@ -9,129 +16,443 @@
   opacity: 0;
   visibility: hidden;
 
-  transition: 0.3s;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 
   z-index: 98;
 }
 
-.show {
+.backdrop.show {
   opacity: 1;
   visibility: visible;
 }
 
+/* ========================================
+   Sidebar
+   Desktop
+   1201px 이상
+======================================== */
+
 .sidebar {
-  position: fixed;
+  position: relative;
 
-  top: 80px;
-  left: -300px;
+  top: auto;
+  left: auto;
 
-  width: 260px;
-  height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+
+  /* =====================================
+     PC 사이드바 크기
+     ===================================== */
+
+  width: 245px;
+  min-width: 245px;
+
+  height: 590px;
+  min-height: 590px;
 
   padding: 20px;
 
-  background: rgba(23, 24, 38, 0.97);
+  box-sizing: border-box;
 
-  border-radius: 18px;
+  flex-shrink: 0;
 
-  transition: 0.35s;
+  align-self: flex-start;
 
-  z-index: 99;
+  background-color: colors.$color_background_surface;
 
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+
+  opacity: 1;
+
+  color: colors.$color_white;
+
+  overflow: hidden;
+
+  z-index: 10;
 }
 
-.open {
-  left: 20px;
+/* ========================================
+   Navigation
+======================================== */
+
+.sidebar > nav {
+  display: flex !important;
+  flex-direction: column !important;
+
+  width: 100%;
+  height: auto;
+
+  min-height: 0;
 }
 
-.sidebar nav {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
+/* ========================================
+   Menu
+======================================== */
 
 .menu {
-  display: flex;
+  position: relative;
+
+  display: flex !important;
+  flex-direction: row !important;
+
   align-items: center;
 
   gap: 16px;
 
+  flex-shrink: 0;
+
+  width: 100%;
   height: 56px;
 
   padding: 0 18px;
 
+  box-sizing: border-box;
+
+  overflow: hidden;
+
+  background: transparent;
+
+  border: 0;
+
   border-radius: 14px;
 
-  color: #fff;
+  color: colors.$color_white;
 
-  transition: 0.2s;
+  text-decoration: none;
+
+  font-family: variables.$font_family_kr;
+
+  font-size: 16px;
+
+  font-weight: variables.$font_weight_regular;
+
+  line-height: 1;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
-.menu:hover {
-  background: rgba(255, 255, 255, 0.05);
+/* ========================================
+   Menu Hover
+   ★ 일반 메뉴에 마우스를 올렸을 때
+======================================== */
+
+.menu::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background: colors.$gradient_main;
+
+  opacity: 0;
+
+  border-radius: inherit;
+
+  pointer-events: none;
+
+  transition: opacity 0.2s ease;
 }
 
-.active {
-  background: $gradient_main;
+.menu:hover::before {
+  opacity: 1;
+}
+
+/* ========================================
+   Active
+   ★ 현재 마이페이지는 시안처럼 표시
+======================================== */
+
+.menu.active::before {
+  opacity: 1;
+}
+
+.menu.active {
+  color: colors.$color_white;
+}
+
+/* ========================================
+   Menu Contents
+======================================== */
+
+.menu > span {
+  position: relative;
+
+  z-index: 1;
 }
 
 .menu span:first-child {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 24px;
+  height: 24px;
+
+  color: colors.$color_white;
+
   font-size: 24px;
+
+  line-height: 1;
 }
 
-.logout {
-  margin-top: auto;
+/* ========================================
+   Trash Menu
+   휴지통만 한 칸 아래로 배치
+======================================== */
 
-  display: flex;
+.trashMenu {
+  margin-top: 20px;
+}
+
+/* ========================================
+   Logout
+   ★ Sidebar 하단 고정
+======================================== */
+
+.logout {
+  position: relative;
+
+  display: flex !important;
+  flex-direction: row !important;
 
   align-items: center;
 
   gap: 16px;
 
+  width: 100%;
   height: 56px;
+
+  margin-top: 56px;
 
   padding: 0 18px;
 
-  background: none;
+  box-sizing: border-box;
 
-  border: none;
+  background: transparent;
 
-  color: #ff7b7b;
+  border: 0;
+
+  border-radius: 14px;
+
+  color: colors.$color_highlight;
 
   cursor: pointer;
 
+  font-family: variables.$font_family_kr;
+
   font-size: 16px;
+
+  font-weight: variables.$font_weight_regular;
+
+  line-height: 1;
+
+  text-align: left;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .logout:hover {
-  background: rgba(255, 255, 255, 0.05);
-
-  border-radius: 14px;
+  background: rgba(244, 119, 119, 0.08);
 }
 
-@media (max-width: 768px) {
+.logout > span {
+  position: relative;
+
+  z-index: 1;
+}
+
+.logout span:first-child {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 24px;
+  height: 24px;
+
+  color: colors.$color_highlight;
+
+  font-size: 24px;
+
+  line-height: 1;
+}
+
+/* ========================================
+   Tablet
+   769px ~ 1200px
+======================================== */
+
+@media (min-width: 769px) and (max-width: 1200px) {
+  .backdrop {
+    display: block;
+  }
+
   .sidebar {
+    position: fixed;
+
     top: 72px;
+    bottom: 80px;
+    left: 0;
 
-    width: 240px;
+    width: 290px;
+    min-width: 290px;
 
-    height: calc(100vh - 90px);
+    height: auto;
+
+    margin: 0;
+
+    padding: 20px;
+
+    border-radius: 0 18px 18px 0;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    transform: translateX(-100%);
+
+    transition: transform 0.35s ease;
+
+    z-index: 100;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .logout {
+    margin-top: 56px;
+    transform: none;
   }
 }
+
+/* ========================================
+   Mobile
+   768px 이하
+======================================== */
+
+@media (max-width: 768px) {
+  .backdrop {
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+
+    top: 72px;
+    bottom: 80px;
+    left: 0;
+
+    width: 290px;
+    min-width: 290px;
+
+    height: auto;
+
+    margin: 0;
+
+    padding: 20px;
+
+    border-radius: 0 18px 18px 0;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    transform: translateX(-100%);
+
+    transition: transform 0.35s ease;
+
+    z-index: 100;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .logout {
+    margin-top: 56px;
+    transform: none;
+  }
+}
+
+/* ========================================
+   Small Mobile
+   480px 이하
+======================================== */
 
 @media (max-width: 480px) {
   .sidebar {
-    top: 68px;
+    top: 64px;
+    bottom: 85px;
 
-    width: 220px;
+    width: 240px;
+    min-width: 240px;
 
-    left: -240px;
+    padding: 16px;
   }
 
-  .open {
-    left: 0;
+  .menu {
+    height: 48px;
 
-    border-radius: 0 18px 18px 0;
+    padding: 0 14px;
+
+    gap: 12px;
+
+    font-size: 15px;
+  }
+
+  .menu span:first-child {
+    width: 24px;
+    height: 24px;
+
+    font-size: 23px;
+  }
+
+  .logout {
+    height: 48px;
+
+    padding: 0 14px;
+
+    gap: 12px;
+
+    font-size: 15px;
+  }
+
+  .logout span:first-child {
+    width: 24px;
+    height: 24px;
+
+    font-size: 23px;
+  }
+}
+
+/* ========================================
+   PC
+   1201px 이상
+   사이드바 위치 조정
+======================================== */
+
+@media (min-width: 1201px) {
+  .sidebar {
+    width: 285px;
+    min-width: 285px;
+
+    height: 590px;
+    min-height: 590px;
+  }
+
+  .logout {
+    margin-top: 56px;
+    transform: none;
   }
 }
