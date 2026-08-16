@@ -288,6 +288,16 @@
   }
 }
 
+// 회원가입 성공 안내
+.success_message {
+  margin: 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 12px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1.5;
+}
+
 // Tablet
 @media (max-width: 960px) {
   .page {
@@ -352,15 +362,28 @@
   width: 100%;
 }
 
-.error_message {
-  margin: 8px 0 0;
+// 비밀번호 불일치 전용 에러
+.password_error {
+  margin: 4px 0 0;
 
   color: colors.$color_highlight;
 
   font-family: variables.$font_family_kr;
   font-size: 12px;
   font-weight: variables.$font_weight_regular;
+  line-height: 1.2;
+}
+
+.error_message {
+  margin: 0;
+  color: colors.$color_highlight;
+  font-family: variables.$font_family_kr;
+  font-size: 12px;
+  font-weight: variables.$font_weight_regular;
   line-height: 1.4;
+}
+.show {
+  visibility: visible;
 }
 
 // Mobile

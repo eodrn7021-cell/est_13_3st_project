@@ -2,9 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "./Footer.module.scss";
 
-const Footer = () => {
+const Footer = ({ variant = "default" }) => {
   return (
-    <footer className={styles.footer}>
+    <footer
+      className={`${styles.footer} ${variant === "mobileMenu" ? styles.footer_mobile_menu : ""}`}
+    >
+      {" "}
       <div className={styles.footer_inner}>
         {/* 왼쪽 브랜드 영역 */}
         <div className={styles.footer_brand}>

@@ -11,36 +11,23 @@ function getFontClass(text, krClass, enClass) {
 
 export default function CharacterDetail({
   character,
-  initialComments = [],
   onRegenerateImage,
   onSaveImage,
   isRegenerating = false,
+  isGeneratingMode = false,
+  isOwner = false,
+  currentUser = null,
+  comments = [],
+  onAddComment,
+  isSubmittingComment = false,
 }) {
-  // 기본 더미 코멘트 (시안 참고)
-  const defaultComments = [
-    { id: 1, author: "지나가는 관찰자", content: "와 너무 잘만드셨다." },
-    { id: 2, author: "이쁜거 보면 짓는 사람", content: "왈! 왈! 왈!" },
-    { id: 3, author: "||||||||", content: "언니 완전 내 취향." },
-  ];
-
-  const [comments, setComments] = useState(
-    initialComments.length > 0 ? initialComments : defaultComments
-  );
-  const [newAuthor, setNewAuthor] = useState("");
   const [newContent, setNewContent] = useState("");
 
   const handleAddComment = (e) => {
     e.preventDefault();
-    if (!newContent.trim()) return;
+    if (!newContent.trim() || !onAddComment) return;
 
-    const newCommentObj = {
-      id: Date.now(),
-      author: newAuthor.trim() || "익명 관찰자",
-      content: newContent.trim(),
-    };
-
-    setComments((prev) => [newCommentObj, ...prev]);
-    setNewAuthor("");
+    onAddComment(newContent.trim());
     setNewContent("");
   };
 
@@ -67,22 +54,29 @@ export default function CharacterDetail({
     }
   };
 
-  const name = character?.name || "은빛 성녀 엘리안느";
-  const race = character?.race || "엘프";
-  const gender = character?.gender || "여성";
-  const age = character?.age || "2000";
-  const jobRole = character?.job_role || "성녀";
+  const name = character?.name || "무명";
+  const race = character?.race;
+  const gender = character?.gender;
+  const age = character?.age;
+  const jobRole = character?.job_role;
   const summaryText =
     character?.summary ||
     character?.background_story ||
-    "직업 / 지고용한 성역을 지키며 당신의 운명에 신비로운 빛을 비추는 은빛 성녀 엘리안느. 그녀는 2,000년의 세월을 살아온 엘프로, 흘러내리는 은빛 머리카락과 심연을 꿰뚫어 보는 듯한 보랏빛 눈동자를 지닌 신비로운 존재입니다.\n\n평소에는 누구에게나 상냥하고 자애로운 미소로 다친 이들을 치유하지만, 중대한 결단 앞에서는 감정에 치우치지 않는 극도로 이성적이고 냉철한 면모를 보입니다.";
+    "캐릭터 설명이 없습니다.";
 
-  // 우측 카드 태그 목록 (Figma 시안 1번: 폰트 M Title 사용)
-  const rightTags = [
-    race,
-    jobRole,
-    character?.hair_color || "은발",
-  ];
+  // 우측 카드 태그 목록 (세계관 테마, 장르, 종족, 직업 등을 모아 보기 좋게 정리)
+  const rawTags = [
+    character?.worlds?.theme,
+    character?.worlds?.genre,
+    character?.race,
+    character?.job_role,
+  ].filter(Boolean);
+
+  const rightTags = rawTags
+    .flatMap((tag) => tag.split(","))
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .slice(0, 4);
 
   return (
     <div className={styles.container2Col}>
@@ -100,18 +94,26 @@ export default function CharacterDetail({
 
         {/* 기본 정보 알약 태그 그룹 (Body 사용) */}
         <div className={styles.tagGroup}>
-          <div className={`${getFontClass(race, "kr_body", "en_body")} ${styles.infoTag}`}>
-            종족 : {race}
-          </div>
-          <div className={`${getFontClass(gender, "kr_body", "en_body")} ${styles.infoTag}`}>
-            성별 : {gender}
-          </div>
-          <div className={`${getFontClass(age, "kr_body", "en_body")} ${styles.infoTag}`}>
-            나이 : {age}
-          </div>
-          <div className={`${getFontClass(jobRole, "kr_body", "en_body")} ${styles.infoTag}`}>
-            직업 / 지위 : {jobRole}
-          </div>
+          {race && (
+            <div className={`${getFontClass(race, "kr_body", "en_body")} ${styles.infoTag}`}>
+              종족 : {race}
+            </div>
+          )}
+          {gender && (
+            <div className={`${getFontClass(gender, "kr_body", "en_body")} ${styles.infoTag}`}>
+              성별 : {gender}
+            </div>
+          )}
+          {age && (
+            <div className={`${getFontClass(age, "kr_body", "en_body")} ${styles.infoTag}`}>
+              나이 : {age}
+            </div>
+          )}
+          {jobRole && (
+            <div className={`${getFontClass(jobRole, "kr_body", "en_body")} ${styles.infoTag}`}>
+              직업 / 지위 : {jobRole}
+            </div>
+          )}
         </div>
 
         {/* 캐릭터 요약 본문 (Body 150) */}
@@ -132,28 +134,34 @@ export default function CharacterDetail({
 
           {/* 코멘트 리스트 */}
           <div className={styles.commentList}>
-            {comments.map((comment) => (
-              <div key={comment.id} className={styles.commentCard}>
-                <span
-                  className={`${getFontClass(
-                    comment.author,
-                    "kr_caption",
-                    "en_caption"
-                  )} ${styles.commentAuthor}`}
-                >
-                  작성자 : {comment.author}
-                </span>
-                <p
-                  className={`${getFontClass(
-                    comment.content,
-                    "kr_body",
-                    "en_body"
-                  )} ${styles.commentContent}`}
-                >
-                  {comment.content}
-                </p>
+            {comments.length > 0 ? (
+              comments.map((comment) => (
+                <div key={comment.id} className={styles.commentCard}>
+                  <span
+                    className={`${getFontClass(
+                      comment.author,
+                      "kr_caption",
+                      "en_caption"
+                    )} ${styles.commentAuthor}`}
+                  >
+                    작성자 : {comment.author}
+                  </span>
+                  <p
+                    className={`${getFontClass(
+                      comment.content,
+                      "kr_body",
+                      "en_body"
+                    )} ${styles.commentContent}`}
+                  >
+                    {comment.content}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className={styles.emptyComment}>
+                <span className="kr_body">아직 코멘트가 없습니다.</span>
               </div>
-            ))}
+            )}
           </div>
 
           {/* 새 코멘트 작성 폼 */}
@@ -161,13 +169,18 @@ export default function CharacterDetail({
             <div className={styles.formInputGroup}>
               <input
                 type="text"
-                placeholder="작성자 이름 (선택)"
-                value={newAuthor}
-                onChange={(e) => setNewAuthor(e.target.value)}
+                value={currentUser?.profile?.nickname || ""}
                 className={`kr_caption ${styles.authorInput}`}
+                disabled
+                placeholder={currentUser ? "" : "로그인 후 작성 가능"}
+                style={{ backgroundColor: "transparent", color: "white" }}
               />
-              <button type="submit" className={`kr_body ${styles.submitBtn}`}>
-                등록
+              <button
+                type="submit"
+                className={`kr_body ${styles.submitBtn}`}
+                disabled={isSubmittingComment || !newContent.trim()}
+              >
+                {isSubmittingComment ? "등록 중..." : "등록"}
               </button>
             </div>
             <textarea
@@ -218,27 +231,29 @@ export default function CharacterDetail({
         </div>
 
         {/* 하단 버튼 그룹 (이미지 재생성, 이미지 저장) */}
-        <div className={styles.actionButtonGroup}>
-          <button
-            type="button"
-            className={styles.regenerateActionButton}
-            onClick={onRegenerateImage}
-            disabled={isRegenerating}
-          >
-            <span className="kr_body_b">
-              {isRegenerating ? "생성 중..." : "이미지 재생성"}
-            </span>
-          </button>
+        {isOwner && (
+          <div className={styles.actionButtonGroup}>
+            <button
+              type="button"
+              className={styles.regenerateActionButton}
+              onClick={onRegenerateImage}
+              disabled={isRegenerating}
+            >
+              <span className="kr_body_b">
+                {isRegenerating ? "생성 중..." : "이미지 재생성"}
+              </span>
+            </button>
 
-          <button
-            type="button"
-            className={styles.saveActionButton}
-            onClick={handleSaveImage}
-            disabled={isRegenerating || !character?.image_url}
-          >
-            <span className="kr_body_b">이미지 저장</span>
-          </button>
-        </div>
+            <button
+              type="button"
+              className={styles.saveActionButton}
+              onClick={handleSaveImage}
+              disabled={isRegenerating || !character?.image_url}
+            >
+              <span className="kr_body_b">이미지 저장</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

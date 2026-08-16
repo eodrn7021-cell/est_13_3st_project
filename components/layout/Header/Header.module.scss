@@ -49,6 +49,34 @@
   gap: 20px;
 }
 
+.header_logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  height: 60px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: colors.$color_primary_dark;
+  color: colors.$color_white;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    background: colors.$color_primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 3px;
+  }
+}
+
 .header_account {
   display: flex;
   align-items: center;
@@ -109,6 +137,12 @@
 }
 /* 태블릿 */
 @media (max-width: 1200px) {
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
   .header_inner {
     height: 72px;
     min-height: 72px;

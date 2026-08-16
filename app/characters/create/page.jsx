@@ -8,7 +8,6 @@ import Footer from "@/components/layout/Footer/Footer";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
 import CharacterForm from "@/components/character/CharacterForm/CharacterForm";
 import WorldSelectModal from "@/components/character/WorldSelectModal/WorldSelectModal";
-import LoginModal from "@/components/auth/LoginModal/LoginModal";
 import { createClient } from "@/lib/supabase/client";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
 import createStyles from "./create.module.scss";
@@ -24,9 +23,6 @@ function HelpOutlineIcon() {
 export default function CreateCharacterPage({ worldData, characterListData }) {
   const router = useRouter();
 
-  // 로그인 모달 상태
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
   // 세계관 모달 및 선택 상태
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [userWorlds, setUserWorlds] = useState([]);
@@ -40,7 +36,23 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   const [formData, setFormData] = useState({});
   const [initialFormValues, setInitialFormValues] = useState({});
+  const [draftCharValues, setDraftCharValues] = useState({});
   const [isWorldCheckDone, setIsWorldCheckDone] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // 뒤쪽 스크롤 방지
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [isMobileMenuOpen]);
+
   const [isCharCheckDone, setIsCharCheckDone] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -52,13 +64,16 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
       try {
         const supabase = createClient();
         const { data: authData } = await supabase.auth.getUser();
-        const currentUserId = authData?.user?.id || "1d742f2b-17f7-436f-b0e2-fcc8e4957247";
+        const currentUserId = authData?.user?.id || null;
 
-        const { data: worldsData } = await supabase
-          .from("worlds")
-          .select("*")
-          .or(`creator_id.eq.${currentUserId},creator_id.is.null`)
-          .order("created_at", { ascending: false });
+        let query = supabase.from("worlds").select("*");
+        if (currentUserId) {
+          query = query.or(`creator_id.eq.${currentUserId},creator_id.is.null`);
+        } else {
+          query = query.is("creator_id", null);
+        }
+
+        const { data: worldsData } = await query.order("created_at", { ascending: false });
 
         if (worldsData) {
           setUserWorlds(worldsData);
@@ -153,6 +168,22 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   const handleFormChange = (field, value, updatedData) => {
     setFormData(updatedData);
 
+    // 새 캐릭터 작성 중일 때는 입력된 캐릭터 필드값을 draftCharValues에 기억
+    if (!selectedCharObj && !isEditMode) {
+      setDraftCharValues({
+        name: updatedData.name || "",
+        race: updatedData.race || "",
+        gender: updatedData.gender || "",
+        age: updatedData.age || "",
+        job_role: updatedData.job_role || "",
+        background_story: updatedData.background_story || "",
+        appearance: updatedData.appearance || "",
+        personality: updatedData.personality || "",
+        abilities: updatedData.abilities || "",
+        relationships: updatedData.relationships || "",
+      });
+    }
+
     const isWorldComplete = Boolean(
       updatedData.title?.trim() &&
       updatedData.theme?.trim() &&
@@ -179,26 +210,39 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
     setSelectedCharacterId(item.id);
 
     if (item.isDraft) {
-      // 새 캐릭터 (작성 중) 선택 ➔ 신규 캐릭터 작성 모드로 복귀
+      // 새 캐릭터 (작성 중) 선택 ➔ 작성 중이던 임시 입력값 복원
       setSelectedCharObj(null);
       setIsReadOnlyChar(false);
       setIsEditMode(false);
-      const resetCharValues = {
+
+      const restoreCharValues = {
         ...formData,
-        name: "",
-        race: "",
-        gender: "",
-        age: "",
-        job_role: "",
-        background_story: "",
-        appearance: "",
-        personality: "",
-        abilities: "",
-        relationships: "",
+        name: draftCharValues.name || "",
+        race: draftCharValues.race || "",
+        gender: draftCharValues.gender || "",
+        age: draftCharValues.age || "",
+        job_role: draftCharValues.job_role || "",
+        background_story: draftCharValues.background_story || "",
+        appearance: draftCharValues.appearance || "",
+        personality: draftCharValues.personality || "",
+        abilities: draftCharValues.abilities || "",
+        relationships: draftCharValues.relationships || "",
       };
-      setInitialFormValues((prev) => ({ ...prev, ...resetCharValues }));
-      setFormData(resetCharValues);
-      setIsCharCheckDone(false);
+
+      setInitialFormValues((prev) => ({ ...prev, ...restoreCharValues }));
+      setFormData(restoreCharValues);
+
+      const isCharComplete = Boolean(
+        restoreCharValues.name?.trim() &&
+        restoreCharValues.race?.trim() &&
+        restoreCharValues.gender?.trim() &&
+        restoreCharValues.age?.trim() &&
+        restoreCharValues.job_role?.trim() &&
+        restoreCharValues.background_story?.trim() &&
+        restoreCharValues.appearance?.trim() &&
+        restoreCharValues.personality?.trim()
+      );
+      setIsCharCheckDone(isCharComplete);
     } else {
       // 기존 캐릭터 선택 ➔ 폼에 데이터 바인딩 및 비활성화 (Read-only)
       const foundChar = item.data;
@@ -272,6 +316,19 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   // '수정 정보 저장' 버튼 클릭 시 ➔ 캐릭터 DB 정보만 수정 저장
   const handleUpdateOnly = async () => {
     if (!isAllCheckDone || !selectedCharObj || isSubmitting) return;
+
+    // 이전 값과 비교하여 변경된 내용이 없는지 확인
+    const isFormChanged = Object.keys(formData).some(
+      (key) => formData[key] !== initialFormValues[key]
+    );
+
+    if (!isFormChanged) {
+      // 변경된 내용이 없으면 쓸데없는 DB API 호출 없이 바로 읽기 전용 모드로 복귀
+      setIsEditMode(false);
+      setIsReadOnlyChar(true);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -322,20 +379,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         return;
       }
 
-      // 2. 이미지 재생성 API 호출
-      const regenRes = await fetch("/api/characters/regenerate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ characterId: selectedCharObj.id }),
-      });
-
-      const regenResult = await regenRes.json();
-      if (!regenRes.ok || regenResult.error) {
-        alert(regenResult.error || "이미지 재생성 중 오류가 발생했습니다.");
-        setIsSubmitting(false);
-        return;
-      }
-
+      // 2. 상세 페이지로 이동하여 비동기로 이미지 재생성 (상세 페이지의 isGeneratingMode가 처리함)
       router.push(`/characters/${selectedCharObj.id}?generating=true`);
     } catch (err) {
       console.error("수정 후 이미지 재생성 중 에러:", err);
@@ -351,7 +395,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
     try {
       const supabase = createClient();
       const { data: authData } = await supabase.auth.getUser();
-      const currentUserId = authData?.user?.id || "1d742f2b-17f7-436f-b0e2-fcc8e4957247";
+      const currentUserId = authData?.user?.id || null;
 
       const res = await fetch("/api/characters/generate", {
         method: "POST",
@@ -409,25 +453,167 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
     });
   };
 
+  const sidebarTopContent = (
+    <>
+      <button
+        type="button"
+        className={`${sidebarStyles.accordionButton} ${activeNav === "world" ? sidebarStyles.active : ""}`}
+        onClick={handleSelectWorld}
+      >
+        <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+          history_edu
+        </span>
+        <span className="kr_body_b">{worldTitle}</span>
+      </button>
+
+      <div>
+        <button
+          type="button"
+          className={sidebarStyles.accordionButton}
+          onClick={handleToggleCharacterAccordion}
+        >
+          <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+            person
+          </span>
+          <span className="kr_body_b">캐릭터</span>
+        </button>
+
+        {isCharacterOpen && (
+          <div className={sidebarStyles.accordionList}>
+            {characterItems.map((item) => {
+              const isSelected = activeNav === "character" && selectedCharacterId === item.id;
+              return (
+                <div
+                  key={item.id}
+                  className={`${sidebarStyles.subItem} ${isSelected ? sidebarStyles.active : ""}`}
+                  onClick={() => handleSelectCharacterItem(item)}
+                  role="button"
+                  tabIndex={0}
+                >
+                  {isSelected && (
+                    <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+                      auto_stories
+                    </span>
+                  )}
+                  <span className="kr_body_b">{item.name}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className={sidebarStyles.checklistSection}>
+        <div className={`kr_body_b ${sidebarStyles.checklistTitle}`}>체크 리스트</div>
+        <div className={sidebarStyles.checklistItems}>
+          <label className={sidebarStyles.checkItem} style={{ cursor: "default" }}>
+            <input
+              type="checkbox"
+              checked={isWorldCheckDone}
+              readOnly
+              onClick={(e) => e.preventDefault()}
+            />
+            <span className="kr_body_b">세계관 필수 입력 사항 작성</span>
+          </label>
+          <label className={sidebarStyles.checkItem} style={{ cursor: "default" }}>
+            <input
+              type="checkbox"
+              checked={isCharCheckDone}
+              readOnly
+              onClick={(e) => e.preventDefault()}
+            />
+            <span className="kr_body_b">캐릭터 필수 입력 사항 작성</span>
+          </label>
+        </div>
+      </div>
+    </>
+  );
+
+  const sidebarBottomContent = (
+    <>
+      <button type="button" className={sidebarStyles.sideButton}>
+        <span className={sidebarStyles.buttonIcon}>
+          <HelpOutlineIcon />
+        </span>
+        <span className="kr_body_b">도움말</span>
+      </button>
+
+      {/* 하단 버튼 영역: 상태별 분기 */}
+      {selectedCharObj && !isEditMode ? (
+        /* 기존 캐릭터 읽기 전용 상태 ➔ 단일 '수정' 버튼만 표시 */
+        <button
+          type="button"
+          className={`${sidebarStyles.sideButton} ${sidebarStyles.active}`}
+          onClick={handleStartEdit}
+        >
+          <span className="kr_body_b">수정</span>
+        </button>
+      ) : selectedCharObj && isEditMode ? (
+        /* 기존 캐릭터 수정 편집 모드 상태 ➔ '수정 정보 저장', '수정 후 이미지 재생성', '취소' 버튼 */
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
+          <button
+            type="button"
+            className={`${sidebarStyles.sideButton} ${isAllCheckDone ? sidebarStyles.active : ""}`}
+            onClick={handleUpdateOnly}
+            disabled={!isAllCheckDone || isSubmitting}
+          >
+            <span className="kr_body_b">수정 정보 저장</span>
+          </button>
+
+          <button
+            type="button"
+            className={`${sidebarStyles.sideButton} ${isAllCheckDone ? sidebarStyles.active : ""}`}
+            onClick={handleUpdateAndRegenerate}
+            disabled={!isAllCheckDone || isSubmitting}
+          >
+            <span className="kr_body_b">수정 후 이미지 재생성</span>
+          </button>
+
+          <button
+            type="button"
+            className={sidebarStyles.sideButton}
+            onClick={handleCancelEdit}
+          >
+            <span className="kr_body_b">취소</span>
+          </button>
+        </div>
+      ) : (
+        /* 새 캐릭터 작성 중 상태 ➔ 기존 '저장 후 이미지생성' 버튼 */
+        <button
+          type="button"
+          className={`${sidebarStyles.sideButton} ${isAllCheckDone ? sidebarStyles.active : ""}`}
+          onClick={handleSaveClick}
+          disabled={!isAllCheckDone || isSubmitting}
+        >
+          <span className="kr_body_b">저장 후 이미지생성</span>
+        </button>
+      )}
+    </>
+  );
+
   return (
     <div className={createStyles.pageContainer}>
-      <Header
-        variant="account"
-        accountContent={
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <button
-              type="button"
-              className={createStyles.loginHeaderButton}
-              onClick={() => setIsLoginModalOpen(true)}
-            >
-              <span className="kr_body_b">로그인</span>
-            </button>
-            <Link href="/my-page" className={createStyles.mypageLink}>
-              <span className="kr_body">마이페이지</span>
-            </Link>
+      <Header variant="account" onMenuClick={() => setIsMobileMenuOpen(true)} />
+
+      {/* 모바일 햄버거 메뉴 사이드바 */}
+      {isMobileMenuOpen && (
+        <div className={createStyles.mobileDrawerWrapper}>
+          <div className={createStyles.mobileDrawerOverlay} onClick={() => setIsMobileMenuOpen(false)} />
+          <div className={createStyles.mobileDrawer}>
+            <div className={createStyles.drawerHeader}>
+              <button type="button" className={createStyles.drawerCloseBtn} onClick={() => setIsMobileMenuOpen(false)}>
+                <span className="material-symbols-rounded">close</span>
+              </button>
+            </div>
+            <div className={createStyles.drawerContent}>
+              <Sidebar
+                topContent={sidebarTopContent}
+                bottomContent={sidebarBottomContent}
+              />
+            </div>
           </div>
-        }
-      />
+        </div>
+      )}
 
       {/* 모바일/태블릿 (<= 1024px) 상단바 */}
       <div className={createStyles.topNavSection}>
@@ -483,143 +669,13 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
       </div>
 
       <main className={createStyles.mainBody}>
-        {/* 데스크톱 (>= 1920px) 사이드바 */}
-        <Sidebar
-          topContent={
-            <>
-              <button
-                type="button"
-                className={`${sidebarStyles.accordionButton} ${activeNav === "world" ? sidebarStyles.active : ""}`}
-                onClick={handleSelectWorld}
-              >
-                <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
-                  history_edu
-                </span>
-                <span className="kr_body_b">{worldTitle}</span>
-              </button>
-
-              <div>
-                <button
-                  type="button"
-                  className={sidebarStyles.accordionButton}
-                  onClick={handleToggleCharacterAccordion}
-                >
-                  <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
-                    person
-                  </span>
-                  <span className="kr_body_b">캐릭터</span>
-                </button>
-
-                {isCharacterOpen && (
-                  <div className={sidebarStyles.accordionList}>
-                    {characterItems.map((item) => {
-                      const isSelected = activeNav === "character" && selectedCharacterId === item.id;
-                      return (
-                        <div
-                          key={item.id}
-                          className={`${sidebarStyles.subItem} ${isSelected ? sidebarStyles.active : ""}`}
-                          onClick={() => handleSelectCharacterItem(item)}
-                          role="button"
-                          tabIndex={0}
-                        >
-                          {isSelected && (
-                            <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
-                              auto_stories
-                            </span>
-                          )}
-                          <span className="kr_body_b">{item.name}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              <div className={sidebarStyles.checklistSection}>
-                <div className={`kr_body_b ${sidebarStyles.checklistTitle}`}>체크 리스트</div>
-                <div className={sidebarStyles.checklistItems}>
-                  <label className={sidebarStyles.checkItem} style={{ cursor: "default" }}>
-                    <input
-                      type="checkbox"
-                      checked={isWorldCheckDone}
-                      readOnly
-                      onClick={(e) => e.preventDefault()}
-                    />
-                    <span className="kr_body_b">세계관 필수 입력 사항 작성</span>
-                  </label>
-                  <label className={sidebarStyles.checkItem} style={{ cursor: "default" }}>
-                    <input
-                      type="checkbox"
-                      checked={isCharCheckDone}
-                      readOnly
-                      onClick={(e) => e.preventDefault()}
-                    />
-                    <span className="kr_body_b">캐릭터 필수 입력 사항 작성</span>
-                  </label>
-                </div>
-              </div>
-            </>
-          }
-          bottomContent={
-            <>
-              <button type="button" className={sidebarStyles.sideButton}>
-                <span className={sidebarStyles.buttonIcon}>
-                  <HelpOutlineIcon />
-                </span>
-                <span className="kr_body_b">도움말</span>
-              </button>
-
-              {/* 하단 버튼 영역: 상태별 분기 */}
-              {selectedCharObj && !isEditMode ? (
-                /* 기존 캐릭터 읽기 전용 상태 ➔ 단일 '수정' 버튼만 표시 */
-                <button
-                  type="button"
-                  className={`${sidebarStyles.sideButton} ${sidebarStyles.active}`}
-                  onClick={handleStartEdit}
-                >
-                  <span className="kr_body_b">수정</span>
-                </button>
-              ) : selectedCharObj && isEditMode ? (
-                /* 기존 캐릭터 수정 편집 모드 상태 ➔ '수정 정보 저장', '수정 후 이미지 재생성', '취소' 버튼 */
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
-                  <button
-                    type="button"
-                    className={`${sidebarStyles.sideButton} ${isAllCheckDone ? sidebarStyles.active : ""}`}
-                    onClick={handleUpdateOnly}
-                    disabled={!isAllCheckDone || isSubmitting}
-                  >
-                    <span className="kr_body_b">수정 정보 저장</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`${sidebarStyles.sideButton} ${isAllCheckDone ? sidebarStyles.active : ""}`}
-                    onClick={handleUpdateAndRegenerate}
-                    disabled={!isAllCheckDone || isSubmitting}
-                  >
-                    <span className="kr_body_b">수정 후 이미지 재생성</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={sidebarStyles.sideButton}
-                    onClick={handleCancelEditOrView}
-                  >
-                    <span className="kr_body_b">취소</span>
-                  </button>
-                </div>
-              ) : (
-                /* 신규 캐릭터 작성 상태 ➔ '저장 후 이미지생성' 버튼 */
-                <button
-                  type="button"
-                  className={`${sidebarStyles.sideButton} ${isAllCheckDone ? sidebarStyles.active : ""}`}
-                  onClick={handleSaveClick}
-                  disabled={!isAllCheckDone || isSubmitting}
-                >
-                  <span className="kr_body_b">저장 후 이미지생성</span>
-                </button>
-              )}
-            </>
-          }
-        />
+        {/* 데스크톱 사이드바 */}
+        <div className={createStyles.desktopSidebarWrapper}>
+          <Sidebar
+            topContent={sidebarTopContent}
+            bottomContent={sidebarBottomContent}
+          />
+        </div>
 
         <div style={{ flex: 1, minWidth: 0, height: "100%" }}>
           <CharacterForm
@@ -694,16 +750,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         worlds={userWorlds}
         onSelectNewWorld={handleSelectNewWorld}
         onSelectExistingWorld={handleSelectExistingWorld}
-      />
-
-      {/* 로그인 모달 */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onSuccess={(user) => {
-          console.log("로그인 성공:", user);
-          window.location.reload();
-        }}
+        onClose={() => router.back()}
       />
 
       <Footer />

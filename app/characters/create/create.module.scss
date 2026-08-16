@@ -18,7 +18,7 @@
   box-sizing: border-box;
   background-color: colors.$color_input_70;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1200px) {
     display: flex;
     justify-content: center;
     width: 100%;
@@ -101,7 +101,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, colors.$color_primary 0%, #1f1b33 100%);
+    background: colors.$gradient_main;
     opacity: 0;
     transition: opacity 300ms ease-out;
     pointer-events: none;
@@ -137,7 +137,7 @@
   flex: 1;
   align-items: stretch;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1200px) {
     flex-direction: column;
     min-height: auto;
     padding: 20px 40px;
@@ -157,7 +157,7 @@
   background-color: colors.$color_background_surface;
   border-radius: 10px;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1200px) {
     display: flex;
     justify-content: center;
     width: 100%;
@@ -240,10 +240,95 @@
   color: colors.$color_text_muted;
   text-decoration: none;
   transition: color 0.2s;
-  display: inline-flex;
-  align-items: center;
-
   &:hover {
     color: colors.$color_white;
   }
+}
+
+.desktopSidebarWrapper {
+  display: block;
+
+  @media (max-width: 1200px) {
+    display: none;
+  }
+}
+
+/* 모바일 전용 좌측 드로어 (햄버거 메뉴 클릭 시) */
+.mobileDrawerWrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  
+  @media (max-width: 1200px) {
+    display: block;
+  }
+}
+
+.mobileDrawerOverlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  animation: overlay_open 0.25s ease;
+}
+
+.mobileDrawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(280px, 82vw);
+  height: 100dvh;
+  background: colors.$color_background_deep;
+  box-sizing: border-box;
+  animation: drawer_open 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawerHeader {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px;
+}
+
+.drawerCloseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: colors.$color_secondary;
+  cursor: pointer;
+
+  &:hover {
+    color: colors.$color_white;
+    background: colors.$color_tag;
+  }
+
+  span {
+    font-size: 24px;
+  }
+}
+
+.drawerContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px 20px;
+}
+
+@keyframes drawer_open {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes overlay_open {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

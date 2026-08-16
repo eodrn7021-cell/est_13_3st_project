@@ -40,7 +40,7 @@ export default function CharacterForm({
   const [isResponsive, setIsResponsive] = useState(false);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 1024px)");
+    const mediaQuery = window.matchMedia("(max-width: 1200px)");
     const handleChange = (e) => {
       setIsResponsive(e.matches);
     };

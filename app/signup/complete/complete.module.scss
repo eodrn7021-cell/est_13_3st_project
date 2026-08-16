@@ -1,0 +1,82 @@
+@use "../../../styles/abstracts/colors" as colors;
+@use "../../../styles/abstracts/variables" as variables;
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+
+  background-image: url("/images/backgrounds/fantasy-space.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 10, 25, 0.65);
+}
+
+.modal {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  background: colors.$color_input_70;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  text-align: center;
+}
+
+.icon {
+  margin-bottom: 20px;
+  color: colors.$color_primary;
+  font-size: 48px;
+}
+
+.title {
+  margin: 0;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 24px;
+  font-weight: variables.$font_weight_bold;
+}
+
+.description {
+  margin: 14px 0 30px;
+  color: colors.$color_secondary;
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1.5;
+}
+
+.button {
+  width: 100%;
+  height: 52px;
+  border: 0;
+  border-radius: 10px;
+  background: colors.$color_primary;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 16px;
+  font-weight: variables.$font_weight_bold;
+
+  cursor: pointer;
+
+  &:hover {
+    background: colors.$color_primary_dark;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_white;
+    outline-offset: 3px;
+  }
+}

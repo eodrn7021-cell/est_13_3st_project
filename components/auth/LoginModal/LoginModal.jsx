@@ -46,11 +46,6 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
     }
   };
 
-  const handleDemoLogin = async () => {
-    setEmail("test@visulore.com");
-    setPassword("12345678");
-  };
-
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -94,14 +89,6 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
             <Button type="submit" variant="primary" size="large" disabled={loading}>
               <span className="kr_body_b">{loading ? "로그인 중..." : "로그인"}</span>
             </Button>
-
-            <button
-              type="button"
-              className={`${styles.demoButton} kr_caption`}
-              onClick={handleDemoLogin}
-            >
-              테스트 계정 자동 입력
-            </button>
           </div>
         </form>
       </div>
