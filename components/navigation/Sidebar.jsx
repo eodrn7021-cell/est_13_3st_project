@@ -61,7 +61,11 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
             <Link
               key={menu.href}
               href={menu.href}
-              className={`${styles.menu} ${pathname === menu.href ? styles.active : ""}`}
+              className={`
+              ${styles.menu}
+              ${pathname === menu.href ? styles.active : ""}
+              ${menu.icon === "delete" ? styles.trashMenu : ""}
+            `}
               onClick={onClose}
             >
               <span className="material-symbols-rounded" aria-hidden="true">
