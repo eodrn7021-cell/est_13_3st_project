@@ -41,10 +41,6 @@ const RecommendedCharacters = () => {
         // PC / 넓은 태블릿: 3개씩
         setCardsPerPage(3);
       }
-
-      // 화면 크기가 바뀌면 첫 페이지로 이동
-      setActiveIndex(0);
-      setDragOffset(0);
     };
 
     handleResize();
@@ -55,6 +51,12 @@ const RecommendedCharacters = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  // 한 페이지에 보여주는 카드 개수가 실제로 바뀔 때만 첫 페이지로 이동
+  useEffect(() => {
+    setActiveIndex(0);
+    setDragOffset(0);
+  }, [cardsPerPage]);
 
   // 추천 캐릭터 조회
   useEffect(() => {
@@ -230,6 +232,7 @@ const RecommendedCharacters = () => {
                     description={character.description}
                     tags={character.tags}
                     isPriority={pageIndex === 0 && index === 0}
+                    tabIndex={pageIndex === activeIndex ? 0 : -1}
                   />
                 ))
               )}
