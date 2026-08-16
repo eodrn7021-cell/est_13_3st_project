@@ -57,12 +57,12 @@ const CharactersPage = () => {
     }
   };
 
-  // DB 필터링 로직
+  // 필터링 로직
   useEffect(() => {
     const fetchCharacters = async () => {
       setIsLoading(true);
 
-      let query = supabase.from('characters').select('*');
+      let query = supabase.from('characters').select('*, worlds(genre)');
 
       if (filters.world_id) {
         query = query.eq('world_id', Number(filters.world_id));
@@ -83,9 +83,9 @@ const CharactersPage = () => {
       }
 
       if (filters.sort === '인기순') {
-        query = query.order('id', { ascending: false });
+        query = query.order('like_count', { ascending: false }); // 좋아요 많은 순
       } else {
-        query = query.order('id', { ascending: false });
+        query = query.order('created_at', { ascending: false }); // 최신 등록 순
       }
 
       const { data, error } = await query;
@@ -93,7 +93,17 @@ const CharactersPage = () => {
       if (error) {
         console.error('Supabase 에러:', error);
       } else {
-        setCharacters(data || []);
+        let list = data || [];
+
+        // 인기순일 경우 좋아요 개수가 많은 순서대로
+        if (filters.sort === '인기순') {
+          list.sort((a, b) => {
+            const likesA = a.character_likes?.[0]?.count || 0;
+            const likesB = b.character_likes?.[0]?.count || 0;
+            return likesB - likesA;
+          });
+        }
+        setCharacters(list);
       }
 
       setIsLoading(false);
@@ -289,7 +299,6 @@ const CharactersPage = () => {
                   <option value="여성">여성</option>
                   <option value="남성">남성</option>
                   <option value="무성">무성</option>
-                  <option value="비공개">비공개</option>
                 </select>
                 <span className={`material-symbols-outlined ${styles.select_arrow}`}>
                   expand_more
@@ -301,19 +310,35 @@ const CharactersPage = () => {
               {isLoading ? null : displayList && displayList.length > 0 ? (
                 <div className={styles.card_grid}>
                   {displayList.map((item) => (
-                    <div key={item.id} className={styles.card_item}>
+                    <div
+                      key={item.id}
+                      className={styles.card_item}
+                      onClick={() => router.push(`/characters/${item.id}`)}
+                    >
                       <div className={styles.image_box}>
-                        {item.image_url && (
+                        {item.badge && <span className={styles.badge}>{item.badge}</span>}
+
+                        {item.image_url ? (
                           <img src={item.image_url} alt={item.name || '캐릭터 이미지'} />
+                        ) : (
+                          <div className={styles.no_image}>
+                            <span className={`material-symbols-outlined ${styles.no_image_icon}`}>
+                              person
+                            </span>
+                          </div>
                         )}
 
                         <div className={styles.card_overlay}>
-                          {item.badge && <span className={styles.badge}>{item.badge}</span>}
                           <div className={styles.card_info}>
                             <h3>{item.name}</h3>
-                            <p>
-                              {item.background_story || `${item.race || ''} · ${item.gender || ''}`}
+                            <p className={styles.description}>
+                              {item.background_story || '캐릭터 상세 설명이 없습니다.'}
                             </p>
+                            <div className={styles.tag_badge}>
+                              {[item.race, item.job_role, item.worlds?.genre]
+                                .filter(Boolean)
+                                .join(' · ') || '태그 없음'}
+                            </div>
                           </div>
                         </div>
                       </div>

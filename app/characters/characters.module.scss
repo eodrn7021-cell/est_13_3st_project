@@ -232,7 +232,21 @@
     border-radius: 10px;
     overflow: hidden;
     cursor: pointer;
-    background: #1a162b;
+    background: $gradient_tag;
+
+    .no_image {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .no_image_icon {
+      @extend .icon_48;
+      display: inline-block;
+      color: $color_background_deep;
+    }
 
     .image_box {
       width: 100%;
@@ -272,31 +286,42 @@
         margin-bottom: 8px;
         font-size: 12px;
         font-weight: 600;
-        color: #ffffff;
-        background: rgba(255, 255, 255, 0.2);
+        color: $color_white;
         backdrop-filter: blur(4px);
         border-radius: 6px;
       }
 
       .card_info {
-        color: #ffffff;
+        color: $color_white;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
 
         h3 {
-          font-size: 16px;
-          font-weight: 700;
-          margin-bottom: 4px;
+          @extend .kr_body_b;
+          margin: 0;
           text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
         }
 
         p {
-          font-size: 13px;
-          color: rgba(255, 255, 255, 0.8);
+          @extend .kr_caption;
+          color: $color_white;
           line-height: 1.4;
+          margin: 0;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
+        }
+
+        .tag_badge {
+          @extend .kr_caption;
+          background: $gradient_tag;
+          display: inline-block;
+          padding: 6px 10px;
+          border-radius: 50px;
         }
       }
     }
