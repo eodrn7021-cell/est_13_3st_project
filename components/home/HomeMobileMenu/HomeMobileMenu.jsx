@@ -17,7 +17,7 @@ const HomeMobileMenu = () => {
     if (!isOpen) return;
 
     let subscription;
-    let isCancelled = false; // 여기 추가
+    let isCancelled = false;
 
     const checkUser = async () => {
       const { createClient } = await import("@/lib/supabase/client");
@@ -27,7 +27,6 @@ const HomeMobileMenu = () => {
         data: { user },
       } = await supabase.auth.getUser();
 
-      // 여기 추가
       if (isCancelled) return;
 
       setUser(user);
@@ -44,7 +43,7 @@ const HomeMobileMenu = () => {
     checkUser();
 
     return () => {
-      isCancelled = true; // 여기 추가
+      isCancelled = true;
       subscription?.unsubscribe();
     };
   }, [isOpen]);
