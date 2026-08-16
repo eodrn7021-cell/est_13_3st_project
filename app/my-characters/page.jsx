@@ -68,7 +68,7 @@ const MyCharactersPage = () => {
     filter === "all" ? characters : characters.filter((character) => character.status === filter);
 
   // ----------------------------------------
-  // 필터를 변경하면 모바일은 항상 1페이지
+  // 필터를 변경하면 모바일은 1페이지
   // ----------------------------------------
   useEffect(() => {
     setMobilePage(1);
@@ -138,10 +138,6 @@ const MyCharactersPage = () => {
                   onClick={() => setFilter("all")}
                 >
                   <span>전체</span>
-
-                  <span className="material-symbols-rounded" aria-hidden="true">
-                    expand_more
-                  </span>
                 </button>
 
                 <button
@@ -150,10 +146,6 @@ const MyCharactersPage = () => {
                   onClick={() => setFilter("public")}
                 >
                   <span>공개</span>
-
-                  <span className="material-symbols-rounded" aria-hidden="true">
-                    expand_more
-                  </span>
                 </button>
 
                 <button
@@ -162,10 +154,6 @@ const MyCharactersPage = () => {
                   onClick={() => setFilter("private")}
                 >
                   <span>비공개</span>
-
-                  <span className="material-symbols-rounded" aria-hidden="true">
-                    expand_more
-                  </span>
                 </button>
               </div>
             </section>
