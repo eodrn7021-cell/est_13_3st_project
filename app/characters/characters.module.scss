@@ -58,6 +58,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding-bottom: 30px;
 
     li {
       list-style: none;
@@ -75,11 +76,6 @@
           background: linear-gradient(90deg, $color_primary_dark 0%, #1f1b33 100%);
         }
       }
-
-      &.active a {
-        background: $gradient_tag;
-        font-weight: $font_weight_bold;
-      }
     }
   }
 
@@ -96,8 +92,8 @@
 
     h4 {
       margin-bottom: 12px;
-      color: $color_secondary_dark;
-      font-size: 0.85rem;
+      color: $color_white;
+      @extend .kr_body;
     }
 
     .tag_list {
@@ -170,14 +166,26 @@
     align-items: center;
     background: $gradient_tag;
     border-radius: 20px;
+    max-width: fit-content;
 
     .filter_select {
-      padding: 8px 32px 8px 16px;
+      width: auto;
+      max-width: 100px;
+
+      padding: 8px 26px 8px 14px;
       color: $color_white;
       background: transparent;
       border: none;
       appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
       cursor: pointer;
+
+      @extend .kr_body;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
 
       option {
         color: $color_white;
@@ -188,10 +196,11 @@
     .select_arrow {
       position: absolute;
       top: 50%;
-      right: 10px;
+      right: 8px;
       color: $color_white;
       transform: translateY(-50%);
       pointer-events: none;
+      font-size: 18px;
     }
   }
 }
@@ -251,6 +260,29 @@
     .image_box {
       width: 100%;
       height: 100%;
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+
+      .badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 12px;
+
+        background: $color_input_70;
+        backdrop-filter: blur(4px);
+        border-radius: 20px;
+
+        @extend .kr_caption;
+        color: $color_white;
+        pointer-events: none;
+      }
 
       img {
         display: block;
@@ -279,16 +311,10 @@
       transition: opacity 0.3s ease;
       z-index: 2;
 
-      .badge {
-        align-self: flex-start;
-        display: inline-block;
-        padding: 4px 8px;
-        margin-bottom: 8px;
-        font-size: 12px;
-        font-weight: 600;
-        color: $color_white;
-        backdrop-filter: blur(4px);
-        border-radius: 6px;
+      opacity: 1;
+
+      @media (min-width: 1201px) and (hover: hover) {
+        opacity: 0;
       }
 
       .card_info {
@@ -322,17 +348,19 @@
           display: inline-block;
           padding: 6px 10px;
           border-radius: 50px;
+          color: $color_text_muted;
         }
       }
     }
+    @media (min-width: 1201px) and (hover: hover) {
+      &:hover {
+        .card_overlay {
+          opacity: 1;
+        }
 
-    &:hover {
-      .card_overlay {
-        opacity: 1;
-      }
-
-      img {
-        transform: scale(1.03);
+        img {
+          transform: scale(1.03);
+        }
       }
     }
     &:nth-child(6n + 1) {
