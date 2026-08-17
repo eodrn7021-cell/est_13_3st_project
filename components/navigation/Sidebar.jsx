@@ -39,7 +39,7 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
     menus.push({
       icon: "delete",
       label: "휴지통",
-      href: "/trash",
+      href: "/my-trash",
     });
   }
 

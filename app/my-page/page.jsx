@@ -20,7 +20,6 @@ const supabase = createClient();
 
 /* ========================================
    기본 이미지
-   DB image_url이 없을 때 사용
 ======================================== */
 
 const defaultCharacterImages = [
@@ -30,71 +29,51 @@ const defaultCharacterImages = [
 ];
 
 /* ========================================
-   캐릭터 태그
-   현재 시안에 맞춰 표시
+   현재 시안 캐릭터 이미지 매핑
 ======================================== */
 
-const getCharacterTags = (character, index) => {
-  /*
-    현재 DB의 characters 테이블에는
-    별도의 tags 컬럼이 없기 때문에
-    우선 종족 + 직업을 사용한다.
-
-    22 : 엘리안느
-    23 : 카이론
-    24 : 셀리아
-    25 : 바이올렛
-  */
-
-  const customTags = {
-    22: ["엘프", "성녀", "치유"],
-    23: ["왕자", "암흑", "야망"],
-    24: ["기사", "왕국", "모험"],
-    25: ["기사", "왕국", "개척"],
-  };
-
-  if (customTags[character.id]) {
-    return customTags[character.id].join(" · ");
-  }
-
-  const fallbackTags = [character.race, character.job_role].filter(Boolean);
-
-  if (fallbackTags.length > 0) {
-    return fallbackTags.join(" · ");
-  }
-
-  return "정보 없음";
+const characterImageMap = {
+  22: "/images/home/recommended-character-01.webp", // 은빛 성녀 엘리안느
+  23: "/images/home/recommended-character-02.webp", // 어둠의 왕자 카이론
+  24: "/images/home/recommended-character-03.webp", // 왕국의 후예 셀리아
+  25: "/images/home/recommended-character-03.webp", // 정복왕 바이올렛
 };
 
 /* ========================================
-   최근 캐릭터 화면용 변환
+   현재 시안 캐릭터 태그 매핑
 ======================================== */
 
-const formatRecentCharacter = (character, index, visibilityMap) => {
-  let image = character.image_url;
+const characterTagMap = {
+  22: ["엘프", "성녀", "치유"],
+  23: ["왕자", "암흑", "야망"],
+  24: ["기사", "왕국", "모험"],
+  25: ["기사", "왕국", "개척"],
+};
 
-  /*
-    DB image_url이 없으면
-    기존 디자인 이미지 사용
-  */
-  if (!image) {
-    image = defaultCharacterImages[index % defaultCharacterImages.length];
-  }
+/* ========================================
+   캐릭터 화면 데이터 변환
+======================================== */
+
+const formatCharacter = (character, index) => {
+  const image =
+    characterImageMap[character.id] ||
+    character.image_url ||
+    character.image ||
+    defaultCharacterImages[index % defaultCharacterImages.length];
 
   const description =
     character.description ||
     character.background_story ||
     `${character.race || "미정"} 종족의 캐릭터입니다.`;
 
-  const visibility = visibilityMap.get(character.id) || null;
+  const tags =
+    characterTagMap[character.id] || [character.race, character.job_role].filter(Boolean);
 
   return {
-    id: character.id,
+    ...character,
     image,
-    status: visibility === "private" ? "비공개" : "공개",
-    name: character.name,
     description,
-    tags: getCharacterTags(character, index),
+    tags,
   };
 };
 
@@ -106,32 +85,33 @@ const MyPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   /* ========================================
-     Profile
+     사용자
   ======================================== */
 
-  const [profile, setProfile] = useState(null);
+  const [userName, setUserName] = useState("000");
 
   /* ========================================
-     Statistics
+     통계
   ======================================== */
 
-  const [myCharacterCount, setMyCharacterCount] = useState(0);
+  const [characterCount, setCharacterCount] = useState(0);
   const [bookmarkCount, setBookmarkCount] = useState(0);
+  const [recentCount, setRecentCount] = useState(0);
 
   /* ========================================
-     Recent Characters
+     최근 캐릭터
   ======================================== */
 
   const [recentCharacters, setRecentCharacters] = useState([]);
 
   /* ========================================
-     Loading
+     로딩
   ======================================== */
 
   const [loading, setLoading] = useState(true);
 
   /* ========================================
-     Supabase 데이터 조회
+     마이페이지 데이터 조회
   ======================================== */
 
   useEffect(() => {
@@ -140,13 +120,20 @@ const MyPage = () => {
 
       try {
         /* ====================================
-           1. 현재 로그인 사용자
+           1. 로그인 사용자 확인
         ==================================== */
 
         const {
           data: { user },
           error: userError,
         } = await supabase.auth.getUser();
+
+        console.log("마이페이지 Supabase 사용자:", {
+          user,
+          userId: user?.id,
+          userEmail: user?.email,
+          error: userError,
+        });
 
         if (userError) {
           throw userError;
@@ -155,159 +142,162 @@ const MyPage = () => {
         if (!user) {
           console.warn("로그인한 사용자가 없습니다.");
 
-          setProfile(null);
-          setMyCharacterCount(0);
+          setUserName("000");
+          setCharacterCount(0);
           setBookmarkCount(0);
+          setRecentCount(0);
           setRecentCharacters([]);
 
           return;
         }
 
-        console.log("마이페이지 사용자 UUID:", user.id);
+        console.log("마이페이지 현재 사용자 UUID:", user.id);
 
         /* ====================================
-           2. Profile
+           2. 사용자 이름 확인
+           
+           우선순위:
+           user_metadata.name
+           user_metadata.nickname
+           email 앞부분
         ==================================== */
 
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("id, nickname, profile_image_path")
-          .eq("id", user.id)
-          .maybeSingle();
+        const metadataName =
+          user.user_metadata?.name || user.user_metadata?.nickname || user.user_metadata?.user_name;
 
-        if (profileError) {
-          throw profileError;
-        }
+        const emailName = user.email ? user.email.split("@")[0] : "000";
 
-        console.log("마이페이지 프로필:", profileData);
-
-        setProfile(profileData);
+        setUserName(metadataName || emailName);
 
         /* ====================================
-           3. 내 캐릭터 수
+           3. 현재 사용자의 모든 캐릭터 조회
         ==================================== */
 
-        const { count: characterCount, error: characterCountError } = await supabase
+        const { data: characterData, error: characterError } = await supabase
           .from("characters")
-          .select("id", {
-            count: "exact",
-            head: true,
-          })
-          .eq("creator_id", user.id);
-
-        if (characterCountError) {
-          throw characterCountError;
-        }
-
-        console.log("내 캐릭터 수:", characterCount);
-
-        setMyCharacterCount(characterCount ?? 0);
-
-        /* ====================================
-           4. 즐겨찾기 수
-        ==================================== */
-
-        const { count: bookmarkCountData, error: bookmarkCountError } = await supabase
-          .from("character_bookmarks")
-          .select("id", {
-            count: "exact",
-            head: true,
-          })
-          .eq("user_id", user.id);
-
-        if (bookmarkCountError) {
-          throw bookmarkCountError;
-        }
-
-        console.log("즐겨찾기 수:", bookmarkCountData);
-
-        setBookmarkCount(bookmarkCountData ?? 0);
-
-        /* ====================================
-           5. 최근 생성 캐릭터
-           최신 3개
-        ==================================== */
-
-        const { data: recentCharacterData, error: recentCharacterError } = await supabase
-          .from("characters")
-          .select(
-            `
-            id,
-            name,
-            race,
-            gender,
-            age,
-            job_role,
-            background_story,
-            image_url,
-            created_at
-          `,
-          )
+          .select("*")
           .eq("creator_id", user.id)
-          .order("created_at", {
-            ascending: false,
-          })
-          .limit(3);
+          .order("id", { ascending: true });
 
-        if (recentCharacterError) {
-          throw recentCharacterError;
+        if (characterError) {
+          throw characterError;
         }
 
-        console.log("최근 생성 캐릭터:", recentCharacterData);
+        console.log("마이페이지 전체 캐릭터:", characterData);
+
+        const allCharacters = characterData ?? [];
 
         /* ====================================
-           6. 최근 캐릭터 ID 추출
+           4. 휴지통 캐릭터 조회
         ==================================== */
 
-        const recentCharacterIds = (recentCharacterData ?? []).map((character) => character.id);
+        const characterIds = allCharacters.map((character) => character.id);
 
-        /* ====================================
-           7. 공개 / 비공개 조회
-        ==================================== */
+        let trashCharacterIds = [];
 
-        let visibilityData = [];
-
-        if (recentCharacterIds.length > 0) {
-          const { data, error: visibilityError } = await supabase
-            .from("character_visibility")
-            .select("character_id, visibility")
+        if (characterIds.length > 0) {
+          const { data: trashData, error: trashError } = await supabase
+            .from("character_trash")
+            .select("character_id")
             .eq("user_id", user.id)
-            .in("character_id", recentCharacterIds);
+            .in("character_id", characterIds);
 
-          if (visibilityError) {
-            throw visibilityError;
+          if (trashError) {
+            throw trashError;
           }
 
-          visibilityData = data ?? [];
+          trashCharacterIds = (trashData ?? []).map((item) => item.character_id);
         }
 
-        console.log("최근 캐릭터 공개 설정:", visibilityData);
+        console.log("마이페이지 휴지통 캐릭터:", trashCharacterIds);
 
         /* ====================================
-           8. visibility Map
+           5. 실제 활성 캐릭터만 추출
         ==================================== */
 
-        const visibilityMap = new Map(
-          visibilityData.map((item) => [item.character_id, item.visibility]),
+        const activeCharacters = allCharacters.filter(
+          (character) => !trashCharacterIds.includes(character.id),
         );
+
+        console.log("마이페이지 활성 캐릭터:", activeCharacters);
 
         /* ====================================
-           9. 화면용 데이터 변환
+           6. 내 캐릭터 수
         ==================================== */
 
-        const formattedRecentCharacters = (recentCharacterData ?? []).map((character, index) =>
-          formatRecentCharacter(character, index, visibilityMap),
+        setCharacterCount(activeCharacters.length);
+
+        /* ====================================
+           7. 최근 생성 수
+           
+           아직 생성 이력 테이블이 없으므로
+           현재는 활성 캐릭터 수 사용
+        ==================================== */
+
+        setRecentCount(activeCharacters.length);
+
+        /* ====================================
+           8. 즐겨찾기 조회
+        ==================================== */
+
+        let bookmarkData = [];
+
+        if (characterIds.length > 0) {
+          const { data, error: bookmarkError } = await supabase
+            .from("character_bookmarks")
+            .select("character_id")
+            .eq("user_id", user.id)
+            .in("character_id", characterIds);
+
+          if (bookmarkError) {
+            throw bookmarkError;
+          }
+
+          bookmarkData = data ?? [];
+        }
+
+        /* ====================================
+           휴지통 캐릭터의 즐겨찾기는
+           마이페이지 통계에서 제외
+        ==================================== */
+
+        const activeCharacterIdSet = new Set(activeCharacters.map((character) => character.id));
+
+        const activeBookmarkCount = bookmarkData.filter((item) =>
+          activeCharacterIdSet.has(item.character_id),
+        ).length;
+
+        setBookmarkCount(activeBookmarkCount);
+
+        console.log("마이페이지 즐겨찾기 수:", activeBookmarkCount);
+
+        /* ====================================
+           9. 최근 생성한 캐릭터 3개
+
+           id DESC
+           → 가장 최근 생성된 캐릭터부터
+        ==================================== */
+
+        const recentCharacterData = [...activeCharacters].sort((a, b) => b.id - a.id).slice(0, 3);
+
+        /* ====================================
+           10. 화면용 데이터 변환
+        ==================================== */
+
+        const formattedRecentCharacters = recentCharacterData.map((character, index) =>
+          formatCharacter(character, index),
         );
 
-        console.log("마이페이지 최근 작업물:", formattedRecentCharacters);
+        console.log("마이페이지 최근 캐릭터:", formattedRecentCharacters);
 
         setRecentCharacters(formattedRecentCharacters);
       } catch (error) {
         console.error("마이페이지 데이터 조회 실패:", error);
 
-        setProfile(null);
-        setMyCharacterCount(0);
+        setUserName("000");
+        setCharacterCount(0);
         setBookmarkCount(0);
+        setRecentCount(0);
         setRecentCharacters([]);
       } finally {
         setLoading(false);
@@ -317,36 +307,44 @@ const MyPage = () => {
     fetchMyPageData();
   }, []);
 
+  /* ========================================
+     Render
+  ======================================== */
+
   return (
     <div className={styles.page}>
+      {/* ====================================
+          Header
+      ==================================== */}
+
       <Header onMenuClick={() => setSidebarOpen(true)} />
+
+      {/* ====================================
+          Sidebar + Main
+      ==================================== */}
 
       <div className={styles.contentLayout}>
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} page="mypage" />
 
         <main className={styles.main}>
           <div className={styles.container}>
-            {/* =================================
+            {/* ==================================
                 Profile
-            ================================= */}
+            ================================== */}
 
             <section className={styles.profileSection}>
               <div className={styles.profileInfo}>
                 <div className={styles.profileImage}>
                   <Image
-                    src={profile?.profile_image_path || "/images/characters/default-profile.png"}
+                    src="/images/characters/default-profile.png"
                     alt="프로필"
                     width={80}
                     height={80}
-                    unoptimized
                   />
                 </div>
 
                 <div className={styles.profileText}>
-                  <h1>
-                    안녕하세요, {profile?.nickname || "000"}
-                    님!
-                  </h1>
+                  <h1>안녕하세요, {userName}님!</h1>
 
                   <p>당신의 상상이 만든 캐릭터를 보여드립니다.</p>
                 </div>
@@ -361,44 +359,48 @@ const MyPage = () => {
               </Link>
             </section>
 
-            {/* =================================
+            {/* ==================================
                 Statistics
-            ================================= */}
+            ================================== */}
 
             <section className={styles.stats} aria-label="마이페이지 통계">
               <div className={styles.statCard}>
                 <h3>내 캐릭터</h3>
 
-                <strong>{loading ? "..." : myCharacterCount}</strong>
+                <strong>{loading ? "-" : characterCount}</strong>
               </div>
 
               <div className={styles.statCard}>
                 <h3>즐겨찾기</h3>
 
-                <strong>{loading ? "..." : bookmarkCount}</strong>
+                <strong>{loading ? "-" : bookmarkCount}</strong>
               </div>
 
               <div className={styles.statCard}>
                 <h3>최근 생성</h3>
 
-                <strong>{loading ? "..." : myCharacterCount}</strong>
+                <strong>{loading ? "-" : recentCount}</strong>
               </div>
             </section>
 
-            {/* =================================
+            {/* ==================================
                 Recent Characters
-            ================================= */}
+            ================================== */}
 
             <section className={styles.recentSection}>
               <div className={styles.sectionTitle}>
                 <h2>최근 생성한 작업물</h2>
+
+                <Link href="/my-characters" className={styles.viewAllButton}>
+                  전체보기
+                </Link>
               </div>
 
               <div className={styles.characterGrid}>
                 {loading ? (
-                  <p>최근 생성한 작업물을 불러오는 중입니다...</p>
+                  <p>캐릭터를 불러오는 중입니다...</p>
                 ) : recentCharacters.length === 0 ? (
-                  <p>최근 생성한 작업물이 없습니다.</p>
+                  <p>최근 생성한 캐릭터가 없습니다.</p>
                 ) : (
                   recentCharacters.map((character) => (
                     <article key={character.id} className={styles.characterCard}>
@@ -416,7 +418,9 @@ const MyPage = () => {
                             unoptimized
                           />
 
-                          <span className={styles.status}>{character.status}</span>
+                          <span className={styles.status}>
+                            {character.status === "private" ? "비공개" : "공개"}
+                          </span>
 
                           <div className={styles.cardGradient} />
 
@@ -427,7 +431,7 @@ const MyPage = () => {
 
                             <p>{character.description}</p>
 
-                            <span className={styles.tags}>{character.tags}</span>
+                            <span className={styles.tags}>{character.tags.join(" · ")}</span>
                           </div>
                         </div>
                       </Link>
@@ -440,7 +444,15 @@ const MyPage = () => {
         </main>
       </div>
 
+      {/* ====================================
+          Footer
+      ==================================== */}
+
       <Footer />
+
+      {/* ====================================
+          Mobile Navigation
+      ==================================== */}
 
       <MobileNavigation />
     </div>
