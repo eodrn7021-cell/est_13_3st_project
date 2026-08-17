@@ -196,17 +196,25 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
     setFormData((prev) => ({ ...prev, ...filled }));
     setIsWorldCheckDone(Boolean(filled.title?.trim() && filled.theme?.trim() && filled.genre?.trim()));
 
-    // 해당 세계관에 속한 기존 캐릭터 목록 조회 (서버 API를 통해 RLS 우회)
+    // 해당 세계관에 속한 기존 캐릭터 목록 조회
     try {
-      const res = await fetch(`/api/characters/list?worldId=${chosenWorld.id}`);
-      if (!res.ok) throw new Error("네트워크 응답이 올바르지 않습니다.");
-      const json = await res.json();
-      
-      if (json.data) {
-        setExistingWorldCharacters(json.data);
+      const supabase = createClient();
+      const { data: charsData, error } = await supabase
+        .from("characters")
+        .select("*, character_relations!source_character_id(*)")
+        .eq("world_id", chosenWorld.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.warn("세계관 캐릭터 목록 조회 실패:", error);
+      } else if (charsData) {
+        setExistingWorldCharacters(charsData);
+        // 기존 세계관을 선택했으므로 캐릭터 탭이 열리도록 설정
+        setActiveNav("character");
+        setIsCharacterOpen(true);
       }
     } catch (err) {
-      console.warn("세계관 캐릭터 목록 조회 실패:", err);
+      console.warn("세계관 캐릭터 목록 조회 중 예외 발생:", err);
     }
   };
 
