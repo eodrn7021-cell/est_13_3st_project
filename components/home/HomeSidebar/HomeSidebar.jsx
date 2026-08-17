@@ -1,17 +1,22 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useState } from "react";
-import Sidebar from "@/components/layout/Sidebar/Sidebar";
-import Tag from "@/components/common/Tag/Tag";
-import TagModal from "@/components/home/TagModal/TagModal";
-import styles from "./HomeSidebar.module.scss";
+import Link from 'next/link';
+import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Sidebar from '@/components/layout/Sidebar/Sidebar';
+import Tag from '@/components/common/Tag/Tag';
+import TagModal from '@/components/home/TagModal/TagModal';
+import styles from './HomeSidebar.module.scss';
 
-const tags = ["판타지", "기사", "마법사", "엘프", "악역", "성장", "악마"];
+const tags = ['판타지', '기사', '마법사', '엘프', '악역', '성장', '악마'];
 
 const HomeSidebar = () => {
   // 태그 모달 열림 상태
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+
+  // URL 쿼리 파라미터 확인 (현재 선택된 태그 감지)
+  const searchParams = useSearchParams();
+  const currentTag = searchParams.get('tag');
 
   return (
     <>
@@ -68,9 +73,18 @@ const HomeSidebar = () => {
             <h2 className={`kr_body ${styles.tag_title}`}>태그 탐색</h2>
 
             <div className={styles.tag_list}>
-              {tags.map((tag) => (
-                <Tag key={tag}>{tag}</Tag>
-              ))}
+              {tags.map((tag) => {
+                const isActive = currentTag === tag;
+                return (
+                  <Link
+                    key={tag}
+                    href={isActive ? '/characters' : `/characters?tag=${encodeURIComponent(tag)}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <Tag active={isActive}>{tag}</Tag>
+                  </Link>
+                );
+              })}
             </div>
 
             {/* 더 많은 태그 모달 열기 */}

@@ -6,10 +6,8 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Header from '@/components/layout/Header/Header';
 import Footer from '@/components/layout/Footer/Footer';
-import Sidebar from '@/components/layout/Sidebar/Sidebar';
+import HomeSidebar from '@/components/home/HomeSidebar/HomeSidebar';
 import MobileNavigation from '@/components/layout/MobileNavigation/MobileNavigation';
-import Button from '@/components/common/Button/Button';
-import Tag from '@/components/common/Tag/Tag';
 import styles from './characters.module.scss';
 import Image from 'next/image';
 
@@ -19,43 +17,48 @@ const CharactersContent = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const selectedTag = searchParams.get('tag');
 
   const [characters, setCharacters] = useState([]);
   const [worlds, setWorlds] = useState([]);
 
-  // DB 스키마 맞춤: 종족, 직업, 성별 옵션 목록
   const [raceOptions, setRaceOptions] = useState([]);
   const [jobOptions, setJobOptions] = useState([]);
   const [genderOptions, setGenderOptions] = useState([]);
 
-  const [selectedTags, setSelectedTags] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 선택된 필터 상태
   const [filters, setFilters] = useState({
     sort: searchParams.get('sort') === 'popular' ? '인기순' : '최신순',
     world_id: '',
     race: '',
     job_role: '',
     gender: '',
+    tag: selectedTag || '',
   });
 
-  // 💡 [추가] 푸터나 URL에서 ?sort=popular로 들어왔을 때 필터 상태를 자동으로 반영하는 로직
+  const supabase = createClient();
+
+  // URL의 태그 변화 감지
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      tag: selectedTag || '',
+    }));
+  }, [selectedTag]);
+
+  // URL의 정렬(sort) 변화 감지
   useEffect(() => {
     const currentSort = searchParams.get('sort');
     if (currentSort === 'popular') {
       setFilters((prev) => ({ ...prev, sort: '인기순' }));
     } else if (!currentSort && filters.sort === '인기순' && !searchParams.has('sort')) {
-      // 캐릭터 둘러보기 클릭 등 쿼리가 없을 때 최신순으로 초기화 원할 경우
       setFilters((prev) => ({ ...prev, sort: '최신순' }));
     }
   }, [searchParams]);
 
-  const supabase = createClient();
-  const tags = ['판타지', '기사', '마법사', '엘프', '악역', '성장', '악마'];
-
-  // 1. 세계관 목록 및 필터 옵션(race, job_role, gender) DB 추출
+  // 필터 데이터 및 셀렉트 옵션 로드
   useEffect(() => {
     const fetchFilterData = async () => {
       const { data: worldData, error: worldError } = await supabase.from('worlds').select('*');
@@ -115,7 +118,7 @@ const CharactersContent = () => {
     }
   };
 
-  // 2. 캐릭터 목록 조회
+  // 캐릭터 데이터 불러오기
   useEffect(() => {
     const fetchCharacters = async () => {
       setIsLoading(true);
@@ -160,7 +163,7 @@ const CharactersContent = () => {
     };
 
     fetchCharacters();
-  }, [filters, searchQuery]);
+  }, [filters.sort, filters.world_id, filters.race, filters.job_role, filters.gender, searchQuery]);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({
@@ -169,13 +172,18 @@ const CharactersContent = () => {
     }));
   };
 
-  const handleTagClick = (tag) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+  // 💡 태그 필터링 적용 (종족, 직업, 세계관 이름/장르 등에 태그가 포함되는지 검사)
+  const displayList = characters.filter((item) => {
+    if (!filters.tag) return true;
+    const tag = filters.tag;
+    return (
+      item.race === tag ||
+      item.job_role === tag ||
+      item.worlds?.name === tag ||
+      item.worlds?.genre === tag ||
+      item.background_story?.includes(tag)
     );
-  };
-
-  const displayList = characters;
+  });
 
   const sortedByLikes = [...displayList].sort((a, b) => {
     const likesA = a.character_likes?.[0]?.count || a.like_count || 0;
@@ -185,61 +193,6 @@ const CharactersContent = () => {
 
   const recommendedCount = Math.max(1, Math.ceil((displayList?.length || 0) * 0.1));
   const recommendedIds = new Set(sortedByLikes.slice(0, recommendedCount).map((c) => c.id));
-
-  const PcSidebarContent = (
-    <div className={styles.sidebar_inner}>
-      <ul className={styles.side_menu}>
-        <li className={pathname === '/' ? styles.active : ''}>
-          <Link href="/">
-            <span className="material-symbols-outlined">home</span>
-            <span>홈</span>
-          </Link>
-        </li>
-        <li className={pathname.startsWith('/characters') ? styles.active : ''}>
-          <Link href="/characters">
-            <span className="material-symbols-outlined">favorite</span>
-            <span>추천</span>
-          </Link>
-        </li>
-        <li className={pathname === '/characters/create' ? styles.active : ''}>
-          <Link href="/characters/create">
-            <span className="material-symbols-outlined">add_circle</span>
-            <span>만들기</span>
-          </Link>
-        </li>
-        <li className={pathname === '/my-page' ? styles.active : ''}>
-          <Link href="/my-page">
-            <span className="material-symbols-outlined">person</span>
-            <span>마이페이지</span>
-          </Link>
-        </li>
-      </ul>
-
-      <div className={styles.tag_section}>
-        <hr className={styles.divider} />
-        <h4>태그 탐색</h4>
-        <div className={styles.tag_list}>
-          {tags.map((tag) => {
-            const isSelected = selectedTags.includes(tag);
-            return (
-              <Tag
-                key={tag}
-                className={isSelected ? styles.active : ''}
-                onClick={() => handleTagClick(tag)}
-              >
-                {tag}
-              </Tag>
-            );
-          })}
-        </div>
-
-        <Button variant="secondary" size="large" fullWidth={true} className={styles.more_tag_btn}>
-          <span>더 많은 태그 보기</span>
-          <span className="material-symbols-outlined">chevron_right</span>
-        </Button>
-      </div>
-    </div>
-  );
 
   return (
     <div className={styles.page_container}>
@@ -288,16 +241,15 @@ const CharactersContent = () => {
       <div className={styles.main_wrapper}>
         <div className={styles.layout_body}>
           <div className={styles.pc_sidebar}>
-            <Sidebar variant="world" topContent={PcSidebarContent} />
+            <HomeSidebar />
           </div>
 
           <main className={styles.content_area}>
             <div className={styles.filter_bar}>
-              {/* 최신순 / 인기순 */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.sort}
+                  value={filters.sort || '최신순'}
                   onChange={(e) => handleFilterChange('sort', e.target.value)}
                 >
                   <option value="최신순">최신순</option>
@@ -308,34 +260,14 @@ const CharactersContent = () => {
                 </span>
               </div>
 
-              {/* 세계관 전체 */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.world_id}
-                  onChange={(e) => handleFilterChange('world_id', e.target.value)}
-                >
-                  <option value="">세계관</option>
-                  {worlds.map((w) => (
-                    <option key={w.id} value={w.id}>
-                      {w.name || w.title || w.world_name || w.genre || `세계관 ${w.id}`}
-                    </option>
-                  ))}
-                </select>
-                <span className={`material-symbols-outlined ${styles.select_arrow}`}>
-                  expand_more
-                </span>
-              </div>
-
-              {/* 종족 전체 */}
-              <div className={styles.select_wrapper}>
-                <select
-                  className={styles.filter_select}
-                  value={filters.race}
+                  value={filters.race || ''}
                   onChange={(e) => handleFilterChange('race', e.target.value)}
                 >
                   <option value="">종족</option>
-                  {raceOptions.map((race) => (
+                  {(raceOptions || []).map((race) => (
                     <option key={race} value={race}>
                       {race}
                     </option>
@@ -346,17 +278,16 @@ const CharactersContent = () => {
                 </span>
               </div>
 
-              {/* 직업 전체 */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.job_role}
-                  onChange={(e) => handleFilterChange('job_role', e.target.value)}
+                  value={filters.world_id || ''}
+                  onChange={(e) => handleFilterChange('world_id', e.target.value)}
                 >
-                  <option value="">직업</option>
-                  {jobOptions.map((job) => (
-                    <option key={job} value={job}>
-                      {job}
+                  <option value="">테마</option>
+                  {(worlds || []).map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name || t.title || t.world_name}
                     </option>
                   ))}
                 </select>
@@ -365,17 +296,34 @@ const CharactersContent = () => {
                 </span>
               </div>
 
-              {/* 성별 전체 */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.gender}
+                  value={filters.gender || ''}
                   onChange={(e) => handleFilterChange('gender', e.target.value)}
                 >
                   <option value="">성별</option>
-                  {genderOptions.map((gender) => (
+                  {(genderOptions || []).map((gender) => (
                     <option key={gender} value={gender}>
                       {gender}
+                    </option>
+                  ))}
+                </select>
+                <span className={`material-symbols-outlined ${styles.select_arrow}`}>
+                  expand_more
+                </span>
+              </div>
+
+              <div className={styles.select_wrapper}>
+                <select
+                  className={styles.filter_select}
+                  value={filters.job_role || ''}
+                  onChange={(e) => handleFilterChange('job_role', e.target.value)}
+                >
+                  <option value="">장르</option>
+                  {(jobOptions || []).map((job) => (
+                    <option key={job} value={job}>
+                      {job}
                     </option>
                   ))}
                 </select>

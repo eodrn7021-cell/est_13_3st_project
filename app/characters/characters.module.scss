@@ -44,6 +44,14 @@
   overflow-y: auto;
   border-radius: 20px;
 
+  :global([class*='sidebar_link_active'])::before {
+    opacity: 0 !important;
+  }
+
+  :global([class*='sidebar_link']):hover::before {
+    opacity: 1 !important;
+  }
+
   /* Custom Scrollbar */
   &::-webkit-scrollbar {
     width: 5px;
@@ -73,7 +81,7 @@
         border-radius: 10px;
 
         &:hover {
-          background: linear-gradient(90deg, $color_primary_dark 0%, #1f1b33 100%);
+          background: $gradient_main;
         }
       }
     }
@@ -166,13 +174,12 @@
     align-items: center;
     background: $gradient_tag;
     border-radius: 20px;
-    max-width: fit-content;
+    width: 90px;
 
     .filter_select {
-      width: auto;
-      max-width: 100px;
+      width: 100%;
 
-      padding: 8px 26px 8px 14px;
+      padding: 8px 24px 8px 12px;
       color: $color_white;
       background: transparent;
       border: none;
@@ -605,7 +612,6 @@
 }
 
 /* Media Queries (Responsive Breakpoints) */
-
 
 /* Desktop / Tablet Breakpoint (1200px 이하) */
 @media (max-width: 1200px) {
