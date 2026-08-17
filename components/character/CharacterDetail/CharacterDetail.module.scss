@@ -166,6 +166,41 @@
   word-break: break-word;
 }
 
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pageBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  background-color: transparent;
+  border: none;
+  color: colors.$color_text_muted;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &:hover:not(:disabled) {
+    color: colors.$color_white;
+  }
+
+  &.activePage {
+    color: colors.$color_white;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 .commentForm {
   display: flex;
   flex-direction: column;

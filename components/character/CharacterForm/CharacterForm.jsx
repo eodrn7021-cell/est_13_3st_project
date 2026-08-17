@@ -4,13 +4,8 @@ import { useState, useEffect } from "react";
 import Input from "@/components/form/Input/Input";
 import Textarea from "@/components/form/Textarea/Textarea";
 import Select from "@/components/form/Select/Select";
+import { createClient } from "@/lib/supabase/client";
 import styles from "./CharacterForm.module.scss";
-
-const RACE_OPTIONS = ["인간", "엘프", "드워프", "수인", "마족"];
-const GENDER_OPTIONS = ["남성", "여성", "무성"];
-
-const THEME_OPTIONS = ["이세계", "아포칼립스", "스팀펑크", "학원물", "신화/무협", "스페이스 오페라"];
-const GENRE_OPTIONS = ["판타지", "SF", "로맨스 판타지", "무협", "현대/어반", "미스터리/스릴러"];
 
 function EditNoteIcon() {
   return (
@@ -38,6 +33,33 @@ export default function CharacterForm({
   const [activeSelect, setActiveSelect] = useState(null);
   const [openCard, setOpenCard] = useState("cardOne");
   const [isResponsive, setIsResponsive] = useState(false);
+
+  const [raceOptions, setRaceOptions] = useState([]);
+  const [genderOptions, setGenderOptions] = useState([]);
+  const [themeOptions, setThemeOptions] = useState([]);
+  const [genreOptions, setGenreOptions] = useState([]);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      const supabase = createClient();
+      
+      try {
+        const { data: racesData } = await supabase.from("races").select("name").order("id");
+        const { data: gendersData } = await supabase.from("genders").select("name").order("id");
+        const { data: themesData } = await supabase.from("themes").select("name").order("id");
+        const { data: genresData } = await supabase.from("genres").select("name").order("id");
+
+        if (racesData) setRaceOptions(racesData.map((item) => item.name));
+        if (gendersData) setGenderOptions(gendersData.map((item) => item.name));
+        if (themesData) setThemeOptions(themesData.map((item) => item.name));
+        if (genresData) setGenreOptions(genresData.map((item) => item.name));
+      } catch (error) {
+        console.error("Error fetching options:", error);
+      }
+    };
+
+    fetchOptions();
+  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 1200px)");
@@ -134,7 +156,7 @@ export default function CharacterForm({
                     />
                     <Select
                       fieldTitle="테마"
-                      options={THEME_OPTIONS}
+                      options={themeOptions}
                       value={formData.theme}
                       onChange={(val) => handleChange("theme", val)}
                       isOpen={activeSelect === "theme"}
@@ -142,7 +164,7 @@ export default function CharacterForm({
                     />
                     <Select
                       fieldTitle="장르"
-                      options={GENRE_OPTIONS}
+                      options={genreOptions}
                       value={formData.genre}
                       onChange={(val) => handleChange("genre", val)}
                       isOpen={activeSelect === "genre"}
@@ -159,7 +181,7 @@ export default function CharacterForm({
                     />
                     <Select
                       fieldTitle="종족"
-                      options={RACE_OPTIONS}
+                      options={raceOptions}
                       value={formData.race}
                       onChange={(val) => handleChange("race", val)}
                       isOpen={activeSelect === "race"}
@@ -168,7 +190,7 @@ export default function CharacterForm({
                     />
                     <Select
                       fieldTitle="성별"
-                      options={GENDER_OPTIONS}
+                      options={genderOptions}
                       value={formData.gender}
                       onChange={(val) => handleChange("gender", val)}
                       isOpen={activeSelect === "gender"}

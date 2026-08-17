@@ -3,7 +3,8 @@
 import { useState, useEffect, use, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Header from "@/components/layout/Header/Header";
+import HomeMobileMenu from "@/components/home/HomeMobileMenu/HomeMobileMenu";
+import MobileNavigation from "@/components/layout/MobileNavigation/MobileNavigation";
 import Footer from "@/components/layout/Footer/Footer";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
 import CharacterDetail from "@/components/character/CharacterDetail/CharacterDetail";
@@ -39,20 +40,6 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // 뒤쪽 스크롤 방지
-  useEffect(() => {
-    if (!isMobileMenuOpen) return;
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousBodyOverflow;
-      document.documentElement.style.overflow = previousHtmlOverflow;
-    };
-  }, [isMobileMenuOpen]);
 
   const [isLiked, setIsLiked] = useState(() => Boolean(cachedCharacter?.initialIsLiked));
   const [isBookmarked, setIsBookmarked] = useState(() => Boolean(cachedCharacter?.initialIsBookmarked));
@@ -558,7 +545,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                 onClick={() => setSelectedImage(imgSrc)}
                 style={{ cursor: "pointer" }}
               >
-                <img src={imgSrc} alt={`생성 이미지 ${idx + 1}`} />
+                <Image src={imgSrc} alt={`생성 이미지 ${idx + 1}`} fill style={{ objectFit: 'cover' }} />
               </div>
             ))}
           </div>
@@ -650,28 +637,8 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
 
   return (
     <div className={createStyles.pageContainer}>
-      {/* 상단 헤더 */}
-      <Header variant="main" onMenuClick={() => setIsMobileMenuOpen(true)} />
-
-      {/* 모바일 햄버거 메뉴 사이드바 */}
-      {isMobileMenuOpen && (
-        <div className={createStyles.mobileDrawerWrapper}>
-          <div className={createStyles.mobileDrawerOverlay} onClick={() => setIsMobileMenuOpen(false)} />
-          <div className={createStyles.mobileDrawer}>
-            <div className={createStyles.drawerHeader}>
-              <button type="button" className={createStyles.drawerCloseBtn} onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="material-symbols-rounded">close</span>
-              </button>
-            </div>
-            <div className={createStyles.drawerContent}>
-              <Sidebar
-                topContent={sidebarTopContent}
-                bottomContent={sidebarBottomContent}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 상단 헤더 및 글로벌 모바일 메뉴 사이드바 */}
+      <HomeMobileMenu headerVariant="main" />
 
       {/* 모바일/태블릿 (<= 1024px) 상단바 */}
       <div className={createStyles.topNavSection}>
@@ -771,6 +738,51 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                 onAddComment={handleAddComment}
                 isSubmittingComment={isSubmittingComment}
               />
+
+              {/* 모바일/태블릿용 메타 정보 및 액션 버튼 (PC에서는 숨김 처리) */}
+              <div className={createStyles.mobileMetaActionsWrapper}>
+                <div className={createStyles.mobileMetaGrid}>
+                  <div className={`kr_body ${createStyles.mobileMetaItem}`}>
+                    작성자 : <span>{character?.author_name || "알 수 없음"}</span>
+                  </div>
+                  <div className={`kr_body ${createStyles.mobileMetaItem}`}>
+                    생성일 : <span>{character?.created_at ? new Date(character.created_at).toLocaleDateString("ko-KR") : "-"}</span>
+                  </div>
+                  <div className={`kr_body ${createStyles.mobileMetaItem}`}>
+                    조회수 : <span>{character?.view_count ?? 0}</span>
+                  </div>
+                  <div className={`kr_body ${createStyles.mobileMetaItem}`}>
+                    좋아요 : <span>{likes}</span>
+                  </div>
+                </div>
+                
+                {isOwner ? (
+                  <div className={createStyles.mobileActionGrid}>
+                    <button className={`kr_body_b ${createStyles.actionBtnPrimary}`}>수정</button>
+                    <button className={`kr_body_b ${createStyles.actionBtnSecondary}`}>삭제</button>
+                  </div>
+                ) : (
+                  <div className={createStyles.mobileActionGrid}>
+                    <button
+                      className={`${createStyles.actionBtnIcon} ${isLiked ? createStyles.active : ""}`}
+                      onClick={handleLikeToggle}
+                      disabled={isLiking}
+                    >
+                      <span className="material-symbols-outlined icon_24" style={isLiked ? { fontVariationSettings: "'FILL' 1" } : undefined}>favorite</span>
+                    </button>
+                    <button className={createStyles.actionBtnIcon} onClick={handleShare}>
+                      <span className="material-symbols-outlined icon_24">share</span>
+                    </button>
+                    <button
+                      className={`${createStyles.actionBtnIcon} ${isBookmarked ? createStyles.active : ""}`}
+                      onClick={handleBookmarkToggle}
+                      disabled={isBookmarking}
+                    >
+                      <span className="material-symbols-outlined icon_24" style={isBookmarked ? { fontVariationSettings: "'FILL' 1" } : undefined}>bookmark</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
@@ -797,8 +809,13 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
         }}
       />
 
-      {/* 하단 풋터 */}
-      <Footer />
+      {/* 하단 풋터 (PC에서만 표시) */}
+      <div className={createStyles.desktopFooterWrapper}>
+        <Footer />
+      </div>
+
+      {/* 모바일 하단 네비게이션 */}
+      <MobileNavigation />
     </div>
   );
 }

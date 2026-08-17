@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import styles from "./CharacterDetail.module.scss";
 
 // 한글/영문 감지하여 적절한 Typography 클래스 반환하는 헬퍼 함수
@@ -22,6 +23,13 @@ export default function CharacterDetail({
   isSubmittingComment = false,
 }) {
   const [newContent, setNewContent] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const COMMENTS_PER_PAGE = 4;
+  const totalPages = Math.max(1, Math.ceil(comments.length / COMMENTS_PER_PAGE));
+  
+  const startIndex = (currentPage - 1) * COMMENTS_PER_PAGE;
+  const paginatedComments = comments.slice(startIndex, startIndex + COMMENTS_PER_PAGE);
 
   const handleAddComment = (e) => {
     e.preventDefault();
@@ -134,8 +142,8 @@ export default function CharacterDetail({
 
           {/* 코멘트 리스트 */}
           <div className={styles.commentList}>
-            {comments.length > 0 ? (
-              comments.map((comment) => (
+            {paginatedComments.length > 0 ? (
+              paginatedComments.map((comment) => (
                 <div key={comment.id} className={styles.commentCard}>
                   <span
                     className={`${getFontClass(
@@ -163,6 +171,47 @@ export default function CharacterDetail({
               </div>
             )}
           </div>
+
+          {/* 페이지네이션 */}
+          {totalPages > 1 && (
+            <div className={styles.pagination}>
+              <button
+                type="button"
+                className={styles.pageBtn}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                <span className="material-symbols-rounded icon_20">chevron_left</span>
+              </button>
+              
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let startPage = Math.max(1, currentPage - 2);
+                if (startPage + 4 > totalPages) {
+                  startPage = Math.max(1, totalPages - 4);
+                }
+                const pageNum = startPage + i;
+                return (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    className={`${styles.pageBtn} ${currentPage === pageNum ? styles.activePage : ""}`}
+                    onClick={() => setCurrentPage(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              <button
+                type="button"
+                className={styles.pageBtn}
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                <span className="material-symbols-rounded icon_20">chevron_right</span>
+              </button>
+            </div>
+          )}
 
           {/* 새 코멘트 작성 폼 */}
           <form onSubmit={handleAddComment} className={styles.commentForm}>
@@ -205,9 +254,11 @@ export default function CharacterDetail({
               <span className="kr_m_title">이미지 생성 중...</span>
             </div>
           ) : character?.image_url ? (
-            <img
+            <Image
               src={character.image_url}
               alt={name}
+              fill
+              style={{ objectFit: 'cover' }}
               className={styles.aiCharacterImage}
             />
           ) : (
