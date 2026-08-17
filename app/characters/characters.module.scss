@@ -1,13 +1,13 @@
-@use '../../styles/abstracts/variables' as *;
-@use '../../styles/abstracts/colors' as *;
-@use '../../styles/base/typography' as *;
+@use "../../styles/abstracts/variables" as *;
+@use "../../styles/abstracts/colors" as *;
+@use "../../styles/base/typography" as *;
 
 /* Page Layout Structures */
 .page_container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: $color_background_deep url('/images/backgrounds/bg_test_list.png') center / cover
+  background: $color_background_deep url("/images/backgrounds/bg_test_list.png") center / cover
     no-repeat fixed;
   overflow-x: hidden;
 }
@@ -44,11 +44,11 @@
   overflow-y: auto;
   border-radius: 20px;
 
-  :global([class*='sidebar_link_active'])::before {
+  :global([class*="sidebar_link_active"])::before {
     opacity: 0 !important;
   }
 
-  :global([class*='sidebar_link']):hover::before {
+  :global([class*="sidebar_link"]):hover::before {
     opacity: 1 !important;
   }
 
@@ -525,7 +525,7 @@
             background: $color_primary_dark;
 
             &::before {
-              content: '';
+              content: "";
               position: absolute;
               inset: 0;
               background: $gradient_side;
@@ -553,60 +553,6 @@
       width: 100%;
       margin-top: 40px;
       padding-bottom: 20px;
-
-      :global(footer),
-      :global(div[class*='footer_inner']) {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        width: 100%;
-        padding: 0;
-        background: transparent;
-      }
-
-      :global(h2[class*='footer_logo']),
-      :global(div[class*='footer_brand']) h2 {
-        color: $color_white;
-        font-family: serif;
-        font-size: 2.2rem;
-      }
-
-      :global(p[class*='footer_subtitle']) {
-        color: $color_primary;
-        font-weight: $font_weight_bold;
-      }
-
-      :global(nav[class*='footer_nav']) {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        width: 100%;
-        margin-top: 10px;
-
-        :global(div[class*='footer_menu_group']) {
-          :global(h3[class*='footer_menu_title']) {
-            display: inline-block;
-            margin-bottom: 8px;
-            padding-bottom: 4px;
-            color: $color_primary;
-            font-size: 0.85rem;
-          }
-          :global(a),
-          span {
-            display: block;
-            margin-bottom: 5px;
-            color: rgba($color_white, 0.8);
-            font-size: 0.625rem;
-            text-decoration: none;
-          }
-        }
-      }
-
-      :global(p[class*='footer_copyright']) {
-        margin-top: 16px;
-        color: rgba($color_white, 0.4);
-        font-size: 0.75rem;
-      }
     }
   }
 }

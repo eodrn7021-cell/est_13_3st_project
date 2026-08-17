@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { useEffect, useState, Suspense } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import Header from '@/components/layout/Header/Header';
-import Footer from '@/components/layout/Footer/Footer';
-import HomeSidebar from '@/components/home/HomeSidebar/HomeSidebar';
-import MobileNavigation from '@/components/layout/MobileNavigation/MobileNavigation';
-import styles from './characters.module.scss';
-import Image from 'next/image';
+import { useEffect, useState, Suspense } from "react";
+import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import Header from "@/components/layout/Header/Header";
+import Footer from "@/components/layout/Footer/Footer";
+import HomeSidebar from "@/components/home/HomeSidebar/HomeSidebar";
+import MobileNavigation from "@/components/layout/MobileNavigation/MobileNavigation";
+import styles from "./characters.module.scss";
+import Image from "next/image";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 const CharactersContent = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const selectedTag = searchParams.get('tag');
+  const selectedTag = searchParams.get("tag");
 
   const [characters, setCharacters] = useState([]);
   const [worlds, setWorlds] = useState([]);
@@ -30,12 +30,12 @@ const CharactersContent = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const [filters, setFilters] = useState({
-    sort: searchParams.get('sort') === 'popular' ? '인기순' : '최신순',
-    world_id: '',
-    race: '',
-    job_role: '',
-    gender: '',
-    tag: selectedTag || '',
+    sort: searchParams.get("sort") === "popular" ? "인기순" : "최신순",
+    world_id: "",
+    race: "",
+    job_role: "",
+    gender: "",
+    tag: selectedTag || "",
   });
 
   const supabase = createClient();
@@ -44,36 +44,36 @@ const CharactersContent = () => {
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
-      tag: selectedTag || '',
+      tag: selectedTag || "",
     }));
   }, [selectedTag]);
 
   // URL의 정렬(sort) 변화 감지
   useEffect(() => {
-    const currentSort = searchParams.get('sort');
-    if (currentSort === 'popular') {
-      setFilters((prev) => ({ ...prev, sort: '인기순' }));
-    } else if (!currentSort && filters.sort === '인기순' && !searchParams.has('sort')) {
-      setFilters((prev) => ({ ...prev, sort: '최신순' }));
+    const currentSort = searchParams.get("sort");
+    if (currentSort === "popular") {
+      setFilters((prev) => ({ ...prev, sort: "인기순" }));
+    } else if (!currentSort && filters.sort === "인기순" && !searchParams.has("sort")) {
+      setFilters((prev) => ({ ...prev, sort: "최신순" }));
     }
   }, [searchParams]);
 
   // 필터 데이터 및 셀렉트 옵션 로드
   useEffect(() => {
     const fetchFilterData = async () => {
-      const { data: worldData, error: worldError } = await supabase.from('worlds').select('*');
+      const { data: worldData, error: worldError } = await supabase.from("worlds").select("*");
       if (worldError) {
-        console.error('세계관 로딩 에러:', worldError);
+        console.error("세계관 로딩 에러:", worldError);
       } else if (worldData) {
         setWorlds(worldData);
       }
 
       const { data: charData, error: charError } = await supabase
-        .from('characters')
-        .select('world_id, race, job_role, gender');
+        .from("characters")
+        .select("world_id, race, job_role, gender");
 
       if (charError) {
-        console.error('캐릭터 필터 데이터 로딩 에러:', charError);
+        console.error("캐릭터 필터 데이터 로딩 에러:", charError);
       } else if (charData) {
         const races = Array.from(new Set(charData.map((item) => item.race).filter(Boolean)));
         const jobs = Array.from(new Set(charData.map((item) => item.job_role).filter(Boolean)));
@@ -96,7 +96,7 @@ const CharactersContent = () => {
   }, []);
 
   const searchQuery =
-    searchParams.get('search') || searchParams.get('q') || searchParams.get('query') || '';
+    searchParams.get("search") || searchParams.get("q") || searchParams.get("query") || "";
 
   const handleHeaderCapture = (e) => {
     const hamburgerBtn = e.target.closest('[class*="header_menu_button"]');
@@ -105,7 +105,7 @@ const CharactersContent = () => {
       return;
     }
 
-    if (e.type === 'submit' || (e.type === 'keydown' && e.key === 'Enter')) {
+    if (e.type === "submit" || (e.type === "keydown" && e.key === "Enter")) {
       const searchInput = e.currentTarget.querySelector(
         'input[type="text"], input[type="search"], input',
       );
@@ -123,19 +123,19 @@ const CharactersContent = () => {
     const fetchCharacters = async () => {
       setIsLoading(true);
 
-      let query = supabase.from('characters').select('*, worlds(*), character_likes(count)');
+      let query = supabase.from("characters").select("*, worlds(*), character_likes(count)");
 
       if (filters.world_id) {
-        query = query.eq('world_id', Number(filters.world_id));
+        query = query.eq("world_id", Number(filters.world_id));
       }
       if (filters.race) {
-        query = query.eq('race', filters.race);
+        query = query.eq("race", filters.race);
       }
       if (filters.job_role) {
-        query = query.eq('job_role', filters.job_role);
+        query = query.eq("job_role", filters.job_role);
       }
       if (filters.gender) {
-        query = query.eq('gender', filters.gender);
+        query = query.eq("gender", filters.gender);
       }
 
       if (searchQuery.trim()) {
@@ -145,16 +145,16 @@ const CharactersContent = () => {
         );
       }
 
-      if (filters.sort === '인기순') {
-        query = query.order('view_count', { ascending: false });
+      if (filters.sort === "인기순") {
+        query = query.order("view_count", { ascending: false });
       } else {
-        query = query.order('created_at', { ascending: false });
+        query = query.order("created_at", { ascending: false });
       }
 
       const { data, error } = await query;
 
       if (error) {
-        console.error('Supabase Error:', error);
+        console.error("Supabase Error:", error);
       } else {
         setCharacters(data || []);
       }
@@ -204,7 +204,7 @@ const CharactersContent = () => {
         <Header />
       </div>
 
-      <div className={`${styles.mobile_drawer} ${isMobileMenuOpen ? styles.is_open : ''}`}>
+      <div className={`${styles.mobile_drawer} ${isMobileMenuOpen ? styles.is_open : ""}`}>
         <div className={styles.backdrop} onClick={() => setIsMobileMenuOpen(false)} />
         <div className={styles.drawer_content}>
           <div className={styles.drawer_header}>
@@ -233,7 +233,7 @@ const CharactersContent = () => {
             </div>
           </div>
           <div className={styles.mobile_drawer_footer}>
-            <Footer onLinkClick={() => setIsMobileMenuOpen(false)} />
+            <Footer variant="mobileMenu" onLinkClick={() => setIsMobileMenuOpen(false)} />
           </div>
         </div>
       </div>
@@ -249,8 +249,8 @@ const CharactersContent = () => {
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.sort || '최신순'}
-                  onChange={(e) => handleFilterChange('sort', e.target.value)}
+                  value={filters.sort || "최신순"}
+                  onChange={(e) => handleFilterChange("sort", e.target.value)}
                 >
                   <option value="최신순">최신순</option>
                   <option value="인기순">인기순</option>
@@ -263,8 +263,8 @@ const CharactersContent = () => {
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.race || ''}
-                  onChange={(e) => handleFilterChange('race', e.target.value)}
+                  value={filters.race || ""}
+                  onChange={(e) => handleFilterChange("race", e.target.value)}
                 >
                   <option value="">종족</option>
                   {(raceOptions || []).map((race) => (
@@ -281,8 +281,8 @@ const CharactersContent = () => {
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.world_id || ''}
-                  onChange={(e) => handleFilterChange('world_id', e.target.value)}
+                  value={filters.world_id || ""}
+                  onChange={(e) => handleFilterChange("world_id", e.target.value)}
                 >
                   <option value="">테마</option>
                   {(worlds || []).map((t) => (
@@ -299,8 +299,8 @@ const CharactersContent = () => {
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.gender || ''}
-                  onChange={(e) => handleFilterChange('gender', e.target.value)}
+                  value={filters.gender || ""}
+                  onChange={(e) => handleFilterChange("gender", e.target.value)}
                 >
                   <option value="">성별</option>
                   {(genderOptions || []).map((gender) => (
@@ -317,8 +317,8 @@ const CharactersContent = () => {
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.job_role || ''}
-                  onChange={(e) => handleFilterChange('job_role', e.target.value)}
+                  value={filters.job_role || ""}
+                  onChange={(e) => handleFilterChange("job_role", e.target.value)}
                 >
                   <option value="">장르</option>
                   {(jobOptions || []).map((job) => (
@@ -347,11 +347,11 @@ const CharactersContent = () => {
                       >
                         <div className={styles.image_box}>
                           {(isRecommended || item.badge) && (
-                            <span className={styles.badge}>{item.badge || '추천 캐릭터'}</span>
+                            <span className={styles.badge}>{item.badge || "추천 캐릭터"}</span>
                           )}
 
                           {item.image_url ? (
-                            <img src={item.image_url} alt={item.name || '캐릭터 이미지'} />
+                            <img src={item.image_url} alt={item.name || "캐릭터 이미지"} />
                           ) : (
                             <div className={styles.no_image}>
                               <span className={`material-symbols-outlined ${styles.no_image_icon}`}>
@@ -364,7 +364,7 @@ const CharactersContent = () => {
                             <div className={styles.card_info}>
                               <h3>{item.name}</h3>
                               <p className={styles.description}>
-                                {item.background_story || '캐릭터 상세 설명이 없습니다.'}
+                                {item.background_story || "캐릭터 상세 설명이 없습니다."}
                               </p>
                               <div className={styles.tag_badge}>
                                 {[
@@ -373,7 +373,7 @@ const CharactersContent = () => {
                                   item.worlds?.name || item.worlds?.title || item.worlds?.genre,
                                 ]
                                   .filter(Boolean)
-                                  .join(' · ') || '태그 없음'}
+                                  .join(" · ") || "태그 없음"}
                               </div>
                             </div>
                           </div>

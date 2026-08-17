@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Button from "@/components/common/Button/Button";
 import Header from "@/components/layout/Header/Header";
 import Footer from "@/components/layout/Footer/Footer";
 import styles from "./HomeMobileMenu.module.scss";
@@ -110,29 +111,6 @@ const HomeMobileMenu = ({ headerVariant = "main" }) => {
     window.location.href = "/";
   };
 
-  const navigationItems = [
-    {
-      label: "홈",
-      icon: "home",
-      href: "/",
-    },
-    {
-      label: "추천",
-      icon: "favorite",
-      href: "/characters",
-    },
-    {
-      label: "만들기",
-      icon: "add_circle",
-      href: "/characters/create",
-    },
-    {
-      label: "마이페이지",
-      icon: "person",
-      href: "/my-page",
-    },
-  ];
-
   return (
     <>
       {/* 기존 Header는 여기에서 그대로 사용 */}
@@ -181,46 +159,46 @@ const HomeMobileMenu = ({ headerVariant = "main" }) => {
             <div className={styles.auth_buttons}>
               {user ? (
                 <>
-                  <Link href="/my-page" className={styles.auth_secondary} onClick={handleClose}>
+                  <Button
+                    href="/my-page"
+                    variant="secondary"
+                    size="small"
+                    className={styles.auth_button}
+                  >
                     마이페이지
-                  </Link>
+                  </Button>
 
-                  <button type="button" className={styles.auth_primary} onClick={handleLogout}>
-                    로그아웃
-                  </button>
+                  <Button
+                    variant="primary"
+                    size="small"
+                    className={`${styles.auth_button} ${styles.auth_primary_button}`}
+                    onClick={handleLogout}
+                  >
+                    <span>로그아웃</span>
+                  </Button>
                 </>
               ) : (
                 <>
-                  <Link href="/login" className={styles.auth_secondary} onClick={handleClose}>
+                  <Button
+                    href="/login"
+                    variant="secondary"
+                    size="small"
+                    className={styles.auth_button}
+                  >
                     로그인
-                  </Link>
+                  </Button>
 
-                  <Link href="/signup" className={styles.auth_primary} onClick={handleClose}>
-                    회원가입
-                  </Link>
+                  <Button
+                    href="/signup"
+                    variant="primary"
+                    size="small"
+                    className={`${styles.auth_button} ${styles.auth_primary_button}`}
+                  >
+                    <span>회원가입</span>
+                  </Button>
                 </>
               )}
             </div>
-            {/* B 방식: 간단한 메뉴만 */}
-            <nav className={styles.navigation} aria-label="모바일 주요 메뉴">
-              {navigationItems.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={styles.navigation_item}
-                  onClick={handleClose}
-                >
-                  <span
-                    className={`material-symbols-rounded ${styles.navigation_icon}`}
-                    aria-hidden="true"
-                  >
-                    {item.icon}
-                  </span>
-
-                  <span className="kr_body">{item.label}</span>
-                </Link>
-              ))}
-            </nav>
             <div className={styles.mobile_footer}>
               <Footer variant="mobileMenu" />
             </div>
