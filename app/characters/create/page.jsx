@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/layout/Header/Header";
 import Footer from "@/components/layout/Footer/Footer";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
 import CharacterForm from "@/components/character/CharacterForm/CharacterForm";
 import WorldSelectModal from "@/components/character/WorldSelectModal/WorldSelectModal";
+import CreateMobileMenu from "@/components/character/CreateMobileMenu/CreateMobileMenu";
 import { createClient } from "@/lib/supabase/client";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
 import createStyles from "./create.module.scss";
@@ -33,25 +35,13 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   const [activeNav, setActiveNav] = useState("world");
   const [isCharacterOpen, setIsCharacterOpen] = useState(false);
   const [selectedCharacter, setSelectedCharacter] = useState("");
+  // 검색어 상태
+  const [worldSearch, setWorldSearch] = useState("");
 
   const [formData, setFormData] = useState({});
   const [initialFormValues, setInitialFormValues] = useState({});
   const [draftCharValues, setDraftCharValues] = useState({});
   const [isWorldCheckDone, setIsWorldCheckDone] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // 뒤쪽 스크롤 방지
-  useEffect(() => {
-    if (!isMobileMenuOpen) return;
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousBodyOverflow;
-      document.documentElement.style.overflow = previousHtmlOverflow;
-    };
-  }, [isMobileMenuOpen]);
 
   const [isCharCheckDone, setIsCharCheckDone] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -593,27 +583,12 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   return (
     <div className={createStyles.pageContainer}>
-      <Header variant="account" onMenuClick={() => setIsMobileMenuOpen(true)} />
-
-      {/* 모바일 햄버거 메뉴 사이드바 */}
-      {isMobileMenuOpen && (
-        <div className={createStyles.mobileDrawerWrapper}>
-          <div className={createStyles.mobileDrawerOverlay} onClick={() => setIsMobileMenuOpen(false)} />
-          <div className={createStyles.mobileDrawer}>
-            <div className={createStyles.drawerHeader}>
-              <button type="button" className={createStyles.drawerCloseBtn} onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="material-symbols-rounded">close</span>
-              </button>
-            </div>
-            <div className={createStyles.drawerContent}>
-              <Sidebar
-                topContent={sidebarTopContent}
-                bottomContent={sidebarBottomContent}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 모바일 햄버거 메뉴를 포함한 헤더 */}
+      <CreateMobileMenu
+        headerVariant="account"
+        isWorldCheckDone={isWorldCheckDone}
+        isCharCheckDone={isCharCheckDone}
+      />
 
       {/* 모바일/태블릿 (<= 1024px) 상단바 */}
       <div className={createStyles.topNavSection}>
@@ -753,7 +728,10 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         onClose={() => router.back()}
       />
 
-      <Footer />
+      {/* 하단 풋터 (PC에서만 표시) */}
+      <div className={createStyles.desktopFooterWrapper}>
+        <Footer />
+      </div>
     </div>
   );
 }

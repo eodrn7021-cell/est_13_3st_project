@@ -253,6 +253,104 @@
   }
 }
 
+.desktopFooterWrapper {
+  display: block;
+
+  @media (max-width: 1200px) {
+    display: none;
+  }
+}
+
+.mobileMetaActionsWrapper {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+  background-color: colors.$color_input_70;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid colors.$color_tag_stroke;
+  
+  @media (max-width: 1200px) {
+    display: flex;
+  }
+}
+
+.mobileMetaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  row-gap: 20px;
+  color: colors.$color_white;
+  text-align: center;
+}
+
+.mobileMetaItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: colors.$color_text_muted;
+
+  span {
+    color: colors.$color_white;
+    margin-left: 6px;
+  }
+}
+
+.mobileActionGrid {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+
+  .actionBtnPrimary, .actionBtnSecondary {
+    flex: 1;
+    max-width: 200px;
+    height: 48px;
+    border-radius: 24px;
+    border: none;
+    cursor: pointer;
+    color: colors.$color_white;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  .actionBtnPrimary {
+    background: colors.$color_primary;
+  }
+
+  .actionBtnSecondary {
+    background: transparent;
+    border: 1px solid colors.$color_tag_stroke;
+  }
+  
+  .actionBtnIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid colors.$color_tag_stroke;
+    color: colors.$color_white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    &.active {
+      color: colors.$color_primary;
+      border-color: colors.$color_primary;
+    }
+  }
+}
+
 /* 모바일 전용 좌측 드로어 (햄버거 메뉴 클릭 시) */
 .mobileDrawerWrapper {
   position: fixed;
@@ -281,8 +379,10 @@
   left: 0;
   width: min(280px, 82vw);
   height: 100dvh;
-  background: colors.$color_background_deep;
+  padding: 24px 30px;
   box-sizing: border-box;
+  background: colors.$color_background_surface;
+  overflow-y: auto;
   animation: drawer_open 0.25s ease;
   display: flex;
   flex-direction: column;
@@ -291,7 +391,7 @@
 .drawerHeader {
   display: flex;
   justify-content: flex-end;
-  padding: 16px;
+  padding: 0;
 }
 
 .drawerCloseBtn {
@@ -319,8 +419,139 @@
 
 .drawerContent {
   flex: 1;
-  overflow-y: auto;
-  padding: 0 16px 20px;
+}
+
+.drawerFooter {
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid colors.$color_tag;
+}
+
+.mobileDrawerSidebar {
+  display: flex !important;
+  width: 100% !important;
+  min-height: auto !important;
+  padding: 20px 0 !important;
+}
+
+.drawerHeaderWithLogo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.drawerLogo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: colors.$color_white;
+  text-decoration: none;
+
+  img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+}
+
+.drawerLogoText {
+  font-family: variables.$font_family_en;
+  font-size: 24px;
+  font-weight: variables.$font_weight_regular;
+  line-height: 1;
+  color: colors.$color_white;
+}
+
+.drawerAuthButtons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.drawerAuthSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border: 1px solid colors.$color_secondary;
+  border-radius: 8px;
+  background: transparent;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 14px;
+  font-weight: variables.$font_weight_regular;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    border-color: colors.$color_white;
+  }
+}
+
+.drawerAuthPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: colors.$color_primary_dark;
+  color: colors.$color_white;
+  font-family: variables.$font_family_kr;
+  font-size: 14px;
+  font-weight: variables.$font_weight_regular;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    background: colors.$color_primary;
+  }
+}
+
+@media (max-width: 600px) {
+  .mobileDrawer {
+    width: min(260px, 84vw);
+    padding: 22px 24px;
+  }
+  .drawerLogo {
+    img {
+      width: 36px;
+      height: 36px;
+    }
+  }
+  .drawerLogoText {
+    font-size: 20px;
+  }
+  .drawerAuthButtons {
+    margin-top: 28px;
+  }
+  .drawerAuthSecondary,
+  .drawerAuthPrimary {
+    height: 34px;
+    padding: 0 14px;
+    font-size: 12px;
+  }
+  .drawerFooter {
+    margin-top: 30px;
+    padding-top: 24px;
+  }
+}
+
+.customChecklist {
+  margin-top: 36px;
+}
+
+.drawerHelpSection {
+  margin-top: auto;
+  padding-top: 20px;
 }
 
 @keyframes drawer_open {

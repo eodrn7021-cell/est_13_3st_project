@@ -1,4 +1,4 @@
-"use server";
+
 
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
@@ -20,26 +20,47 @@ export async function GET(request) {
 
     const { data: comments, error } = await supabase
       .from("character_comments")
-      .select("id, content, created_at, user_id, profiles(nickname)")
+      .select("id, content, created_at, user_id")
       .eq("character_id", characterId)
       .order("created_at", { ascending: false });
 
     if (error) {
       console.error("코멘트 조회 오류:", error);
       return NextResponse.json(
-        { error: "코멘트를 불러오는 중 오류가 발생했습니다." },
+        { error: "코멘트를 불러오는 중 오류가 발생했습니다.", details: error },
         { status: 500 }
       );
     }
 
-    // 응답 형태를 { id, author, content, created_at }로 정리
-    const formattedComments = (comments || []).map((c) => ({
-      id: c.id,
-      author: c.profiles?.nickname || "익명",
-      content: c.content,
-      created_at: c.created_at,
-      user_id: c.user_id,
-    }));
+    let formattedComments = [];
+
+    if (comments && comments.length > 0) {
+      // 작성자 닉네임을 가져오기 위한 추가 쿼리 (Foreign Key 이슈 우회)
+      const userIds = [...new Set(comments.map((c) => c.user_id).filter(Boolean))];
+      
+      let profilesMap = {};
+      if (userIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from("profiles")
+          .select("id, nickname")
+          .in("id", userIds);
+          
+        if (profilesData) {
+          profilesData.forEach((p) => {
+            profilesMap[p.id] = p.nickname;
+          });
+        }
+      }
+
+      // 응답 형태를 { id, author, content, created_at, user_id }로 정리
+      formattedComments = comments.map((c) => ({
+        id: c.id,
+        author: profilesMap[c.user_id] || "익명",
+        content: c.content,
+        created_at: c.created_at,
+        user_id: c.user_id,
+      }));
+    }
 
     return NextResponse.json({ success: true, comments: formattedComments });
   } catch (err) {

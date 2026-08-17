@@ -35,21 +35,21 @@ const LoraFont = Lora({
 const MaterialSymbolsRounded = localFont({
   src: "../public/fonts/MaterialSymbolsRounded.woff2",
   variable: "--font_material_symbols_rounded",
-  display: "swap",
+  display: "block",
   preload: false,
 });
 
 const MaterialSymbolsOutlined = localFont({
   src: "../public/fonts/MaterialSymbolsOutlined.woff2",
   variable: "--font_material_symbols_outlined",
-  display: "swap",
+  display: "block",
   preload: false,
 });
 
 const MaterialIconsOutlined = localFont({
   src: "../public/fonts/MaterialIconsOutlined-Regular.otf",
   variable: "--font_material_icons_outlined",
-  display: "swap",
+  display: "block",
   preload: false,
 });
 
