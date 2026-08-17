@@ -67,8 +67,6 @@
 
 /* ========================================
    Container
-
-   ★ Main은 추가 중앙정렬하지 않는다.
 ======================================== */
 
 .container {
@@ -96,7 +94,7 @@
 
   gap: 24px;
 
-  margin-bottom: 28px;
+  margin: 0 auto 28px;
 }
 
 .profileInfo {
@@ -237,7 +235,7 @@
 
   width: 100%;
 
-  margin-bottom: 36px;
+  margin: 0 auto 36px;
 
   overflow: hidden;
 
@@ -316,579 +314,8 @@
 }
 
 .sectionTitle {
-  margin-bottom: 18px;
-}
-
-.sectionTitle h2 {
-  margin: 0;
-
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 24px;
-
-  font-weight: $font_weight_regular;
-
-  line-height: 1.25;
-}
-
-/* ========================================
-   Character Grid
-======================================== */
-
-.characterGrid {
-  display: grid;
-
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-
-  gap: 16px;
-
-  width: 100%;
-}
-
-/* ========================================
-   Character Card
-======================================== */
-
-.characterCard {
-  position: relative;
-
-  min-width: 0;
-
-  overflow: hidden;
-
-  border-radius: 18px;
-
-  background: $color_black;
-
-  border: 1px solid rgba(255, 255, 255, 0.05);
-
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-
-  transition:
-    transform 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
-}
-
-.characterCard:hover {
-  transform: translateY(-4px);
-
-  border-color: rgba(134, 94, 244, 0.35);
-
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
-}
-
-.cardLink {
-  display: block;
-
   width: 100%;
 
-  color: inherit;
-
-  text-decoration: none;
-}
-
-/* ========================================
-   Character Image
-======================================== */
-
-.imageWrapper {
-  position: relative;
-
-  width: 100%;
-
-  aspect-ratio: 0.78;
-
-  overflow: hidden;
-
-  background: $color_black;
-}
-
-.imageWrapper img {
-  object-fit: cover;
-
-  transition: transform 0.35s ease;
-}
-
-.characterCard:hover .imageWrapper img {
-  transform: scale(1.035);
-}
-
-/* ========================================
-   Status
-======================================== */
-
-.status {
-  position: absolute;
-
-  top: 10px;
-  right: 10px;
-
-  z-index: 3;
-
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  min-width: 40px;
-  height: 24px;
-
-  padding: 0 8px;
-
-  border-radius: 999px;
-
-  background: rgba(25, 28, 43, 0.85);
-
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 12px;
-
-  font-weight: $font_weight_regular;
-
-  line-height: 1;
-
-  backdrop-filter: blur(8px);
-}
-
-/* ========================================
-   Card Gradient
-======================================== */
-
-.cardGradient {
-  position: absolute;
-
-  inset: 0;
-
-  z-index: 1;
-
-  pointer-events: none;
-
-  background: $gradient_card;
-}
-
-/* ========================================
-   Card Content
-======================================== */
-
-.cardContent {
-  position: absolute;
-
-  left: 0;
-  right: 0;
-  bottom: 0;
-
-  z-index: 2;
-
-  padding: 16px 14px 14px;
-}
-
-.recommended {
-  display: inline-flex;
-
-  align-items: center;
-
-  height: 21px;
-
-  padding: 0 8px;
-
-  margin-bottom: 7px;
-
-  border-radius: 999px;
-
-  background: rgba(0, 0, 0, 0.78);
-
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 11px;
-
-  font-weight: $font_weight_regular;
-
-  line-height: 1;
-}
-
-.cardContent h3 {
-  margin: 0 0 7px;
-
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 16px;
-
-  font-weight: $font_weight_bold;
-
-  line-height: 1.35;
-}
-
-.cardContent p {
-  display: -webkit-box;
-
-  margin: 0 0 10px;
-
-  color: $color_secondary;
-
-  font-family: $font_family_kr;
-
-  font-size: 11px;
-
-  font-weight: $font_weight_regular;
-
-  line-height: 1.4;
-
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-
-  -webkit-box-orient: vertical;
-
-  overflow: hidden;
-}
-
-.tags {
-  display: inline-flex;
-
-  align-items: center;
-
-  min-height: 23px;
-
-  padding: 0 9px;
-
-  border-radius: 999px;
-
-  background: $color_tag;
-
-  color: $color_secondary;
-
-  font-family: $font_family_kr;
-
-  font-size: 11px;
-
-  font-weight: $font_weight_regular;
-
-  line-height: 1;
-}
-
-/* ========================================
-   Page
-======================================== */
-
-.page {
-  position: relative;
-
-  min-height: 100vh;
-
-  color: $color_white;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(7, 9, 24, 0.08) 0%,
-      rgba(7, 9, 24, 0.2) 55%,
-      rgba(7, 9, 24, 0.48) 100%
-    ),
-    url("/images/backgrounds/fantasy-space.webp");
-
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
-
-  overflow-x: hidden;
-}
-
-/* ========================================
-   Sidebar + Main
-======================================== */
-
-.contentLayout {
-  display: flex;
-  align-items: flex-start;
-
-  width: calc(100% - 80px);
-  max-width: 1460px;
-
-  margin: 0 auto;
-
-  gap: 24px;
-
-  min-width: 0;
-
-  box-sizing: border-box;
-}
-
-/* ========================================
-   Main
-======================================== */
-
-.main {
-  flex: 1 1 auto;
-
-  width: auto;
-  min-width: 0;
-
-  margin: 0;
-
-  padding: 22px 0 30px;
-
-  box-sizing: border-box;
-}
-
-/* ========================================
-   Container
-
-   ★ Main은 추가 중앙정렬하지 않는다.
-======================================== */
-
-.container {
-  width: 100%;
-  max-width: 770px;
-
-  margin: 0 auto;
-
-  padding: 0;
-
-  box-sizing: border-box;
-}
-
-/* ========================================
-   Profile
-======================================== */
-
-.profileSection {
-  display: flex;
-
-  align-items: center;
-  justify-content: space-between;
-
-  width: 100%;
-
-  gap: 24px;
-
-  margin-bottom: 28px;
-}
-
-.profileInfo {
-  display: flex;
-
-  align-items: center;
-
-  gap: 14px;
-
-  min-width: 0;
-}
-
-.profileImage {
-  position: relative;
-
-  width: 70px;
-  height: 70px;
-
-  flex-shrink: 0;
-
-  overflow: hidden;
-
-  border-radius: 50%;
-
-  border: 3px solid rgba(255, 255, 255, 0.9);
-
-  background: rgba(255, 255, 255, 0.1);
-
-  box-shadow:
-    0 0 0 3px rgba(134, 94, 244, 0.12),
-    0 8px 30px rgba(0, 0, 0, 0.25);
-}
-
-.profileImage img {
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-}
-
-.profileText {
-  min-width: 0;
-}
-
-.profileText h1 {
-  margin: 0 0 6px;
-
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 26px;
-
-  font-weight: $font_weight_regular;
-
-  line-height: 1.25;
-}
-
-.profileText p {
-  margin: 0;
-
-  color: $color_secondary;
-
-  font-family: $font_family_kr;
-
-  font-size: 14px;
-
-  font-weight: $font_weight_regular;
-
-  line-height: 1.5;
-}
-
-/* ========================================
-   Create Button
-======================================== */
-
-.createButton {
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 8px;
-
-  flex-shrink: 0;
-
-  min-width: 170px;
-  height: 52px;
-
-  padding: 0 20px;
-
-  border-radius: 14px;
-
-  background: rgba(25, 28, 43, 0.72);
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  color: $color_white;
-
-  text-decoration: none;
-
-  font-family: $font_family_kr;
-
-  font-size: 18px;
-
-  font-weight: $font_weight_regular;
-
-  line-height: 1;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.createButton:hover {
-  background: $color_primary;
-
-  border-color: $color_primary;
-
-  transform: translateY(-2px);
-}
-
-.createButton span:first-child {
-  font-size: 32px;
-
-  line-height: 1;
-}
-
-/* ========================================
-   Statistics
-======================================== */
-
-.stats {
-  display: grid;
-
-  grid-template-columns: repeat(3, 1fr);
-
-  width: 100%;
-
-  margin-bottom: 36px;
-
-  overflow: hidden;
-
-  border-radius: 18px;
-
-  background: rgba(18, 21, 37, 0.72);
-
-  border: 1px solid rgba(255, 255, 255, 0.05);
-
-  backdrop-filter: blur(16px);
-}
-
-.statCard {
-  position: relative;
-
-  min-height: 76px;
-
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 6px;
-}
-
-.statCard:not(:last-child)::after {
-  content: "";
-
-  position: absolute;
-
-  top: 50%;
-  right: 0;
-
-  width: 1px;
-  height: 36px;
-
-  transform: translateY(-50%);
-
-  background: rgba(255, 255, 255, 0.18);
-}
-
-.statCard h3 {
-  margin: 0;
-
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 16px;
-
-  font-weight: $font_weight_regular;
-
-  line-height: 1;
-}
-
-.statCard strong {
-  color: $color_white;
-
-  font-family: $font_family_kr;
-
-  font-size: 16px;
-
-  font-weight: $font_weight_bold;
-
-  line-height: 1;
-}
-
-/* ========================================
-   Recent Section
-======================================== */
-
-.recentSection {
-  width: 100%;
-}
-
-.sectionTitle {
   margin-bottom: 18px;
 }
 
@@ -1172,14 +599,37 @@
     max-width: 690px;
 
     margin: 0 auto;
-
-    box-sizing: border-box;
   }
 
-  /* -----------------------------
-     새로 만들기
+  .profileSection {
+    width: 688px;
+
+    margin: 0 auto 24px;
+
+    gap: 16px;
+  }
+
+  .profileInfo {
+    gap: 12px;
+  }
+
+  .profileImage {
+    width: 64px;
+    height: 64px;
+  }
+
+  .profileText h1 {
+    font-size: 24px;
+  }
+
+  .profileText p {
+    font-size: 14px;
+  }
+
+  /* ==============================
+     Create
      202 × 60
-  ----------------------------- */
+  ============================== */
 
   .createButton {
     width: 202px;
@@ -1189,6 +639,8 @@
 
     padding: 0 20px;
 
+    gap: 8px;
+
     font-size: 18px;
   }
 
@@ -1196,13 +648,14 @@
     font-size: 36px;
   }
 
-  /* -----------------------------
-     통계
+  /* ==============================
+     Statistics
      688 × 84
-  ----------------------------- */
+  ============================== */
 
   .stats {
     width: 688px;
+
     height: 84px;
 
     margin: 0 auto 32px;
@@ -1214,11 +667,11 @@
     min-height: 84px;
   }
 
-  /* -----------------------------
-     카드 3개
-     210 × 360
-     전체 690px
-  ----------------------------- */
+  /* ==============================
+     Character Grid
+     3 × 210
+     전체 690
+  ============================== */
 
   .characterGrid {
     width: 690px;
@@ -1269,18 +722,14 @@
     max-width: 690px;
 
     margin: 0 auto;
-
-    box-sizing: border-box;
   }
 
-  /* -----------------------------
-     Profile
-  ----------------------------- */
-
   .profileSection {
-    gap: 16px;
+    width: 688px;
 
-    margin-bottom: 24px;
+    margin: 0 auto 24px;
+
+    gap: 16px;
   }
 
   .profileInfo {
@@ -1300,10 +749,10 @@
     font-size: 14px;
   }
 
-  /* -----------------------------
-     새로 만들기
+  /* ==============================
+     Create
      202 × 60
-  ----------------------------- */
+  ============================== */
 
   .createButton {
     width: 202px;
@@ -1322,13 +771,14 @@
     font-size: 36px;
   }
 
-  /* -----------------------------
-     통계
+  /* ==============================
+     Statistics
      688 × 84
-  ----------------------------- */
+  ============================== */
 
   .stats {
     width: 688px;
+
     height: 84px;
 
     margin: 0 auto 32px;
@@ -1340,11 +790,11 @@
     min-height: 84px;
   }
 
-  /* -----------------------------
-     카드
-     210 × 360
-     전체 690px
-  ----------------------------- */
+  /* ==============================
+     Character Grid
+     3 × 210
+     전체 690
+  ============================== */
 
   .characterGrid {
     width: 690px;
@@ -1401,18 +851,19 @@
     max-width: calc(100% - 40px);
 
     margin: 0 auto;
-
-    box-sizing: border-box;
   }
 
-  /* ======================================
+  /* ==============================
      Profile
-  ====================================== */
+  ============================== */
 
   .profileSection {
-    gap: 10px;
+    width: 400px;
+    max-width: 100%;
 
-    margin-bottom: 22px;
+    margin: 0 auto 22px;
+
+    gap: 10px;
   }
 
   .profileInfo {
@@ -1446,10 +897,10 @@
     line-height: 1.4;
   }
 
-  /* ======================================
-     새로 만들기
+  /* ==============================
+     Create
      110 × 40
-  ====================================== */
+  ============================== */
 
   .createButton {
     width: 110px;
@@ -1470,10 +921,10 @@
     font-size: 24px;
   }
 
-  /* ======================================
+  /* ==============================
      Statistics
      400 × 75
-  ====================================== */
+  ============================== */
 
   .stats {
     width: 400px;
@@ -1500,22 +951,26 @@
     font-size: 12px;
   }
 
-  /* ======================================
+  /* ==============================
      Recent
-  ====================================== */
+  ============================== */
 
   .sectionTitle {
-    margin-bottom: 14px;
+    width: 400px;
+    max-width: 100%;
+
+    margin: 0 auto 14px;
   }
 
   .sectionTitle h2 {
     font-size: 16px;
   }
 
-  /* ======================================
+  /* ==============================
      Character Grid
-     전체 400px
-  ====================================== */
+     400px
+     2 × 190
+  ============================== */
 
   .characterGrid {
     width: 400px;
@@ -1529,10 +984,10 @@
     justify-content: center;
   }
 
-  /* ======================================
+  /* ==============================
      Character Card
      190 × 251
-  ====================================== */
+  ============================== */
 
   .characterCard {
     width: 190px;
@@ -1552,9 +1007,9 @@
     aspect-ratio: auto;
   }
 
-  /* ======================================
+  /* ==============================
      Card
-  ====================================== */
+  ============================== */
 
   .status {
     top: 8px;
@@ -1593,31 +1048,35 @@
 }
 
 /* ========================================
-   PC Layout
+   PC
    1201px 이상
-   메인페이지와 동일한 중앙 정렬 구조
+
+   Sidebar 285
+   Gap 24
+   Main 896
+   Total 1205
 ======================================== */
 
 @media (min-width: 1201px) {
   .contentLayout {
     display: flex;
+
+    /* 사이드바 높이에 맞춰 늘어나지 않도록 */
     align-items: flex-start;
 
-    /*
-      Sidebar 285px
-      gap 24px
-      Main 896px
-      = 총 1205px
-    */
     width: 1205px;
     max-width: calc(100% - 80px);
 
-    margin: 0 auto;
+    margin: 16px auto 0;
 
     gap: 24px;
 
     box-sizing: border-box;
   }
+
+  /* ==============================
+     Main
+  ============================== */
 
   .main {
     flex: 0 0 896px;
@@ -1626,10 +1085,15 @@
     min-width: 896px;
 
     margin: 0;
+
     padding: 0;
 
     box-sizing: border-box;
   }
+
+  /* ==============================
+     Container
+  ============================== */
 
   .container {
     width: 896px;
@@ -1637,15 +1101,32 @@
 
     margin: 0;
 
-    padding: 22px 0 30px;
+    padding: 0 0 30px;
 
     box-sizing: border-box;
   }
 
-  /* -----------------------------
-     새로 만들기
+  /* ==============================
+     Profile
+     
+     기존 750px보다 조금 넓게
+     770px로 확장
+  ============================== */
+
+  .profileSection {
+    width: 770px;
+
+    margin: 0 auto 18px;
+
+    gap: 24px;
+
+    box-sizing: border-box;
+  }
+
+  /* ==============================
+     Create Button
      202 × 60
-  ----------------------------- */
+  ============================== */
 
   .createButton {
     width: 202px;
@@ -1664,13 +1145,14 @@
     font-size: 36px;
   }
 
-  /* ----------------------------------------
-     통계 박스
+  /* ==============================
+     Statistics
      790 × 85
-  ---------------------------------------- */
+  ============================== */
 
   .stats {
     width: 790px;
+
     height: 85px;
 
     margin: 0 auto 36px;
@@ -1680,458 +1162,26 @@
     min-height: 85px;
   }
 
-  /* ----------------------------------------
-     캐릭터 영역
-     896 × 390
-  ---------------------------------------- */
-
-  .characterGrid {
-    width: 896px;
-
-    grid-template-columns: repeat(3, 285px);
-
-    column-gap: 20px;
-    row-gap: 0;
-
-    justify-content: center;
-  }
-
-  .characterCard {
-    width: 285px;
-    height: 360px;
-  }
-
-  .imageWrapper {
-    width: 285px;
-    height: 360px;
-
-    aspect-ratio: auto;
-  }
-}
-
-/* ========================================
-   Tablet
-   481px ~ 768px
-======================================== */
-
-@media (max-width: 768px) and (min-width: 481px) {
-  .contentLayout {
-    display: block;
-
-    width: 100%;
-  }
-
-  .main {
-    width: 100%;
-
-    padding: 32px 0 30px;
-  }
-
-  .container {
-    width: 690px;
-    max-width: 690px;
-
-    margin: 0 auto;
-
-    box-sizing: border-box;
-  }
-
-  /* -----------------------------
-     Profile
-  ----------------------------- */
-
-  .profileSection {
-    gap: 16px;
-
-    margin-bottom: 24px;
-  }
-
-  .profileInfo {
-    gap: 12px;
-  }
-
-  .profileImage {
-    width: 64px;
-    height: 64px;
-  }
-
-  .profileText h1 {
-    font-size: 24px;
-  }
-
-  .profileText p {
-    font-size: 14px;
-  }
-
-  /* -----------------------------
-     새로 만들기
-     202 × 60
-  ----------------------------- */
-
-  .createButton {
-    width: 202px;
-    min-width: 202px;
-
-    height: 60px;
-
-    padding: 0 18px;
-
-    gap: 8px;
-
-    font-size: 18px;
-  }
-
-  .createButton span:first-child {
-    font-size: 36px;
-  }
-
-  /* -----------------------------
-     통계
-     688 × 84
-  ----------------------------- */
-
-  .stats {
-    width: 688px;
-    height: 84px;
-
-    margin: 0 auto 32px;
-
-    border-radius: 16px;
-  }
-
-  .statCard {
-    min-height: 84px;
-  }
-
-  /* -----------------------------
-     카드
-     210 × 360
-     전체 690px
-  ----------------------------- */
-
-  .characterGrid {
-    width: 690px;
-
-    grid-template-columns: repeat(3, 210px);
-
-    column-gap: 30px;
-    row-gap: 0;
-
-    justify-content: center;
-  }
-
-  .characterCard {
-    width: 210px;
-    height: 360px;
-
-    border-radius: 16px;
-  }
-
-  .imageWrapper {
-    width: 210px;
-    height: 360px;
-
-    aspect-ratio: auto;
-  }
-}
-
-/* ========================================
-   Mobile
-   480px 이하
-======================================== */
-
-@media (max-width: 480px) {
-  .contentLayout {
-    display: block;
-
-    width: 100%;
-  }
-
-  .main {
-    width: 100%;
-
-    padding: 24px 0 20px;
-  }
-
-  .page {
-    padding-bottom: 85px;
-
-    background-position: center top;
-  }
-
-  .container {
-    width: 400px;
-    max-width: calc(100% - 40px);
-
-    margin: 0 auto;
-
-    box-sizing: border-box;
-  }
-
-  /* ======================================
-     Profile
-  ====================================== */
-
-  .profileSection {
-    gap: 10px;
-
-    margin-bottom: 22px;
-  }
-
-  .profileInfo {
-    gap: 10px;
-  }
-
-  .profileImage {
-    width: 58px;
-    height: 58px;
-
-    border-width: 2px;
-  }
-
-  .profileText {
-    min-width: 0;
-  }
-
-  .profileText h1 {
-    margin-bottom: 4px;
-
-    font-size: 16px;
-
-    white-space: nowrap;
-  }
-
-  .profileText p {
-    max-width: 190px;
-
-    font-size: 12px;
-
-    line-height: 1.4;
-  }
-
-  /* ======================================
-     새로 만들기
-     110 × 40
-  ====================================== */
-
-  .createButton {
-    width: 110px;
-    min-width: 110px;
-
-    height: 40px;
-
-    padding: 0 8px;
-
-    gap: 4px;
-
-    border-radius: 10px;
-
-    font-size: 12px;
-  }
-
-  .createButton span:first-child {
-    font-size: 24px;
-  }
-
-  /* ======================================
-     Statistics
-     400 × 75
-  ====================================== */
-
-  .stats {
-    width: 400px;
-    max-width: 100%;
-
-    height: 75px;
-
-    margin: 0 auto 28px;
-
-    border-radius: 14px;
-  }
-
-  .statCard {
-    min-height: 75px;
-
-    gap: 5px;
-  }
-
-  .statCard h3 {
-    font-size: 14px;
-  }
-
-  .statCard strong {
-    font-size: 12px;
-  }
-
-  /* ======================================
+  /* ==============================
      Recent
-  ====================================== */
+  ============================== */
+
+  .recentSection {
+    width: 896px;
+  }
 
   .sectionTitle {
-    margin-bottom: 14px;
+    width: 896px;
+
+    margin: 0 0 18px;
   }
 
-  .sectionTitle h2 {
-    font-size: 16px;
-  }
-
-  /* ======================================
+  /* ==============================
      Character Grid
-     전체 400px
-  ====================================== */
-
-  .characterGrid {
-    width: 400px;
-    max-width: 100%;
-
-    grid-template-columns: repeat(2, 190px);
-
-    column-gap: 20px;
-    row-gap: 0;
-
-    justify-content: center;
-  }
-
-  /* ======================================
-     Character Card
-     190 × 251
-  ====================================== */
-
-  .characterCard {
-    width: 190px;
-    height: 251px;
-
-    border-radius: 14px;
-  }
-
-  .characterCard:nth-child(n + 3) {
-    display: none;
-  }
-
-  .imageWrapper {
-    width: 190px;
-    height: 251px;
-
-    aspect-ratio: auto;
-  }
-
-  /* ======================================
-     Card
-  ====================================== */
-
-  .status {
-    top: 8px;
-    right: 8px;
-  }
-
-  .cardContent {
-    padding: 12px 10px 10px;
-  }
-
-  .recommended {
-    margin-bottom: 6px;
-  }
-
-  .cardContent h3 {
-    margin-bottom: 5px;
-
-    font-size: 16px;
-  }
-
-  .cardContent p {
-    margin-bottom: 7px;
-
-    font-size: 12px;
-
-    line-height: 1.35;
-  }
-
-  .tags {
-    min-height: 24px;
-
-    padding: 0 8px;
-
-    font-size: 12px;
-  }
-}
-
-/* ========================================
-   PC Layout
-   1201px 이상
-
-   시안처럼 전체 구성을 가운데로 모음
-======================================== */
-
-/* ========================================
-   PC Layout
-   1201px 이상
-   메인페이지와 동일한 중앙 정렬 구조
-======================================== */
-
-@media (min-width: 1201px) {
-  .contentLayout {
-    display: flex;
-    align-items: flex-start;
-
-    /*
-      Sidebar 285px
-      gap 24px
-      Main 896px
-      = 총 1205px
-    */
-    width: 1205px;
-    max-width: calc(100% - 80px);
-
-    margin: 0 auto;
-
-    gap: 24px;
-
-    box-sizing: border-box;
-  }
-
-  .main {
-    flex: 0 0 896px;
-
-    width: 896px;
-    min-width: 896px;
-
-    margin: 0;
-    padding: 0;
-
-    box-sizing: border-box;
-  }
-
-  .container {
-    width: 896px;
-    max-width: 896px;
-
-    margin: 0;
-
-    padding: 22px 0 30px;
-
-    box-sizing: border-box;
-  }
-
-  /* ----------------------------------------
-     통계 박스
-     790 × 85
-  ---------------------------------------- */
-
-  .stats {
-    width: 790px;
-    height: 85px;
-
-    margin: 0 auto 36px;
-  }
-
-  .statCard {
-    min-height: 85px;
-  }
-
-  /* ----------------------------------------
-     캐릭터 영역
-     896 × 390
-  ---------------------------------------- */
+     3 × 285
+     Gap 20
+     총 896px
+  ============================== */
 
   .characterGrid {
     width: 896px;
@@ -2147,6 +1197,9 @@
   .characterCard {
     width: 285px;
     height: 360px;
+
+    min-width: 285px;
+    min-height: 360px;
   }
 
   .imageWrapper {

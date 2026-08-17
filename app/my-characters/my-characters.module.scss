@@ -39,6 +39,8 @@
   gap: 24px;
 
   min-width: 0;
+
+  box-sizing: border-box;
 }
 
 /* ========================================
@@ -84,6 +86,7 @@
   align-items: center;
   justify-content: space-between;
 
+  margin-top: 0;
   margin-bottom: 28px;
 }
 
@@ -98,11 +101,14 @@
   font-weight: $font_weight_regular;
 
   line-height: 1;
+
+  position: relative;
+  top: -16px;
 }
 
 /* ========================================
    Create Button
-   PC: 202 x 60
+   PC: 202 × 60
 ======================================== */
 
 .createButton {
@@ -152,7 +158,9 @@
 
 .createButton .material-symbols-rounded {
   font-size: 36px;
+
   font-weight: $font_weight_regular;
+
   line-height: 1;
 }
 
@@ -169,7 +177,7 @@
 
   align-items: center;
 
-  gap: 18px;
+  gap: 20px;
 }
 
 .filterButton {
@@ -180,8 +188,6 @@
 
   align-items: center;
   justify-content: center;
-
-  gap: 4px;
 
   padding: 0;
 
@@ -198,33 +204,33 @@
   font-family: $font_family_kr;
 
   font-size: 12px;
+
   font-weight: $font_weight_regular;
 
   line-height: 1;
 
+  text-align: center;
+
   cursor: pointer;
 
   transition:
-    transform 0.2s ease,
-    opacity 0.2s ease;
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .filterButton:hover {
-  transform: translateY(-1px);
+  background: $color_secondary;
 
-  opacity: 0.92;
+  color: $color_background_deep;
+
+  transform: translateY(-1px);
 }
 
 .filterButton.active {
   background: $gradient_tag;
 
   color: $color_white;
-}
-
-.filterButton .material-symbols-rounded {
-  font-size: 12px;
-  font-weight: $font_weight_regular;
-  line-height: 1;
 }
 
 /* ========================================
@@ -253,7 +259,7 @@
 
 /* ========================================
    Character Card
-   PC: 205 x 256
+   PC: 205 × 256
 ======================================== */
 
 .characterCard {
@@ -342,7 +348,6 @@
 
 /* ========================================
    Recommended
-   black
 ======================================== */
 
 .recommended {
@@ -365,6 +370,7 @@
   font-family: $font_family_kr;
 
   font-size: 12px;
+
   font-weight: $font_weight_regular;
 
   line-height: 1;
@@ -384,6 +390,7 @@
   font-family: $font_family_kr;
 
   font-size: 16px;
+
   font-weight: $font_weight_regular;
 
   line-height: 1;
@@ -407,6 +414,7 @@
   font-family: $font_family_kr;
 
   font-size: 12px;
+
   font-weight: $font_weight_regular;
 
   line-height: 1.45;
@@ -423,7 +431,6 @@
 
 /* ========================================
    Tags
-   Tag color
 ======================================== */
 
 .tags {
@@ -450,6 +457,7 @@
   font-family: $font_family_kr;
 
   font-size: 12px;
+
   font-weight: $font_weight_regular;
 
   line-height: 1;
@@ -466,7 +474,7 @@
 
   align-items: center;
 
-  gap: 8px;
+  gap: 10px;
 
   margin-top: 52px;
 }
@@ -482,7 +490,7 @@
 
   gap: 6px;
 
-  padding: 0;
+  padding: 10px;
 
   box-sizing: border-box;
 
@@ -493,6 +501,7 @@
   font-family: $font_family_kr;
 
   font-size: 14px;
+
   font-weight: $font_weight_regular;
 
   line-height: 1;
@@ -510,10 +519,13 @@
 
 .manageButtons .material-symbols-rounded {
   font-size: 14px;
+
   line-height: 1;
 }
 
-/* 재생성 */
+/* ----------------------------------------
+   재생성
+---------------------------------------- */
 
 .regenerateButton {
   background: $color_primary;
@@ -525,7 +537,9 @@
   background: $color_primary_dark;
 }
 
-/* 수정 */
+/* ----------------------------------------
+   수정
+---------------------------------------- */
 
 .editButton {
   background: $color_tag;
@@ -537,7 +551,9 @@
   background: $color_tag_stroke;
 }
 
-/* 삭제 */
+/* ----------------------------------------
+   삭제
+---------------------------------------- */
 
 .deleteButton {
   background: $color_tag;
@@ -592,6 +608,7 @@
   font-family: $font_family_kr;
 
   font-size: 16px;
+
   font-weight: $font_weight_regular;
 
   line-height: 1;
@@ -619,8 +636,8 @@
 }
 
 /* ========================================
-   768px
-   카드 247.5 x 257.5
+   Tablet
+   769px ~ 1200px
 ======================================== */
 
 @media (max-width: 1200px) {
@@ -642,6 +659,10 @@
     padding: 0;
   }
 }
+
+/* ========================================
+   768px
+======================================== */
 
 @media (max-width: 768px) {
   .contentLayout {
@@ -686,7 +707,7 @@
   }
 
   .filterList {
-    gap: 12px;
+    gap: 20px;
   }
 
   .filterButton {
@@ -716,25 +737,26 @@
     min-height: 257.5px;
   }
 
+  .cardBody {
+    padding: 52px 14px 14px;
+  }
+
+  .manageButtons {
+    gap: 10px;
+
+    margin-top: 38px;
+  }
+
+  .manageButtons button {
+    padding: 10px;
+  }
+
   .paginationDesktop {
     display: flex;
   }
 
   .paginationMobile {
     display: none;
-  }
-
-  .characterCard {
-    width: 247.5px;
-    height: 257.5px;
-  }
-
-  .cardBody {
-    padding: 52px 14px 14px;
-  }
-
-  .manageButtons {
-    margin-top: 38px;
   }
 }
 
@@ -783,7 +805,7 @@
   }
 
   .filterList {
-    gap: 10px;
+    gap: 20px;
   }
 
   .filterButton {
@@ -872,16 +894,16 @@
   ================================== */
 
   .manageButtons {
-    gap: 5px;
+    gap: 10px;
 
     margin-top: 32px;
   }
 
   .manageButtons button {
-    width: 90px;
+    width: 85px;
     height: 30px;
 
-    font-size: 14px;
+    padding: 10px;
   }
 
   /* ==================================
@@ -907,5 +929,99 @@
 
   .paginationMobile button .material-symbols-rounded {
     font-size: 24px;
+  }
+}
+
+/* ========================================
+   PC
+   1201px 이상
+
+   Header와 콘텐츠 사이 16px
+   Sidebar / 제목 시작선 동일
+======================================== */
+
+@media (min-width: 1201px) {
+  .contentLayout {
+    display: flex;
+
+    align-items: flex-start;
+
+    width: 1205px;
+    max-width: calc(100% - 80px);
+
+    margin: 16px auto 0;
+
+    gap: 24px;
+
+    box-sizing: border-box;
+  }
+
+  /* ======================================
+     Main
+  ====================================== */
+
+  .page {
+    flex: 0 0 896px;
+
+    width: 896px;
+
+    min-width: 896px;
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+  }
+
+  /* ======================================
+     Container
+  ====================================== */
+
+  .container {
+    width: 896px;
+
+    max-width: 896px;
+
+    margin: 0;
+
+    padding: 0 0 30px;
+
+    box-sizing: border-box;
+  }
+
+  /* ======================================
+     Title
+     Sidebar 상단과 같은 높이
+  ====================================== */
+
+  .titleSection {
+    width: 896px;
+
+    margin: 0 0 28px;
+  }
+
+  /* ======================================
+     Filter
+  ====================================== */
+
+  .filterList {
+    gap: 20px;
+  }
+
+  /* ======================================
+     Character Grid
+  ====================================== */
+
+  .characterGridDesktop {
+    width: 896px;
+
+    grid-template-columns: repeat(4, 205px);
+
+    column-gap: 16px;
+
+    row-gap: 16px;
+
+    justify-content: center;
   }
 }

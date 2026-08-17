@@ -30,8 +30,7 @@
 
 /* ========================================
    Sidebar
-   Desktop
-   1201px 이상
+   기본값
 ======================================== */
 
 .sidebar {
@@ -42,10 +41,6 @@
 
   display: flex;
   flex-direction: column;
-
-  /* =====================================
-     PC 사이드바 크기
-     ===================================== */
 
   width: 245px;
   min-width: 245px;
@@ -83,7 +78,7 @@
   flex-direction: column !important;
 
   width: 100%;
-  height: auto;
+  height: 100%;
 
   min-height: 0;
 }
@@ -138,7 +133,6 @@
 
 /* ========================================
    Menu Hover
-   ★ 일반 메뉴에 마우스를 올렸을 때
 ======================================== */
 
 .menu::before {
@@ -164,7 +158,6 @@
 
 /* ========================================
    Active
-   ★ 현재 마이페이지는 시안처럼 표시
 ======================================== */
 
 .menu.active::before {
@@ -205,7 +198,7 @@
 
 /* ========================================
    Trash Menu
-   휴지통만 한 칸 아래로 배치
+   휴지통만 한 칸 아래
 ======================================== */
 
 .trashMenu {
@@ -214,7 +207,6 @@
 
 /* ========================================
    Logout
-   ★ Sidebar 하단 고정
 ======================================== */
 
 .logout {
@@ -310,6 +302,7 @@
     min-width: 290px;
 
     height: auto;
+    min-height: 0;
 
     margin: 0;
 
@@ -331,8 +324,13 @@
     transform: translateX(0);
   }
 
+  .sidebar > nav {
+    height: auto;
+  }
+
   .logout {
     margin-top: 56px;
+
     transform: none;
   }
 }
@@ -358,6 +356,7 @@
     min-width: 290px;
 
     height: auto;
+    min-height: 0;
 
     margin: 0;
 
@@ -379,8 +378,13 @@
     transform: translateX(0);
   }
 
+  .sidebar > nav {
+    height: auto;
+  }
+
   .logout {
     margin-top: 56px;
+
     transform: none;
   }
 }
@@ -439,7 +443,7 @@
 /* ========================================
    PC
    1201px 이상
-   사이드바 위치 조정
+   사이드바 고정 크기
 ======================================== */
 
 @media (min-width: 1201px) {
@@ -447,12 +451,13 @@
     width: 285px;
     min-width: 285px;
 
-    height: 590px;
-    min-height: 590px;
+    height: 616px;
+    min-height: 616px;
+
+    align-self: flex-start;
   }
 
   .logout {
-    margin-top: 56px;
-    transform: none;
+    transform: translateY(10px);
   }
 }
