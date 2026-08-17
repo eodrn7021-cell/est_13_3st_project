@@ -25,6 +25,8 @@ export default function CharacterForm({
   mode = "character",
   initialValues = {},
   isReadOnly = false,
+  worldCharacters = [],
+  currentCharacterId = null,
   onSubmit,
   onChange,
   className = "",
@@ -44,15 +46,15 @@ export default function CharacterForm({
       const supabase = createClient();
       
       try {
-        const { data: racesData } = await supabase.from("races").select("name").order("id");
-        const { data: gendersData } = await supabase.from("genders").select("name").order("id");
-        const { data: themesData } = await supabase.from("themes").select("name").order("id");
-        const { data: genresData } = await supabase.from("genres").select("name").order("id");
+        const { data: racesData } = await supabase.from("races").select("id, name").order("id");
+        const { data: gendersData } = await supabase.from("genders").select("id, name").order("id");
+        const { data: themesData } = await supabase.from("themes").select("id, name").order("id");
+        const { data: genresData } = await supabase.from("genres").select("id, name").order("id");
 
-        if (racesData) setRaceOptions(racesData.map((item) => item.name));
-        if (gendersData) setGenderOptions(gendersData.map((item) => item.name));
-        if (themesData) setThemeOptions(themesData.map((item) => item.name));
-        if (genresData) setGenreOptions(genresData.map((item) => item.name));
+        if (racesData) setRaceOptions(racesData.map((item) => ({ id: item.id, label: item.name, value: item.name })));
+        if (gendersData) setGenderOptions(gendersData.map((item) => ({ id: item.id, label: item.name, value: item.name })));
+        if (themesData) setThemeOptions(themesData.map((item) => ({ id: item.id, label: item.name, value: item.name })));
+        if (genresData) setGenreOptions(genresData.map((item) => ({ id: item.id, label: item.name, value: item.name })));
       } catch (error) {
         console.error("Error fetching options:", error);
       }
@@ -108,6 +110,14 @@ export default function CharacterForm({
     }));
   }, [initialValues]);
 
+  const [relationshipMap, setRelationshipMap] = useState({});
+  const [activeRelTabId, setActiveRelTabId] = useState(null);
+
+  useEffect(() => {
+    // 이제 initialValues.relationships는 객체 형태로 넘어옵니다.
+    setRelationshipMap(initialValues.relationships || {});
+  }, [initialValues.relationships]);
+
   const handleChange = (field, value) => {
     const updated = { ...formData, [field]: value };
     setFormData(updated);
@@ -115,6 +125,26 @@ export default function CharacterForm({
       onChange(field, value, updated);
     }
   };
+
+  const handleRelationshipChange = (targetId, value) => {
+    const newMap = { ...relationshipMap, [targetId]: value };
+    setRelationshipMap(newMap);
+    handleChange("relationships", newMap);
+  };
+
+  const otherCharacters = worldCharacters.filter(c => String(c.id) !== String(currentCharacterId) && !c.isDraft);
+
+  useEffect(() => {
+    if (otherCharacters.length > 0) {
+      if (!activeRelTabId || !otherCharacters.find(c => String(c.id) === String(activeRelTabId))) {
+        // 기존에 작성된 관계가 있는 캐릭터를 우선 선택
+        const hasRelChar = otherCharacters.find(c => relationshipMap && relationshipMap[c.id]);
+        setActiveRelTabId(hasRelChar ? hasRelChar.id : otherCharacters[0].id);
+      }
+    } else {
+      setActiveRelTabId(null);
+    }
+  }, [currentCharacterId, otherCharacters.length]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -300,22 +330,82 @@ export default function CharacterForm({
 
         {/* 카드 5: 관련 인물 또는 자원 & 화폐 */}
         <div className={styles.relatedCharactersCard}>
-          <Textarea
-            title={isWorldMode ? "자원 & 화폐" : "관련 인물"}
-            placeholder={
-              isWorldMode
-                ? "마력석, 희귀 광물 등 이 세계에서 특별하게 취급되는 핵심 자원과, 사람들이 일상적으로 물건을 사고팔 때 사용하는 화폐 단위를 적어주세요."
-                : "가족, 친구, 라이벌, 스승 등 주변 인물들과의 관계와 짧은 서사를 적어주세요."
-            }
-            value={isWorldMode ? formData.resource_currency : formData.relationships}
-            onChange={(e) => handleChange(isWorldMode ? "resource_currency" : "relationships", e.target.value)}
-            disabled={!isWorldMode && isReadOnly}
-            containerStyle={{ height: "100%" }}
-            inputStyle={{ flex: 1 }}
-            collapsible={isResponsive}
-            isOpen={!isResponsive || openCard === "cardFive"}
-            onToggle={() => toggleCard("cardFive")}
-          />
+          {isWorldMode ? (
+            <Textarea
+              title="자원 & 화폐"
+              placeholder="마력석, 희귀 광물 등 이 세계에서 특별하게 취급되는 핵심 자원과, 사람들이 일상적으로 물건을 사고팔 때 사용하는 화폐 단위를 적어주세요."
+              value={formData.resource_currency}
+              onChange={(e) => handleChange("resource_currency", e.target.value)}
+              disabled={isReadOnly}
+              containerStyle={{ height: "100%" }}
+              inputStyle={{ flex: 1 }}
+              collapsible={isResponsive}
+              isOpen={!isResponsive || openCard === "cardFive"}
+              onToggle={() => toggleCard("cardFive")}
+            />
+          ) : (
+            otherCharacters.length === 0 ? (
+              <Textarea
+                title="관련 인물"
+                placeholder="세계관 소속 캐릭터가 없습니다."
+                value="세계관 소속 캐릭터가 없습니다."
+                disabled={true}
+                containerStyle={{ height: "100%" }}
+                inputStyle={{ flex: 1 }}
+                collapsible={isResponsive}
+                isOpen={!isResponsive || openCard === "cardFive"}
+                onToggle={() => toggleCard("cardFive")}
+              />
+            ) : (
+              <div className={`${styles.splitViewContainer} ${isResponsive && openCard !== 'cardFive' ? styles.closed : ''}`}>
+                <div className={styles.splitHeader}>
+                  <div 
+                    className={`${styles.inputTitle} ${isResponsive ? styles.clickable : ''}`} 
+                    onClick={() => isResponsive && toggleCard("cardFive")}
+                    style={{ display: "flex", alignItems: "center", gap: "10px", padding: 0, flex: 1, justifyContent: "flex-start" }}
+                  >
+                    <span className={styles.icon} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <EditNoteIcon />
+                    </span>
+                    <span className="kr_body_b" style={{ color: "var(--color-white)", lineHeight: 1.4 }}>관련 인물</span>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.actionButton}
+                    aria-label="자동 작성"
+                  >
+                    <span className="material-symbols-outlined icon_14">
+                      auto_awesome
+                    </span>
+                  </button>
+                </div>
+                {(!isResponsive || openCard === 'cardFive') && activeRelTabId && (
+                  <div className={styles.splitBodyRow}>
+                    <div className={styles.splitLeftSelect}>
+                      <Select
+                        fieldTitle="대상 인물 선택"
+                        options={otherCharacters.map(c => ({ id: c.id, label: c.name, value: c.id }))}
+                        value={activeRelTabId}
+                        onChange={(val) => setActiveRelTabId(val)}
+                        isOpen={activeSelect === "relatedCharacter"}
+                        onToggle={(nextState) => setActiveSelect(nextState ? "relatedCharacter" : null)}
+                        disabled={isReadOnly}
+                      />
+                    </div>
+                    <div className={styles.splitInputContainer}>
+                      <textarea
+                        className={`kr_caption ${styles.relTextarea}`}
+                        placeholder={`${otherCharacters.find(c => c.id === activeRelTabId)?.name || ''}와의 관계를 적어주세요.`}
+                        value={relationshipMap[activeRelTabId] || ""}
+                        onChange={(e) => handleRelationshipChange(activeRelTabId, e.target.value)}
+                        disabled={isReadOnly}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          )}
         </div>
       </div>
     </form>

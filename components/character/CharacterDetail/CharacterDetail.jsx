@@ -68,7 +68,7 @@ export default function CharacterDetail({
   const age = character?.age;
   const jobRole = character?.job_role;
   const summaryText =
-    character?.summary ||
+    character?.summary_text ||
     character?.background_story ||
     "캐릭터 설명이 없습니다.";
 
@@ -258,6 +258,7 @@ export default function CharacterDetail({
               src={character.image_url}
               alt={name}
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               style={{ objectFit: 'cover' }}
               className={styles.aiCharacterImage}
             />
