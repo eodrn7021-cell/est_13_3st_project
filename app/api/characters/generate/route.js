@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { generateCharacterSummary } from "@/lib/ai/summary";
 
 async function getSupabaseServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -51,6 +52,9 @@ export async function POST(request) {
       isNewWorldCreated = true;
     }
 
+    // 1.5. AI 요약 생성 (선택 사항, 에러 발생 시 null 반환됨)
+    const summaryText = await generateCharacterSummary(data);
+
     // 2. 캐릭터(characters) 테이블 데이터 저장 (world_id 외래키 연동)
     const { data: insertedChar, error: charError } = await supabase
       .from("characters")
@@ -67,6 +71,7 @@ export async function POST(request) {
         personality: data.personality || null,
         abilities: data.abilities || null,
         raw_relationship_input: data.relationships || null,
+        summary_text: summaryText,
         image_url: null,
       })
       .select()
@@ -81,6 +86,30 @@ export async function POST(request) {
         { error: "캐릭터 저장 중 오류가 발생하여 롤백되었습니다: " + charError.message },
         { status: 500 }
       );
+    }
+
+    // 3. 관계(character_relations) 테이블 저장
+    if (data.relationships && typeof data.relationships === "object") {
+      const relationsToInsert = [];
+      for (const [targetId, desc] of Object.entries(data.relationships)) {
+        if (desc && desc.trim() !== "") {
+          relationsToInsert.push({
+            source_character_id: insertedChar.id,
+            target_character_id: parseInt(targetId, 10),
+            description: desc.trim(),
+          });
+        }
+      }
+
+      if (relationsToInsert.length > 0) {
+        const { error: relError } = await supabase
+          .from("character_relations")
+          .insert(relationsToInsert);
+        
+        if (relError) {
+          console.error("캐릭터 관계 정보 저장 실패:", relError);
+        }
+      }
     }
 
     // DB 저장 후 즉시 상세 페이지로 이동하도록 characterId 반환 (이미지 생성은 상세 화면에서 비동기 처리)

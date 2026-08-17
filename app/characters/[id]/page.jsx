@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import HomeMobileMenu from "@/components/home/HomeMobileMenu/HomeMobileMenu";
 import MobileNavigation from "@/components/layout/MobileNavigation/MobileNavigation";
@@ -540,12 +541,12 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
           <div className={sidebarStyles.imageGrid}>
             {imageHistory.map((imgSrc, idx) => (
               <div
-                key={idx}
+                key={imgSrc}
                 className={sidebarStyles.thumbBox}
                 onClick={() => setSelectedImage(imgSrc)}
                 style={{ cursor: "pointer" }}
               >
-                <Image src={imgSrc} alt={`생성 이미지 ${idx + 1}`} fill style={{ objectFit: 'cover' }} />
+                <Image src={imgSrc} alt={`생성 이미지 ${idx + 1}`} fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: 'cover' }} />
               </div>
             ))}
           </div>
@@ -553,6 +554,43 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
       )}
     </>
   );
+
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!confirm("정말 이 캐릭터를 삭제하시겠습니까?\n삭제된 캐릭터는 복구할 수 없습니다.")) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch("/api/characters/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ characterId: id }),
+      });
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        alert(result.error || "삭제에 실패했습니다.");
+        setIsDeleting(false);
+        return;
+      }
+      alert("캐릭터가 성공적으로 삭제되었습니다.");
+      // 모듈 단위 캐시 무효화
+      cachedCharacter = null;
+      router.push("/");
+    } catch (err) {
+      console.error("삭제 중 오류:", err);
+      alert("삭제 중 오류가 발생했습니다.");
+      setIsDeleting(false);
+    }
+  };
+
+  const handleEdit = () => {
+    // 생성창으로 이동하면서 worldId와 charId를 전달 (create 페이지에서 처리할 수 있도록)
+    if (character?.world_id) {
+      router.push(`/characters/create?worldId=${character.world_id}&charId=${id}`);
+    } else {
+      router.push("/characters/create");
+    }
+  };
 
   const sidebarBottomContent = (
     <>
@@ -623,12 +661,12 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
 
       {isOwner && (
         <>
-          <button type="button" className={sidebarStyles.sideButton}>
+          <button type="button" className={sidebarStyles.sideButton} onClick={handleEdit}>
             <span className="kr_body_b">수정</span>
           </button>
 
-          <button type="button" className={sidebarStyles.sideButton}>
-            <span className="kr_body_b">삭제</span>
+          <button type="button" className={sidebarStyles.sideButton} onClick={handleDelete} disabled={isDeleting}>
+            <span className="kr_body_b">{isDeleting ? "삭제 중..." : "삭제"}</span>
           </button>
         </>
       )}
@@ -758,8 +796,12 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                 
                 {isOwner ? (
                   <div className={createStyles.mobileActionGrid}>
-                    <button className={`kr_body_b ${createStyles.actionBtnPrimary}`}>수정</button>
-                    <button className={`kr_body_b ${createStyles.actionBtnSecondary}`}>삭제</button>
+                    <button className={`kr_body_b ${createStyles.actionBtnPrimary}`} onClick={handleEdit}>
+                      수정
+                    </button>
+                    <button className={`kr_body_b ${createStyles.actionBtnSecondary}`} onClick={handleDelete} disabled={isDeleting}>
+                      {isDeleting ? "삭제 중..." : "삭제"}
+                    </button>
                   </div>
                 ) : (
                   <div className={createStyles.mobileActionGrid}>

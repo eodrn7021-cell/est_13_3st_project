@@ -140,12 +140,12 @@
   @media (max-width: 1200px) {
     flex-direction: column;
     min-height: auto;
-    padding: 20px 40px;
+    padding: 20px 40px 100px 40px;
     width: 100%;
   }
 
   @media (max-width: 480px) {
-    padding: 20px 16px;
+    padding: 20px 16px 105px 16px;
   }
 }
 
@@ -173,7 +173,8 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  height: 80px;
+  min-height: 80px;
+  height: auto;
   padding: 20px 0;
   background-color: transparent;
   border-radius: 10px;
