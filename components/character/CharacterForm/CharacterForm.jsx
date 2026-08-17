@@ -153,6 +153,75 @@ export default function CharacterForm({
     }
   };
 
+  const [isGeneratingField, setIsGeneratingField] = useState(false);
+
+  const handleAutoGenerate = async (fieldName) => {
+    if (isGeneratingField) return;
+    
+    // 관계 설정인 경우 타겟 인물이 없으면 중단
+    if (fieldName === "relationships" && !activeRelTabId) {
+      alert("관계 대상을 먼저 선택해주세요.");
+      return;
+    }
+    
+    setIsGeneratingField(true);
+    let targetName = "";
+    let previousValue = "";
+
+    if (fieldName === "relationships") {
+      targetName = otherCharacters.find(c => c.id === activeRelTabId)?.name || "";
+      previousValue = relationshipMap[activeRelTabId] || "";
+      handleRelationshipChange(activeRelTabId, "AI가 내용을 생성하고 있습니다...");
+    } else {
+      previousValue = formData[fieldName] || "";
+      handleChange(fieldName, "AI가 내용을 생성하고 있습니다...");
+    }
+
+    try {
+      const res = await fetch("/api/characters/auto-generate-field", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formData,
+          fieldName,
+          isWorldMode: mode === "world",
+          targetName
+        })
+      });
+
+      const result = await res.json();
+      if (!res.ok || result.error) {
+        // 오류 발생 시 이전 값 복원
+        if (fieldName === "relationships") {
+          handleRelationshipChange(activeRelTabId, previousValue);
+        } else {
+          handleChange(fieldName, previousValue);
+        }
+        alert(result.error || "자동 생성 중 오류가 발생했습니다.");
+        return;
+      }
+
+      if (result.success && result.text) {
+        if (fieldName === "relationships") {
+          handleRelationshipChange(activeRelTabId, result.text);
+        } else {
+          handleChange(fieldName, result.text);
+        }
+      }
+    } catch (error) {
+      console.error("자동 생성 오류:", error);
+      // 예외 발생 시 이전 값 복원
+      if (fieldName === "relationships") {
+        handleRelationshipChange(activeRelTabId, previousValue);
+      } else {
+        handleChange(fieldName, previousValue);
+      }
+      alert("서버 연결 처리 중 오류가 발생했습니다.");
+    } finally {
+      setIsGeneratingField(false);
+    }
+  };
+
   const isBasicInfoOpen = !isResponsive || openCard === "basicInfo";
   const isWorldMode = mode === "world";
 
@@ -263,6 +332,8 @@ export default function CharacterForm({
             collapsible={isResponsive}
             isOpen={!isResponsive || openCard === "cardOne"}
             onToggle={() => toggleCard("cardOne")}
+            showActionButton={true}
+            onActionButtonClick={() => handleAutoGenerate(isWorldMode ? "myth_history" : "background_story")}
           />
         </div>
 
@@ -283,6 +354,8 @@ export default function CharacterForm({
             collapsible={isResponsive}
             isOpen={!isResponsive || openCard === "cardTwo"}
             onToggle={() => toggleCard("cardTwo")}
+            showActionButton={true}
+            onActionButtonClick={() => handleAutoGenerate(isWorldMode ? "religion_culture" : "appearance")}
           />
         </div>
 
@@ -303,6 +376,8 @@ export default function CharacterForm({
             collapsible={isResponsive}
             isOpen={!isResponsive || openCard === "cardThree"}
             onToggle={() => toggleCard("cardThree")}
+            showActionButton={true}
+            onActionButtonClick={() => handleAutoGenerate(isWorldMode ? "social_structure" : "personality")}
           />
         </div>
       </div>
@@ -325,6 +400,8 @@ export default function CharacterForm({
             collapsible={isResponsive}
             isOpen={!isResponsive || openCard === "cardFour"}
             onToggle={() => toggleCard("cardFour")}
+            showActionButton={true}
+            onActionButtonClick={() => handleAutoGenerate(isWorldMode ? "climate_landmarks" : "abilities")}
           />
         </div>
 
@@ -342,6 +419,8 @@ export default function CharacterForm({
               collapsible={isResponsive}
               isOpen={!isResponsive || openCard === "cardFive"}
               onToggle={() => toggleCard("cardFive")}
+              showActionButton={true}
+              onActionButtonClick={() => handleAutoGenerate("resource_currency")}
             />
           ) : (
             otherCharacters.length === 0 ? (
@@ -373,6 +452,7 @@ export default function CharacterForm({
                     type="button"
                     className={styles.actionButton}
                     aria-label="자동 작성"
+                    onClick={() => handleAutoGenerate("relationships")}
                   >
                     <span className="material-symbols-outlined icon_14">
                       auto_awesome

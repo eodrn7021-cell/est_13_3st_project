@@ -101,6 +101,28 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
       }
 
       setSelectedImage(result.imageUrl);
+
+      // 이미지가 생성되면 자동으로 메인 이미지로 저장
+      try {
+        const saveRes = await fetch("/api/characters/set-main-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            characterId: charId || id,
+            imageUrl: result.imageUrl,
+          }),
+        });
+        const saveResult = await saveRes.json();
+        if (saveRes.ok && !saveResult.error) {
+          setCharacter((prev) => ({
+            ...prev,
+            image_url: result.imageUrl,
+          }));
+        }
+      } catch (saveErr) {
+        console.error("자동 대표 이미지 저장 중 오류:", saveErr);
+      }
+
       await fetchImageHistory(charId || id);
     } catch (err) {
       console.error("자동 이미지 생성 요청 오류:", err);
