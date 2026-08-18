@@ -449,25 +449,31 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
     setIsSubmitting(true);
 
     try {
-      // 1. DB 정보 수정
-      const updateRes = await fetch("/api/characters/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          characterId: selectedCharObj.id,
-        }),
-      });
+      const isFormChanged = Object.keys(formData).some(
+        (key) => formData[key] !== initialFormValues[key]
+      );
 
-      const updateResult = await updateRes.json();
-      if (!updateRes.ok || updateResult.error) {
-        alert(updateResult.error || "캐릭터 수정 중 오류가 발생했습니다.");
-        setIsSubmitting(false);
-        return;
+      if (isFormChanged) {
+        // 1. 내용이 변경된 경우에만 DB 정보 수정
+        const updateRes = await fetch("/api/characters/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...formData,
+            characterId: selectedCharObj.id,
+          }),
+        });
+
+        const updateResult = await updateRes.json();
+        if (!updateRes.ok || updateResult.error) {
+          alert(updateResult.error || "수정 중 오류가 발생했습니다.");
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       // 2. 상세 페이지로 이동하여 비동기로 이미지 재생성 (상세 페이지의 isGeneratingMode가 처리함)
-      router.push(`/characters/${selectedCharObj.id}?generating=true`);
+      router.push(`/characters/${selectedCharObj.id}?generating=${activeNav}`);
     } catch (err) {
       console.error("수정 후 이미지 재생성 중 에러:", err);
       alert("서버 처리 중 오류가 발생했습니다.");
@@ -505,7 +511,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         return;
       }
 
-      router.push(`/characters/${result.characterId}?generating=true`);
+      router.push(`/characters/${result.characterId}?generating=all`);
     } catch (err) {
       console.error("서버 요청 중 예외 발생:", err);
       alert("서버 연결 처리 중 오류가 발생했습니다.");
