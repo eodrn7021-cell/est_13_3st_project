@@ -34,7 +34,7 @@ const HomeSidebar = () => {
               <span className="kr_body">홈</span>
             </Link>
 
-            <Link href="/characters" className={styles.sidebar_link}>
+            <Link href="/characters?sort=popular" className={styles.sidebar_link}>
               <span
                 className={`material-symbols-rounded icon_24 ${styles.sidebar_icon}`}
                 aria-hidden="true"
