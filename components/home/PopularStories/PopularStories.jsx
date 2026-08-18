@@ -8,6 +8,8 @@ import styles from "./PopularStories.module.scss";
 
 const PopularStories = () => {
   const [popularStories, setPopularStories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchPopularStories = async () => {
@@ -22,6 +24,8 @@ const PopularStories = () => {
 
       if (error) {
         console.error("인기 스토리 조회 실패:", error);
+        setErrorMessage("데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
+        setIsLoading(false);
         return;
       }
 
@@ -34,6 +38,7 @@ const PopularStories = () => {
       }));
 
       setPopularStories(formattedStories);
+      setIsLoading(false);
     };
 
     fetchPopularStories();
@@ -59,16 +64,34 @@ const PopularStories = () => {
 
       {/* 인기 스토리 카드 */}
       <div className={styles.popular_stories_list}>
-        {popularStories.map((story) => (
-          <PopularStoryCard
-            key={story.id}
-            id={story.id}
-            image={story.image}
-            title={story.title}
-            description={story.description}
-            tags={story.tags}
-          />
-        ))}
+        {isLoading ? (
+          [0, 1, 2, 3].map((index) => (
+            <div
+              key={`placeholder-${index}`}
+              className={styles.popular_story_placeholder}
+              aria-hidden="true"
+            />
+          ))
+        ) : errorMessage ? (
+          <div className={styles.state_message} role="alert">
+            <span className="kr_body">{errorMessage}</span>
+          </div>
+        ) : popularStories.length === 0 ? (
+          <div className={styles.state_message}>
+            <span className="kr_body">등록된 인기 스토리가 없습니다.</span>
+          </div>
+        ) : (
+          popularStories.map((story) => (
+            <PopularStoryCard
+              key={story.id}
+              id={story.id}
+              image={story.image}
+              title={story.title}
+              description={story.description}
+              tags={story.tags}
+            />
+          ))
+        )}
       </div>
     </section>
   );

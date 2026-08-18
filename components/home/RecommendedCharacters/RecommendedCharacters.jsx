@@ -10,6 +10,8 @@ const RecommendedCharacters = () => {
 
   const [isLoading, setIsLoading] = useState(true);
 
+  const [errorMessage, setErrorMessage] = useState("");
+
   // 현재 페이지
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -62,6 +64,7 @@ const RecommendedCharacters = () => {
   useEffect(() => {
     const fetchRecommendedCharacters = async () => {
       setIsLoading(true);
+      setErrorMessage("");
       const supabase = createClient();
 
       const { data, error } = await supabase
@@ -71,6 +74,7 @@ const RecommendedCharacters = () => {
 
       if (error) {
         console.error("추천 캐릭터 조회 실패:", error);
+        setErrorMessage("데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
         setIsLoading(false);
         return;
       }
@@ -196,72 +200,87 @@ const RecommendedCharacters = () => {
   return (
     <section className={styles.recommended}>
       <h2 className={styles.sr_only}>추천 캐릭터</h2>
-
-      {/* 슬라이더 바깥 영역 */}
-      <div
-        className={styles.recommended_list}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerCancel}
-        onClickCapture={handleClickCapture}
-        onDragStart={handleDragStart}
-      >
-        {/* 실제로 좌우 이동하는 슬라이더 트랙 */}
-        <div
-          className={`${styles.recommended_track} ${isDragging ? styles.is_dragging : ""}`}
-          style={{
-            transform: `translateX(calc(-${activeIndex * 100}% + ${dragOffset}px))`,
-          }}
-        >
-          {/* 항상 3페이지 렌더링 */}
-          {characterPages.map((pageCharacters, pageIndex) => (
-            <div key={pageIndex} className={styles.recommended_page}>
-              {isLoading && pageIndex === 0 ? (
-                <>
-                  {/* 로딩 중 가벼운 placeholder 3개 */}
-                  {[0, 1, 2].map((index) => (
-                    <div
-                      key={`placeholder-${index}`}
-                      className={styles.recommended_placeholder}
-                      aria-hidden="true"
-                    />
-                  ))}
-                </>
-              ) : (
-                pageCharacters.map((character, index) => (
-                  <RecommendedCharacterCard
-                    key={character.id}
-                    id={character.id}
-                    image={character.image}
-                    name={character.name}
-                    description={character.description}
-                    tags={character.tags}
-                    isPriority={pageIndex === 0 && index === 0}
-                    tabIndex={pageIndex === activeIndex ? 0 : -1}
-                  />
-                ))
-              )}
-            </div>
-          ))}
+      {!isLoading && errorMessage ? (
+        // 네트워크 오류
+        <div className={styles.state_message} role="alert">
+          <span className="kr_body">{errorMessage}</span>
         </div>
-      </div>
+      ) : !isLoading && recommendedCharacters.length === 0 ? (
+        // 조회된 데이터 없음
+        <div className={styles.state_message}>
+          <span className="kr_body">등록된 추천 캐릭터가 없습니다.</span>
+        </div>
+      ) : (
+        <>
+          {/* 슬라이더 바깥 영역 */}
+          <div
+            className={styles.recommended_list}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
+            onClickCapture={handleClickCapture}
+            onDragStart={handleDragStart}
+          >
+            {/* 실제로 좌우 이동하는 슬라이더 트랙 */}
+            <div
+              className={`${styles.recommended_track} ${isDragging ? styles.is_dragging : ""}`}
+              style={{
+                transform: `translateX(calc(-${activeIndex * 100}% + ${dragOffset}px))`,
+              }}
+            >
+              {/* 항상 3페이지 렌더링 */}
+              {characterPages.map((pageCharacters, pageIndex) => (
+                <div key={pageIndex} className={styles.recommended_page}>
+                  {isLoading && pageIndex === 0 ? (
+                    <>
+                      {/* 로딩 중 placeholder 3개 */}
+                      {[0, 1, 2].map((index) => (
+                        <div
+                          key={`placeholder-${index}`}
+                          className={styles.recommended_placeholder}
+                          aria-hidden="true"
+                        />
+                      ))}
+                    </>
+                  ) : (
+                    pageCharacters.map((character, index) => (
+                      <RecommendedCharacterCard
+                        key={character.id}
+                        id={character.id}
+                        image={character.image}
+                        name={character.name}
+                        description={character.description}
+                        tags={character.tags}
+                        isPriority={pageIndex === 0 && index === 0}
+                        tabIndex={pageIndex === activeIndex ? 0 : -1}
+                      />
+                    ))
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
 
-      {/* 페이지네이션 3개 고정 */}
-      <div className={styles.recommended_slider} aria-label="추천 캐릭터 페이지">
-        {[0, 1, 2].map((index) => (
-          <button
-            key={index}
-            type="button"
-            className={`${styles.slider_dot} ${
-              activeIndex === index ? styles.slider_dot_active : ""
-            }`}
-            onClick={() => handlePageChange(index)}
-            aria-label={`${index + 1}페이지`}
-            aria-current={activeIndex === index ? "page" : undefined}
-          />
-        ))}
-      </div>
+          {/* 페이지네이션 3개 고정 */}
+          {!isLoading && (
+            <div className={styles.recommended_slider} aria-label="추천 캐릭터 페이지">
+              {[0, 1, 2].map((index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className={`${styles.slider_dot} ${
+                    activeIndex === index ? styles.slider_dot_active : ""
+                  }`}
+                  onClick={() => handlePageChange(index)}
+                  aria-label={`${index + 1}페이지`}
+                  aria-current={activeIndex === index ? "page" : undefined}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </section>
   );
 };
