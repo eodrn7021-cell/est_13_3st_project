@@ -1,13 +1,13 @@
-@use "../../styles/abstracts/variables" as *;
-@use "../../styles/abstracts/colors" as *;
-@use "../../styles/base/typography" as *;
+@use '../../styles/abstracts/variables' as *;
+@use '../../styles/abstracts/colors' as *;
+@use '../../styles/base/typography' as *;
 
 /* Page Layout Structures */
 .page_container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: $color_background_deep url("/images/backgrounds/bg_test_list.png") center / cover
+  background: $color_background_deep url('/images/backgrounds/bg_test_list.png') center / cover
     no-repeat fixed;
   overflow-x: hidden;
 }
@@ -44,11 +44,11 @@
   overflow-y: auto;
   border-radius: 20px;
 
-  :global([class*="sidebar_link_active"])::before {
+  :global([class*='sidebar_link_active'])::before {
     opacity: 0 !important;
   }
 
-  :global([class*="sidebar_link"]):hover::before {
+  :global([class*='sidebar_link']):hover::before {
     opacity: 1 !important;
   }
 
@@ -176,6 +176,10 @@
     border-radius: 20px;
     width: 90px;
 
+    @media (max-width: 480px) {
+      width: 80px;
+    }
+
     .filter_select {
       width: 100%;
 
@@ -194,6 +198,11 @@
       overflow: hidden;
       text-overflow: ellipsis;
 
+      @media (max-width: 480px) {
+        font-size: 12px;
+        padding: 6px 8px 6px 8px;
+      }
+
       option {
         color: $color_white;
         background-color: $color_background_deep;
@@ -207,7 +216,6 @@
       color: $color_white;
       transform: translateY(-50%);
       pointer-events: none;
-      font-size: 18px;
     }
   }
 }
@@ -320,7 +328,7 @@
 
       opacity: 1;
 
-      @media (min-width: 1201px) and (hover: hover) {
+      @media (min-width: 1200px) and (hover: hover) {
         opacity: 0;
       }
 
@@ -359,7 +367,7 @@
         }
       }
     }
-    @media (min-width: 1201px) and (hover: hover) {
+    @media (min-width: 1200px) and (hover: hover) {
       &:hover {
         .card_overlay {
           opacity: 1;
@@ -525,7 +533,7 @@
             background: $color_primary_dark;
 
             &::before {
-              content: "";
+              content: '';
               position: absolute;
               inset: 0;
               background: $gradient_side;
