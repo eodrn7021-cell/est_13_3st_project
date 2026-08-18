@@ -82,3 +82,17 @@
     gap: 12px;
   }
 }
+// footer 모바일 태블릿에서 안보이기
+
+.home_footer {
+  display: block;
+}
+
+@media (max-width: 1200px) {
+  .home_footer {
+    display: none;
+  }
+  .home {
+    padding-bottom: 88px;
+  }
+}

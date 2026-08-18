@@ -184,7 +184,7 @@ export default function Select({
 
                     return (
                       <div
-                        key={typeof option === "object" && option !== null && option.value ? option.value : `${optValue}-${index}`}
+                        key={typeof option === "object" && option !== null && option.id !== undefined ? option.id : (typeof option === "object" && option !== null && option.value ? option.value : `${optValue}-${index}`)}
                         className={`${styles.optionItem} ${isSelected ? styles.selected : ""}`}
                         onClick={() => handleSelectOption(option)}
                         role="button"

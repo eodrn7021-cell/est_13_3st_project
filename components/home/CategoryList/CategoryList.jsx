@@ -86,7 +86,6 @@ const CategoryList = () => {
           <CategoryCard
             key={category.id}
             name={category.name}
-            slug={category.slug}
             image={category.image}
             icon={category.icon}
             isPriority={index === 0}

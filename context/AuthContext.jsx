@@ -27,13 +27,11 @@ export function AuthProvider({ children }) {
       } = await supabase.auth.getUser();
 
       if (error) {
-        // 여기부터 추가
         // 로그인 세션이 없는 경우는 정상적인 로그아웃 상태
         if (error.name === "AuthSessionMissingError") {
           setUser(null);
           return null;
         }
-        // 여기까지 추가
 
         console.error("[AuthContext] 사용자 조회 실패:", error);
         setUser(null);
@@ -64,13 +62,11 @@ export function AuthProvider({ children }) {
         if (!isMounted) return;
 
         if (error) {
-          // 여기부터 추가
           // 로그인 세션이 없는 경우는 정상적인 로그아웃 상태
           if (error.name === "AuthSessionMissingError") {
             setUser(null);
             return;
           }
-          // 여기까지 추가
 
           console.error("[AuthContext] 초기 사용자 조회 실패:", error);
           setUser(null);

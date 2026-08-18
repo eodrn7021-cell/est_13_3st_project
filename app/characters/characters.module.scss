@@ -44,6 +44,14 @@
   overflow-y: auto;
   border-radius: 20px;
 
+  :global([class*='sidebar_link_active'])::before {
+    opacity: 0 !important;
+  }
+
+  :global([class*='sidebar_link']):hover::before {
+    opacity: 1 !important;
+  }
+
   /* Custom Scrollbar */
   &::-webkit-scrollbar {
     width: 5px;
@@ -58,6 +66,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding-bottom: 30px;
 
     li {
       list-style: none;
@@ -72,13 +81,8 @@
         border-radius: 10px;
 
         &:hover {
-          background: linear-gradient(90deg, $color_primary_dark 0%, #1f1b33 100%);
+          background: $gradient_main;
         }
-      }
-
-      &.active a {
-        background: $gradient_tag;
-        font-weight: $font_weight_bold;
       }
     }
   }
@@ -96,8 +100,8 @@
 
     h4 {
       margin-bottom: 12px;
-      color: $color_secondary_dark;
-      font-size: 0.85rem;
+      color: $color_white;
+      @extend .kr_body;
     }
 
     .tag_list {
@@ -170,14 +174,34 @@
     align-items: center;
     background: $gradient_tag;
     border-radius: 20px;
+    width: 90px;
+
+    @media (max-width: 480px) {
+      width: 80px;
+    }
 
     .filter_select {
-      padding: 8px 32px 8px 16px;
+      width: 100%;
+
+      padding: 8px 24px 8px 12px;
       color: $color_white;
       background: transparent;
       border: none;
       appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
       cursor: pointer;
+
+      @extend .kr_body;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      @media (max-width: 480px) {
+        font-size: 12px;
+        padding: 6px 8px 6px 8px;
+      }
 
       option {
         color: $color_white;
@@ -188,7 +212,7 @@
     .select_arrow {
       position: absolute;
       top: 50%;
-      right: 10px;
+      right: 8px;
       color: $color_white;
       transform: translateY(-50%);
       pointer-events: none;
@@ -196,12 +220,14 @@
   }
 }
 
-/* Card Grid Container */
+/* Card Grid Container (페이드아웃 지우고 칼같이 자르기 적용) */
 .card_grid_container {
   flex: 1;
   width: 100%;
   min-width: 0;
   min-height: 0;
+
+  /* PC 기본 높이 및 스크롤 설정 */
   max-height: calc(100vh - 260px);
   overflow-y: auto;
   padding-right: 6px;
@@ -218,7 +244,38 @@
   }
 }
 
-/* Pinterest Style Masonry Grid */
+/* Media Queries (반응형 1200px 이하) */
+@media (max-width: 1200px) {
+  .main_wrapper {
+    .pc_sidebar {
+      display: none;
+    }
+
+    .content_area {
+      width: 100%;
+    }
+  }
+
+  .card_grid_container {
+    /* 하단바 높이 + 20px 간격을 뺀 위치까지만 딱 스크롤 영역으로 제한 */
+    max-height: calc(100vh - 180px);
+  }
+
+  .pc_footer_wrapper {
+    display: none;
+  }
+
+  .mobile_nav_wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 999;
+    display: block;
+    width: 100%;
+  }
+}
+
+/* Pinterest Style Multi-column Grid */
 .card_grid {
   column-count: 4;
   column-gap: 10px;
@@ -228,6 +285,7 @@
     position: relative;
     width: 100%;
     break-inside: avoid;
+    -webkit-column-break-inside: avoid;
     margin-bottom: 10px;
     border-radius: 10px;
     overflow: hidden;
@@ -251,6 +309,29 @@
     .image_box {
       width: 100%;
       height: 100%;
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+
+      .badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 12px;
+
+        background: $color_input_70;
+        backdrop-filter: blur(4px);
+        border-radius: 20px;
+
+        @extend .kr_caption;
+        color: $color_white;
+        pointer-events: none;
+      }
 
       img {
         display: block;
@@ -275,20 +356,12 @@
       flex-direction: column;
       justify-content: flex-end;
       padding: 16px;
-      opacity: 0;
+      opacity: 1;
       transition: opacity 0.3s ease;
       z-index: 2;
 
-      .badge {
-        align-self: flex-start;
-        display: inline-block;
-        padding: 4px 8px;
-        margin-bottom: 8px;
-        font-size: 12px;
-        font-weight: 600;
-        color: $color_white;
-        backdrop-filter: blur(4px);
-        border-radius: 6px;
+      @media (min-width: 1200px) and (hover: hover) {
+        opacity: 0;
       }
 
       .card_info {
@@ -322,44 +395,44 @@
           display: inline-block;
           padding: 6px 10px;
           border-radius: 50px;
+          color: $color_text_muted;
         }
       }
     }
 
-    &:hover {
-      .card_overlay {
-        opacity: 1;
-      }
+    @media (min-width: 1200px) and (hover: hover) {
+      &:hover {
+        .card_overlay {
+          opacity: 1;
+        }
 
-      img {
-        transform: scale(1.03);
+        img {
+          transform: scale(1.03);
+        }
       }
     }
+
+    /* 다채로운 크기의 핀터레스트 스타일을 만드는 카드 높이 패턴 */
     &:nth-child(6n + 1) {
       height: 180px;
     }
 
-    /* 2번째 카드 (2열): 위아래로 긴 세로형 */
     &:nth-child(6n + 2) {
       height: 270px;
     }
 
-    /* 3번째 카드 (3열 상단): 짧은 가로형 */
     &:nth-child(6n + 3) {
       height: 150px;
     }
 
-    /* 4번째 카드 (1열 하단): 긴 세로형 */
     &:nth-child(6n + 4) {
       height: 270px;
     }
 
-    /* 5번째 카드 (2열 하단): 중간 높이 */
     &:nth-child(6n + 5) {
       height: 180px;
     }
 
-    /* 6번째 카드 (3열 하단): 긴 세로형 */
     &:nth-child(6n + 6) {
       height: 210px;
     }
@@ -518,66 +591,11 @@
       width: 100%;
       margin-top: 40px;
       padding-bottom: 20px;
-
-      :global(footer),
-      :global(div[class*='footer_inner']) {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        width: 100%;
-        padding: 0;
-        background: transparent;
-      }
-
-      :global(h2[class*='footer_logo']),
-      :global(div[class*='footer_brand']) h2 {
-        color: $color_white;
-        font-family: serif;
-        font-size: 2.2rem;
-      }
-
-      :global(p[class*='footer_subtitle']) {
-        color: $color_primary;
-        font-weight: $font_weight_bold;
-      }
-
-      :global(nav[class*='footer_nav']) {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        width: 100%;
-        margin-top: 10px;
-
-        :global(div[class*='footer_menu_group']) {
-          :global(h3[class*='footer_menu_title']) {
-            display: inline-block;
-            margin-bottom: 8px;
-            padding-bottom: 4px;
-            color: $color_primary;
-            font-size: 0.85rem;
-          }
-          :global(a),
-          span {
-            display: block;
-            margin-bottom: 5px;
-            color: rgba($color_white, 0.8);
-            font-size: 0.625rem;
-            text-decoration: none;
-          }
-        }
-      }
-
-      :global(p[class*='footer_copyright']) {
-        margin-top: 16px;
-        color: rgba($color_white, 0.4);
-        font-size: 0.75rem;
-      }
     }
   }
 }
 
 /* Media Queries (Responsive Breakpoints) */
-
 
 /* Desktop / Tablet Breakpoint (1200px 이하) */
 @media (max-width: 1200px) {
@@ -613,7 +631,7 @@
 /* Mobile Breakpoint (768px 이하) */
 @media (max-width: 768px) {
   .card_grid {
-    column-count: 2;
+    column-count: 3;
     column-gap: 10px;
 
     .card_item {

@@ -4,46 +4,173 @@ import { Suspense, useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import Header from '@/components/layout/Header/Header';
 import Footer from '@/components/layout/Footer/Footer';
-import Sidebar from '@/components/layout/Sidebar/Sidebar';
+import HomeSidebar from '@/components/home/HomeSidebar/HomeSidebar';
+import HomeMobileMenu from '@/components/home/HomeMobileMenu/HomeMobileMenu';
 import MobileNavigation from '@/components/layout/MobileNavigation/MobileNavigation';
-import Button from '@/components/common/Button/Button';
-import Tag from '@/components/common/Tag/Tag';
 import styles from './characters.module.scss';
-import Image from 'next/image';
 
-function CharactersContent() {
+export const dynamic = 'force-dynamic';
+
+const CharactersContent = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  const [characters, setCharacters] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const [filters, setFilters] = useState({
-    sort: searchParams.get('sort') === 'popular' ? '인기순' : '최신순',
-    world_id: '',
-    job_role: '',
-    gender: '',
-  });
-
   const supabase = createClient();
-  const tags = ['판타지', '기사', '마법사', '엘프', '악역', '성장', '악마'];
 
-  // 검색
+  // 1. URL 쿼리 파라미터를 직접 읽어와서 파싱 (상태 동기화 꼬임 방지)
+  const searchParamsString = searchParams.toString();
+  const tagsParam = searchParams.get('tags') || searchParams.get('tag') || '';
+  const currentTags = tagsParam ? tagsParam.split(',').filter(Boolean) : [];
   const searchQuery =
     searchParams.get('search') || searchParams.get('q') || searchParams.get('query') || '';
 
-  const handleHeaderCapture = (e) => {
-    const hamburgerBtn = e.target.closest('[class*="header_menu_button"]');
-    if (hamburgerBtn) {
-      setIsMobileMenuOpen(true);
-      return;
-    }
+  const sortParam = searchParams.get('sort');
+  const actualSort =
+    sortParam === 'popular' || sortParam === '추천순'
+      ? '추천순'
+      : sortParam === 'views' || sortParam === '인기순'
+        ? '인기순'
+        : '최신순';
 
+  const raceFilter = searchParams.get('race') || '';
+  const themeFilter = searchParams.get('theme') || '';
+  const genderFilter = searchParams.get('gender') || '';
+  const genreFilter = searchParams.get('genre') || '';
+
+  // 2. 상태(State) 관리 - DB 옵션 및 결과 데이터만 관리
+  const [characters, setCharacters] = useState([]);
+
+  // 필터 옵션 목록 (races, themes, genres, gender)
+  const [raceOptions, setRaceOptions] = useState([]);
+  const [themeOptions, setThemeOptions] = useState([]);
+  const [genderOptions, setGenderOptions] = useState([]);
+  const [genreOptions, setGenreOptions] = useState([]);
+
+  // UI 상태
+  const [isLoading, setIsLoading] = useState(true);
+
+  // DB에서 필터 옵션 조회
+  useEffect(() => {
+    const fetchFilterOptions = async () => {
+      const { data: raceData } = await supabase.from('races').select('id, name');
+      if (raceData) setRaceOptions(raceData);
+
+      const { data: themeData } = await supabase.from('themes').select('id, name');
+      if (themeData) setThemeOptions(themeData);
+
+      const { data: genreData } = await supabase.from('genres').select('id, name');
+      if (genreData) setGenreOptions(genreData);
+
+      const { data: charGenderData } = await supabase.from('characters').select('gender');
+      if (charGenderData) {
+        const genders = Array.from(
+          new Set(charGenderData.map((item) => item.gender).filter(Boolean)),
+        );
+        setGenderOptions(genders);
+      }
+    };
+
+    fetchFilterOptions();
+  }, []);
+
+  // 캐릭터 데이터 Fetch (필터 조건 실시간 반영)
+  useEffect(() => {
+    const fetchCharacters = async () => {
+      setIsLoading(true);
+
+      let query = supabase.from('characters').select('*, worlds!inner(*), character_likes(count)');
+
+      if (raceFilter) query = query.eq('race', raceFilter);
+      if (genderFilter) query = query.eq('gender', genderFilter);
+
+      if (genreFilter) {
+        query = query.eq('worlds.genre', genreFilter);
+      }
+      if (themeFilter) {
+        query = query.or(`theme.eq.${themeFilter},worlds.theme.eq.${themeFilter}`);
+      }
+
+      if (searchQuery.trim()) {
+        const keyword = `%${searchQuery.trim()}%`;
+        query = query.or(
+          `name.ilike.${keyword},race.ilike.${keyword},job_role.ilike.${keyword},background_story.ilike.${keyword},personality.ilike.${keyword}`,
+        );
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Supabase Error:', error);
+        let fallbackQuery = supabase
+          .from('characters')
+          .select('*, worlds(*), character_likes(count)');
+        if (raceFilter) fallbackQuery = fallbackQuery.eq('race', raceFilter);
+        if (genderFilter) fallbackQuery = fallbackQuery.eq('gender', genderFilter);
+        const { data: fallbackData } = await fallbackQuery;
+
+        let filtered = fallbackData || [];
+        if (genreFilter) {
+          filtered = filtered.filter(
+            (item) => item.worlds?.genre === genreFilter || item.genre === genreFilter,
+          );
+        }
+        if (themeFilter) {
+          filtered = filtered.filter(
+            (item) => item.worlds?.theme === themeFilter || item.theme === themeFilter,
+          );
+        }
+        setCharacters(filtered);
+      } else {
+        let resultData = data || [];
+
+        resultData = [...resultData].sort((a, b) => {
+          const likesA = a.character_likes?.[0]?.count || a.like_count || 0;
+          const likesB = b.character_likes?.[0]?.count || b.like_count || 0;
+          const viewsA = a.view_count || 0;
+          const viewsB = b.view_count || 0;
+          const timeA = new Date(a.created_at || 0).getTime();
+          const timeB = new Date(b.created_at || 0).getTime();
+
+          if (actualSort === '추천순') {
+            if (likesB !== likesA) return likesB - likesA;
+            return viewsB - viewsA;
+          } else if (actualSort === '인기순') {
+            if (viewsB !== viewsA) return viewsB - viewsA;
+            return likesB - likesA;
+          } else {
+            if (timeB !== timeA) return timeB - timeA;
+            return viewsB - viewsA;
+          }
+        });
+
+        setCharacters(resultData);
+      }
+
+      setIsLoading(false);
+    };
+
+    fetchCharacters();
+  }, [actualSort, raceFilter, themeFilter, genderFilter, genreFilter, searchQuery]);
+
+  // 핸들러: 상단 드롭다운 필터 변경 시 URL 파라미터 갱신
+  const handleFilterChange = (key, value) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  // 🔥 핵심: 초기화 버튼 핸들러 (누르는 즉시 URL 파라미터 전부 날리고 전체 목록으로 이동)
+  const handleResetFilters = () => {
+    router.push(pathname);
+  };
+
+  // 핸들러: 헤더 검색어 제출 캐치
+  const handleHeaderCapture = (e) => {
     if (e.type === 'submit' || (e.type === 'keydown' && e.key === 'Enter')) {
       const searchInput = e.currentTarget.querySelector(
         'input[type="text"], input[type="search"], input',
@@ -57,130 +184,45 @@ function CharactersContent() {
     }
   };
 
-  // 필터링 로직
-  useEffect(() => {
-    const fetchCharacters = async () => {
-      setIsLoading(true);
+  // 다중 태그 일치 필터링 & 가중치 정렬 처리
+  const processDisplayList = () => {
+    if (!currentTags || currentTags.length === 0) {
+      return characters;
+    }
 
-      let query = supabase.from('characters').select('*, worlds(genre)');
+    return characters
+      .map((item) => {
+        const itemTags = [
+          item.race,
+          item.job_role,
+          item.worlds?.name,
+          item.worlds?.genre,
+          item.gender,
+        ].filter(Boolean);
 
-      if (filters.world_id) {
-        query = query.eq('world_id', Number(filters.world_id));
-      }
-      if (filters.job_role) {
-        query = query.eq('job_role', filters.job_role);
-      }
-      if (filters.gender) {
-        query = query.eq('gender', filters.gender);
-      }
+        const matchCount = currentTags.reduce((acc, tag) => {
+          const isDirectMatch = itemTags.includes(tag);
+          const isStoryMatch = item.background_story?.includes(tag);
+          return isDirectMatch || isStoryMatch ? acc + 1 : acc;
+        }, 0);
 
-      // 검색어 필터링
-      if (searchQuery.trim()) {
-        const keyword = `%${searchQuery.trim()}%`;
-        query = query.or(
-          `name.ilike.${keyword},race.ilike.${keyword},job_role.ilike.${keyword},background_story.ilike.${keyword},personality.ilike.${keyword}`,
-        );
-      }
-
-      if (filters.sort === '인기순') {
-        query = query.order('like_count', { ascending: false }); // 좋아요 많은 순
-      } else {
-        query = query.order('created_at', { ascending: false }); // 최신 등록 순
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Supabase 에러:', error);
-      } else {
-        let list = data || [];
-
-        // 인기순일 경우 좋아요 개수가 많은 순서대로
-        if (filters.sort === '인기순') {
-          list.sort((a, b) => {
-            const likesA = a.character_likes?.[0]?.count || 0;
-            const likesB = b.character_likes?.[0]?.count || 0;
-            return likesB - likesA;
-          });
-        }
-        setCharacters(list);
-      }
-
-      setIsLoading(false);
-    };
-
-    fetchCharacters();
-  }, [filters, searchQuery]);
-
-  const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+        return { ...item, matchCount };
+      })
+      .filter((item) => item.matchCount > 0)
+      .sort((a, b) => b.matchCount - a.matchCount);
   };
 
-  const handleTagClick = (tag) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
-    );
-  };
+  const displayList = processDisplayList();
 
-  const displayList = characters;
+  // 추천 캐릭터 배지 노출용
+  const sortedByLikes = [...displayList].sort((a, b) => {
+    const likesA = a.character_likes?.[0]?.count || a.like_count || 0;
+    const likesB = b.character_likes?.[0]?.count || b.like_count || 0;
+    return likesB - likesA;
+  });
 
-  const PcSidebarContent = (
-    <div className={styles.sidebar_inner}>
-      <ul className={styles.side_menu}>
-        <li className={pathname === '/' ? styles.active : ''}>
-          <Link href="/">
-            <span className="material-symbols-outlined">home</span>
-            <span>홈</span>
-          </Link>
-        </li>
-        <li className={pathname.startsWith('/characters') ? styles.active : ''}>
-          <Link href="/characters">
-            <span className="material-symbols-outlined">favorite</span>
-            <span>추천</span>
-          </Link>
-        </li>
-        <li className={pathname === '/characters/create' ? styles.active : ''}>
-          <Link href="/characters/create">
-            <span className="material-symbols-outlined">add_circle</span>
-            <span>만들기</span>
-          </Link>
-        </li>
-        <li className={pathname === '/my-page' ? styles.active : ''}>
-          <Link href="/my-page">
-            <span className="material-symbols-outlined">person</span>
-            <span>마이페이지</span>
-          </Link>
-        </li>
-      </ul>
-
-      <div className={styles.tag_section}>
-        <hr className={styles.divider} />
-        <h4>태그 탐색</h4>
-        <div className={styles.tag_list}>
-          {tags.map((tag) => {
-            const isSelected = selectedTags.includes(tag);
-            return (
-              <Tag
-                key={tag}
-                className={isSelected ? styles.active : ''}
-                onClick={() => handleTagClick(tag)}
-              >
-                {tag}
-              </Tag>
-            );
-          })}
-        </div>
-
-        <Button variant="secondary" size="large" fullWidth={true} className={styles.more_tag_btn}>
-          <span>더 많은 태그 보기</span>
-          <span className="material-symbols-outlined">chevron_right</span>
-        </Button>
-      </div>
-    </div>
-  );
+  const recommendedCount = Math.max(1, Math.ceil((displayList?.length || 0) * 0.1));
+  const recommendedIds = new Set(sortedByLikes.slice(0, recommendedCount).map((c) => c.id));
 
   return (
     <div className={styles.page_container}>
@@ -189,60 +231,27 @@ function CharactersContent() {
         onSubmitCapture={handleHeaderCapture}
         onKeyDownCapture={handleHeaderCapture}
       >
-        <Header />
+        <HomeMobileMenu headerVariant="main" showSearch />
       </div>
 
-      {/* 모바일 전용 드로어 사이드바 */}
-      <div className={`${styles.mobile_drawer} ${isMobileMenuOpen ? styles.is_open : ''}`}>
-        <div className={styles.backdrop} onClick={() => setIsMobileMenuOpen(false)} />
-        <div className={styles.drawer_content}>
-          <div className={styles.drawer_header}>
-            <button type="button" onClick={() => setIsMobileMenuOpen(false)}>
-              <span className="material-symbols-outlined">close</span>
-            </button>
-          </div>
-          <div className={styles.mobile_drawer_top}>
-            <div className={styles.mobile_logo_box}>
-              <Image
-                src="/images/icons/logo.png"
-                alt="VisuLore 로고"
-                width={48}
-                height={48}
-                priority
-              />
-              <span className={styles.logo_text}>VisuLore</span>
-            </div>
-            <div className={styles.mobile_auth_buttons}>
-              <Link href="/login" className={styles.btn_login}>
-                로그인
-              </Link>
-              <Link href="/signup" className={styles.btn_signup}>
-                회원가입
-              </Link>
-            </div>
-          </div>
-          <div className={styles.mobile_drawer_footer}>
-            <Footer />
-          </div>
-        </div>
-      </div>
-
-      {/* 메인 래퍼 */}
       <div className={styles.main_wrapper}>
         <div className={styles.layout_body}>
           <div className={styles.pc_sidebar}>
-            <Sidebar variant="world" topContent={PcSidebarContent} />
+            <HomeSidebar />
           </div>
 
           <main className={styles.content_area}>
+            {/* 상단 드롭다운 필터 바 */}
             <div className={styles.filter_bar}>
+              {/* 정렬 필터 */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.sort}
+                  value={actualSort}
                   onChange={(e) => handleFilterChange('sort', e.target.value)}
                 >
                   <option value="최신순">최신순</option>
+                  <option value="추천순">추천순</option>
                   <option value="인기순">인기순</option>
                 </select>
                 <span className={`material-symbols-outlined ${styles.select_arrow}`}>
@@ -250,100 +259,148 @@ function CharactersContent() {
                 </span>
               </div>
 
+              {/* 종족 필터 (races 테이블 연동) */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.world_id}
-                  onChange={(e) => handleFilterChange('world_id', e.target.value)}
+                  value={raceFilter}
+                  onChange={(e) => handleFilterChange('race', e.target.value)}
                 >
-                  <option value="">세계관</option>
-                  <option value="1">1번 세계관</option>
+                  <option value="">종족</option>
+                  {(raceOptions || []).map((item) => (
+                    <option key={item.id || item.name} value={item.name}>
+                      {item.name}
+                    </option>
+                  ))}
                 </select>
                 <span className={`material-symbols-outlined ${styles.select_arrow}`}>
                   expand_more
                 </span>
               </div>
 
-              <div className={styles.select_wrapper}>
-                <select className={styles.filter_select}>
-                  <option value="">소속</option>
-                </select>
-                <span className={`material-symbols-outlined ${styles.select_arrow}`}>
-                  expand_more
-                </span>
-              </div>
-
+              {/* 테마 필터 (themes 테이블 연동) */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.job_role}
-                  onChange={(e) => handleFilterChange('job_role', e.target.value)}
+                  value={themeFilter}
+                  onChange={(e) => handleFilterChange('theme', e.target.value)}
                 >
-                  <option value="">직업</option>
-                  <option value="무직">무직</option>
-                  <option value="기사">기사</option>
-                  <option value="마법사">마법사</option>
+                  <option value="">테마</option>
+                  {(themeOptions || []).map((item) => (
+                    <option key={item.id || item.name} value={item.name}>
+                      {item.name}
+                    </option>
+                  ))}
                 </select>
                 <span className={`material-symbols-outlined ${styles.select_arrow}`}>
                   expand_more
                 </span>
               </div>
 
+              {/* 성별 필터 (characters.gender 연동) */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.gender}
+                  value={genderFilter}
                   onChange={(e) => handleFilterChange('gender', e.target.value)}
                 >
                   <option value="">성별</option>
-                  <option value="여성">여성</option>
-                  <option value="남성">남성</option>
-                  <option value="무성">무성</option>
+                  {(genderOptions || []).map((gender) => (
+                    <option key={gender} value={gender}>
+                      {gender}
+                    </option>
+                  ))}
                 </select>
                 <span className={`material-symbols-outlined ${styles.select_arrow}`}>
                   expand_more
                 </span>
               </div>
+
+              {/* 장르 필터 (genres 테이블 연동) */}
+              <div className={styles.select_wrapper}>
+                <select
+                  className={styles.filter_select}
+                  value={genreFilter}
+                  onChange={(e) => handleFilterChange('genre', e.target.value)}
+                >
+                  <option value="">장르</option>
+                  {(genreOptions || []).map((item) => (
+                    <option key={item.id || item.name} value={item.name}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+                <span className={`material-symbols-outlined ${styles.select_arrow}`}>
+                  expand_more
+                </span>
+              </div>
+
+              {/* 🔥 추가된 초기화 버튼 (인라인 스타일 대신 SCSS 활용 혹은 필요시 클래스 연결) */}
+              {(raceFilter ||
+                themeFilter ||
+                genderFilter ||
+                genreFilter ||
+                searchQuery ||
+                currentTags.length > 0) && (
+                <button
+                  type="button"
+                  className={styles.reset_button || ''}
+                  onClick={handleResetFilters}
+                >
+                  필터 초기화
+                </button>
+              )}
             </div>
 
+            {/* 카드 그리드 영역 */}
             <div className={styles.card_grid_container}>
               {isLoading ? null : displayList && displayList.length > 0 ? (
                 <div className={styles.card_grid}>
-                  {displayList.map((item) => (
-                    <div
-                      key={item.id}
-                      className={styles.card_item}
-                      onClick={() => router.push(`/characters/${item.id}`)}
-                    >
-                      <div className={styles.image_box}>
-                        {item.badge && <span className={styles.badge}>{item.badge}</span>}
+                  {displayList.map((item) => {
+                    const isRecommended = recommendedIds.has(item.id);
 
-                        {item.image_url ? (
-                          <img src={item.image_url} alt={item.name || '캐릭터 이미지'} />
-                        ) : (
-                          <div className={styles.no_image}>
-                            <span className={`material-symbols-outlined ${styles.no_image_icon}`}>
-                              person
-                            </span>
-                          </div>
-                        )}
+                    return (
+                      <div
+                        key={item.id}
+                        className={styles.card_item}
+                        onClick={() => router.push(`/characters/${item.id}`)}
+                      >
+                        <div className={styles.image_box}>
+                          {(isRecommended || item.badge) && (
+                            <span className={styles.badge}>{item.badge || '추천 캐릭터'}</span>
+                          )}
 
-                        <div className={styles.card_overlay}>
-                          <div className={styles.card_info}>
-                            <h3>{item.name}</h3>
-                            <p className={styles.description}>
-                              {item.background_story || '캐릭터 상세 설명이 없습니다.'}
-                            </p>
-                            <div className={styles.tag_badge}>
-                              {[item.race, item.job_role, item.worlds?.genre]
-                                .filter(Boolean)
-                                .join(' · ') || '태그 없음'}
+                          {item.image_url ? (
+                            <img src={item.image_url} alt={item.name || '캐릭터 이미지'} />
+                          ) : (
+                            <div className={styles.no_image}>
+                              <span className={`material-symbols-outlined ${styles.no_image_icon}`}>
+                                person
+                              </span>
+                            </div>
+                          )}
+
+                          <div className={styles.card_overlay}>
+                            <div className={styles.card_info}>
+                              <h3>{item.name}</h3>
+                              <p className={styles.description}>
+                                {item.background_story || '캐릭터 상세 설명이 없습니다.'}
+                              </p>
+                              <div className={styles.tag_badge}>
+                                {[
+                                  item.race,
+                                  item.job_role,
+                                  item.worlds?.name || item.worlds?.title || item.worlds?.genre,
+                                ]
+                                  .filter(Boolean)
+                                  .join(' · ') || '태그 없음'}
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className={styles.empty_state}>
@@ -370,6 +427,14 @@ function CharactersContent() {
 const CharactersPage = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
+      <CharactersContent />
+    </Suspense>
+  );
+};
+
+const CharactersPage = () => {
+  return (
+    <Suspense fallback={null}>
       <CharactersContent />
     </Suspense>
   );

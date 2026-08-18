@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Image from "next/image";
 import styles from "./CharacterDetail.module.scss";
 
 // 한글/영문 감지하여 적절한 Typography 클래스 반환하는 헬퍼 함수
@@ -20,8 +21,21 @@ export default function CharacterDetail({
   comments = [],
   onAddComment,
   isSubmittingComment = false,
+  activeNav = "character",
 }) {
   const [newContent, setNewContent] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+    setNewContent("");
+  }, [activeNav]);
+
+  const COMMENTS_PER_PAGE = 4;
+  const totalPages = Math.max(1, Math.ceil(comments.length / COMMENTS_PER_PAGE));
+  
+  const startIndex = (currentPage - 1) * COMMENTS_PER_PAGE;
+  const paginatedComments = comments.slice(startIndex, startIndex + COMMENTS_PER_PAGE);
 
   const handleAddComment = (e) => {
     e.preventDefault();
@@ -54,23 +68,48 @@ export default function CharacterDetail({
     }
   };
 
-  const name = character?.name || "무명";
-  const race = character?.race;
-  const gender = character?.gender;
-  const age = character?.age;
-  const jobRole = character?.job_role;
-  const summaryText =
-    character?.summary ||
-    character?.background_story ||
-    "캐릭터 설명이 없습니다.";
+  const isWorldMode = activeNav === "world";
+  const world = character?.worlds;
 
-  // 우측 카드 태그 목록 (세계관 테마, 장르, 종족, 직업 등을 모아 보기 좋게 정리)
-  const rawTags = [
-    character?.worlds?.theme,
-    character?.worlds?.genre,
-    character?.race,
-    character?.job_role,
-  ].filter(Boolean);
+  const name = isWorldMode ? (world?.name || world?.title || "무명 세계관") : (character?.name || "무명");
+  
+  let displayTags = [];
+  let summaryText = "";
+
+  if (isWorldMode && world) {
+    displayTags = [
+      { label: "테마", value: world.theme },
+      { label: "장르", value: world.genre },
+    ];
+    summaryText = [
+      world.myth_history && `[창조 신화 & 역사]\n${world.myth_history}`,
+      world.religion_culture && `[종교, 문화, 사상]\n${world.religion_culture}`,
+      world.social_structure && `[사회 구조 / 계층]\n${world.social_structure}`,
+      world.climate_landmarks && `[기후 특성 & 랜드 마크]\n${world.climate_landmarks}`,
+      world.resource_currency && `[자원 & 화폐]\n${world.resource_currency}`,
+    ].filter(Boolean).join("\n\n") || "세계관 설명이 없습니다.";
+  } else {
+    displayTags = [
+      { label: "종족", value: character?.race },
+      { label: "성별", value: character?.gender },
+      { label: "나이", value: character?.age },
+      { label: "직업 / 지위", value: character?.job_role },
+    ];
+    summaryText = character?.summary_text || character?.background_story || "캐릭터 설명이 없습니다.";
+  }
+
+  // 우측 카드 태그 목록
+  const rawTags = isWorldMode 
+    ? [
+        character?.worlds?.theme,
+        character?.worlds?.genre,
+      ].filter(Boolean)
+    : [
+        character?.race,
+        character?.job_role,
+        character?.gender,
+        character?.age ? `${character?.age}세` : null,
+      ].filter(Boolean);
 
   const rightTags = rawTags
     .flatMap((tag) => tag.split(","))
@@ -85,7 +124,7 @@ export default function CharacterDetail({
         {/* 상단 헤더: person 구글 머티리얼 아이콘 (icon_36) + 캐릭터 이름 (Card Title) */}
         <div className={styles.headerSection}>
           <span className={`material-symbols-outlined icon_36 ${styles.personIcon}`}>
-            person
+            {isWorldMode ? "history_edu" : "person"}
           </span>
           <h2 className={`${getFontClass(name, "kr_card_title", "en_m_title")} ${styles.characterName}`}>
             {name}
@@ -94,32 +133,17 @@ export default function CharacterDetail({
 
         {/* 기본 정보 알약 태그 그룹 (Body 사용) */}
         <div className={styles.tagGroup}>
-          {race && (
-            <div className={`${getFontClass(race, "kr_body", "en_body")} ${styles.infoTag}`}>
-              종족 : {race}
+          {displayTags.map((tag, idx) => tag.value ? (
+            <div key={idx} className={`${getFontClass(tag.value, "kr_body", "en_body")} ${styles.infoTag}`}>
+              {tag.label} : {tag.value}
             </div>
-          )}
-          {gender && (
-            <div className={`${getFontClass(gender, "kr_body", "en_body")} ${styles.infoTag}`}>
-              성별 : {gender}
-            </div>
-          )}
-          {age && (
-            <div className={`${getFontClass(age, "kr_body", "en_body")} ${styles.infoTag}`}>
-              나이 : {age}
-            </div>
-          )}
-          {jobRole && (
-            <div className={`${getFontClass(jobRole, "kr_body", "en_body")} ${styles.infoTag}`}>
-              직업 / 지위 : {jobRole}
-            </div>
-          )}
+          ) : null)}
         </div>
 
         {/* 캐릭터 요약 본문 (Body 150) */}
         <div className={styles.summarySection}>
-          <span className={`kr_body ${styles.summaryLabel}`}>캐릭터 요약 :</span>
-          <div className={`${styles.summaryBox} ${getFontClass(summaryText, "kr_body_150", "en_body")}`}>
+          <span className={`kr_body ${styles.summaryLabel}`}>{isWorldMode ? "세계관 요약 :" : "캐릭터 요약 :"}</span>
+          <div className={`${styles.summaryBox} ${getFontClass(summaryText, "kr_body_150", "en_body")}`} style={{ whiteSpace: "pre-wrap" }}>
             {summaryText}
           </div>
         </div>
@@ -134,8 +158,8 @@ export default function CharacterDetail({
 
           {/* 코멘트 리스트 */}
           <div className={styles.commentList}>
-            {comments.length > 0 ? (
-              comments.map((comment) => (
+            {paginatedComments.length > 0 ? (
+              paginatedComments.map((comment) => (
                 <div key={comment.id} className={styles.commentCard}>
                   <span
                     className={`${getFontClass(
@@ -163,6 +187,47 @@ export default function CharacterDetail({
               </div>
             )}
           </div>
+
+          {/* 페이지네이션 */}
+          {totalPages > 1 && (
+            <div className={styles.pagination}>
+              <button
+                type="button"
+                className={styles.pageBtn}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                <span className="material-symbols-rounded icon_20">chevron_left</span>
+              </button>
+              
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let startPage = Math.max(1, currentPage - 2);
+                if (startPage + 4 > totalPages) {
+                  startPage = Math.max(1, totalPages - 4);
+                }
+                const pageNum = startPage + i;
+                return (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    className={`${styles.pageBtn} ${currentPage === pageNum ? styles.activePage : ""}`}
+                    onClick={() => setCurrentPage(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              <button
+                type="button"
+                className={styles.pageBtn}
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                <span className="material-symbols-rounded icon_20">chevron_right</span>
+              </button>
+            </div>
+          )}
 
           {/* 새 코멘트 작성 폼 */}
           <form onSubmit={handleAddComment} className={styles.commentForm}>
@@ -205,10 +270,14 @@ export default function CharacterDetail({
               <span className="kr_m_title">이미지 생성 중...</span>
             </div>
           ) : character?.image_url ? (
-            <img
+            <Image
               src={character.image_url}
               alt={name}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              style={{ objectFit: 'cover' }}
               className={styles.aiCharacterImage}
+              priority
             />
           ) : (
             <div className={styles.placeholderStateBox}>
