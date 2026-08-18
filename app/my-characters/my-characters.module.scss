@@ -1033,3 +1033,106 @@
     justify-content: center;
   }
 }
+
+/* ========================================
+   Bookmark
+======================================== */
+
+.bookmarkButton {
+  position: absolute;
+
+  top: 10px;
+  right: 10px;
+
+  z-index: 10;
+
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  border-radius: 50%;
+
+  background: rgba(18, 21, 37, 0.82);
+
+  color: $color_white;
+
+  cursor: pointer;
+
+  backdrop-filter: blur(8px);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+
+  &:hover {
+    transform: scale(1.08);
+
+    border-color: rgba(255, 255, 255, 0.22);
+
+    background: rgba(25, 28, 43, 0.92);
+  }
+
+  &:disabled {
+    cursor: default;
+
+    opacity: 0.6;
+  }
+
+  span {
+    font-size: 23px;
+
+    line-height: 1;
+
+    font-variation-settings:
+      "FILL" 0,
+      "wght" 400,
+      "GRAD" 0,
+      "opsz" 24;
+  }
+}
+
+/* ========================================
+   즐겨찾기 활성화
+======================================== */
+
+.bookmarkButton.bookmarked {
+  color: $color_secondary;
+
+  border-color: rgba(255, 255, 255, 0.18);
+
+  span {
+    font-variation-settings:
+      "FILL" 1,
+      "wght" 500,
+      "GRAD" 0,
+      "opsz" 24;
+  }
+}
+
+/* ========================================
+   Mobile
+======================================== */
+
+@media (max-width: 480px) {
+  .bookmarkButton {
+    top: 8px;
+    right: 8px;
+
+    width: 34px;
+    height: 34px;
+
+    span {
+      font-size: 21px;
+    }
+  }
+}

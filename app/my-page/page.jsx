@@ -54,7 +54,7 @@ const characterTagMap = {
    캐릭터 화면 데이터 변환
 ======================================== */
 
-const formatCharacter = (character, index) => {
+const formatCharacter = (character, index, visibility = null) => {
   const image =
     characterImageMap[character.id] ||
     character.image_url ||
@@ -74,6 +74,9 @@ const formatCharacter = (character, index) => {
     image,
     description,
     tags,
+
+    /* character_visibility에서 가져온 공개 상태 */
+    status: visibility || null,
   };
 };
 
@@ -155,10 +158,11 @@ const MyPage = () => {
 
         /* ====================================
            2. 사용자 이름 확인
-           
+
            우선순위:
            user_metadata.name
            user_metadata.nickname
+           user_metadata.user_name
            email 앞부분
         ==================================== */
 
@@ -171,6 +175,8 @@ const MyPage = () => {
 
         /* ====================================
            3. 현재 사용자의 모든 캐릭터 조회
+
+           id ASC는 기존 흐름 유지
         ==================================== */
 
         const { data: characterData, error: characterError } = await supabase
@@ -188,10 +194,14 @@ const MyPage = () => {
         const allCharacters = characterData ?? [];
 
         /* ====================================
-           4. 휴지통 캐릭터 조회
+           4. 캐릭터 ID 추출
         ==================================== */
 
         const characterIds = allCharacters.map((character) => character.id);
+
+        /* ====================================
+           5. 휴지통 캐릭터 조회
+        ==================================== */
 
         let trashCharacterIds = [];
 
@@ -212,7 +222,7 @@ const MyPage = () => {
         console.log("마이페이지 휴지통 캐릭터:", trashCharacterIds);
 
         /* ====================================
-           5. 실제 활성 캐릭터만 추출
+           6. 실제 활성 캐릭터만 추출
         ==================================== */
 
         const activeCharacters = allCharacters.filter(
@@ -222,22 +232,52 @@ const MyPage = () => {
         console.log("마이페이지 활성 캐릭터:", activeCharacters);
 
         /* ====================================
-           6. 내 캐릭터 수
+           7. 내 캐릭터 수
         ==================================== */
 
         setCharacterCount(activeCharacters.length);
 
         /* ====================================
-           7. 최근 생성 수
-           
-           아직 생성 이력 테이블이 없으므로
-           현재는 활성 캐릭터 수 사용
+           8. 최근 생성 수
+
+           별도의 생성 이력 테이블이 아직 없으므로
+           현재 활성 캐릭터 수를 사용
         ==================================== */
 
         setRecentCount(activeCharacters.length);
 
         /* ====================================
-           8. 즐겨찾기 조회
+           9. 공개 / 비공개 정보 조회
+        ==================================== */
+
+        let visibilityData = [];
+
+        if (characterIds.length > 0) {
+          const { data, error: visibilityError } = await supabase
+            .from("character_visibility")
+            .select("character_id, user_id, visibility")
+            .eq("user_id", user.id)
+            .in("character_id", characterIds);
+
+          if (visibilityError) {
+            throw visibilityError;
+          }
+
+          visibilityData = data ?? [];
+        }
+
+        console.log("마이페이지 캐릭터 공개 설정:", visibilityData);
+
+        /* ====================================
+           visibility Map
+        ==================================== */
+
+        const visibilityMap = new Map(
+          visibilityData.map((item) => [item.character_id, item.visibility]),
+        );
+
+        /* ====================================
+           10. 즐겨찾기 조회
         ==================================== */
 
         let bookmarkData = [];
@@ -272,21 +312,29 @@ const MyPage = () => {
         console.log("마이페이지 즐겨찾기 수:", activeBookmarkCount);
 
         /* ====================================
-           9. 최근 생성한 캐릭터 3개
+           11. 최근 생성한 캐릭터 3개
 
-           id DESC
-           → 가장 최근 생성된 캐릭터부터
+           실제 created_at 기준
+           최신 → 오래된 순
         ==================================== */
 
-        const recentCharacterData = [...activeCharacters].sort((a, b) => b.id - a.id).slice(0, 3);
+        const recentCharacterData = [...activeCharacters]
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          .slice(0, 3);
+
+        console.log("마이페이지 최근 생성 원본:", recentCharacterData);
 
         /* ====================================
-           10. 화면용 데이터 변환
+           12. 화면용 데이터 변환
+
+           visibility까지 같이 연결
         ==================================== */
 
-        const formattedRecentCharacters = recentCharacterData.map((character, index) =>
-          formatCharacter(character, index),
-        );
+        const formattedRecentCharacters = recentCharacterData.map((character, index) => {
+          const visibility = visibilityMap.get(character.id) || null;
+
+          return formatCharacter(character, index, visibility);
+        });
 
         console.log("마이페이지 최근 캐릭터:", formattedRecentCharacters);
 

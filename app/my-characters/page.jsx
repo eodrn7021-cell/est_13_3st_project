@@ -55,29 +55,17 @@ const characterTagMap = {
    DB 데이터를 화면용 데이터로 변환
 ======================================== */
 
-const formatCharacter = (character, index, visibility = null, isBookmarked = false) => {
-  /* ----------------------------------------
-     이미지
-  ---------------------------------------- */
-
+const formatCharacter = (character, index, visibility = null) => {
   const image =
     characterImageMap[character.id] ||
     character.image_url ||
     character.image ||
     defaultCharacterImages[index % defaultCharacterImages.length];
 
-  /* ----------------------------------------
-     설명
-  ---------------------------------------- */
-
   const description =
     character.description ||
     character.background_story ||
     `${character.race || "미정"} 종족의 캐릭터입니다.`;
-
-  /* ----------------------------------------
-     태그
-  ---------------------------------------- */
 
   const tagList =
     characterTagMap[character.id] || [character.race, character.job_role].filter(Boolean);
@@ -89,11 +77,7 @@ const formatCharacter = (character, index, visibility = null, isBookmarked = fal
     description,
     tags: tagList,
 
-    /* character_visibility.visibility 사용 */
     status: visibility?.visibility || null,
-
-    /* character_bookmarks 즐겨찾기 여부 */
-    isBookmarked,
   };
 };
 
@@ -126,17 +110,17 @@ const MyCharactersPage = () => {
   const MOBILE_ITEMS_PER_PAGE = 2;
 
   /* ========================================
-     휴지통 관련
+     선택된 캐릭터
   ======================================== */
 
-  // 현재 선택된 캐릭터
   const [selectedCharacterId, setSelectedCharacterId] = useState(null);
 
   /* ========================================
-     즐겨찾기 관련
+     즐겨찾기
   ======================================== */
 
-  // 즐겨찾기 처리 중인 캐릭터
+  const [bookmarkedCharacterIds, setBookmarkedCharacterIds] = useState(new Set());
+
   const [bookmarkLoadingId, setBookmarkLoadingId] = useState(null);
 
   /* ========================================
@@ -172,6 +156,8 @@ const MyCharactersPage = () => {
           console.warn("로그인한 사용자가 없습니다.");
 
           setCharacters([]);
+          setBookmarkedCharacterIds(new Set());
+
           return;
         }
 
@@ -183,6 +169,9 @@ const MyCharactersPage = () => {
            다른 팀원의 캐릭터는 가져오지 않고
            creator_id가 현재 사용자와 같은
            캐릭터만 조회
+
+           id ASC
+           → 엘리안느 → 카이론 → 셀리아 → 바이올렛
         ==================================== */
 
         const { data: characterData, error: characterError } = await supabase
@@ -205,9 +194,6 @@ const MyCharactersPage = () => {
 
         /* ====================================
            4. 공개 / 비공개 정보 조회
-
-           현재 로그인 사용자의 캐릭터에 해당하는
-           visibility만 가져옴
         ==================================== */
 
         let visibilityData = [];
@@ -237,38 +223,7 @@ const MyCharactersPage = () => {
         );
 
         /* ====================================
-           6. 즐겨찾기 조회
-
-           현재 로그인 사용자가
-           즐겨찾기한 캐릭터만 가져옴
-        ==================================== */
-
-        let bookmarkData = [];
-
-        if (characterIds.length > 0) {
-          const { data, error: bookmarkError } = await supabase
-            .from("character_bookmarks")
-            .select("character_id, user_id")
-            .eq("user_id", user.id)
-            .in("character_id", characterIds);
-
-          if (bookmarkError) {
-            throw bookmarkError;
-          }
-
-          bookmarkData = data ?? [];
-        }
-
-        console.log("현재 사용자의 즐겨찾기:", bookmarkData);
-
-        /* ====================================
-           7. 즐겨찾기 Map 생성
-        ==================================== */
-
-        const bookmarkSet = new Set(bookmarkData.map((item) => item.character_id));
-
-        /* ====================================
-           8. 휴지통 캐릭터 조회
+           6. 휴지통 캐릭터 조회
 
            현재 로그인 사용자가 휴지통으로
            보낸 캐릭터 ID만 가져옴
@@ -293,7 +248,7 @@ const MyCharactersPage = () => {
         console.log("현재 사용자의 휴지통 캐릭터:", trashCharacterIds);
 
         /* ====================================
-           9. 휴지통에 있는 캐릭터 제외
+           7. 휴지통에 있는 캐릭터 제외
         ==================================== */
 
         const activeCharacterData = (characterData ?? []).filter(
@@ -301,7 +256,7 @@ const MyCharactersPage = () => {
         );
 
         /* ====================================
-           10. 화면용 캐릭터 데이터 변환
+           8. 화면용 캐릭터 데이터 변환
         ==================================== */
 
         const formattedCharacters = activeCharacterData.map((character, index) => {
@@ -313,25 +268,49 @@ const MyCharactersPage = () => {
               }
             : null;
 
-          const isBookmarked = bookmarkSet.has(character.id);
-
-          return formatCharacter(character, index, visibility, isBookmarked);
+          return formatCharacter(character, index, visibility);
         });
 
         console.log("화면용 캐릭터:", formattedCharacters);
 
         setCharacters(formattedCharacters);
 
-        /* ----------------------------------------
-           휴지통에 있던 캐릭터가 현재 선택되어
-           있었다면 선택 해제
-        ---------------------------------------- */
+        /* ====================================
+           9. 즐겨찾기 조회
+
+           character_bookmarks에서
+           현재 로그인 사용자의 즐겨찾기만 조회
+        ==================================== */
+
+        const { data: bookmarkData, error: bookmarkError } = await supabase
+          .from("character_bookmarks")
+          .select("character_id")
+          .eq("user_id", user.id);
+
+        if (bookmarkError) {
+          throw bookmarkError;
+        }
+
+        console.log("현재 사용자의 즐겨찾기:", bookmarkData);
+
+        /* ====================================
+           10. 즐겨찾기 ID Set 생성
+        ==================================== */
+
+        const bookmarkIds = new Set((bookmarkData ?? []).map((bookmark) => bookmark.character_id));
+
+        setBookmarkedCharacterIds(bookmarkIds);
+
+        /* ====================================
+           선택 상태 초기화
+        ==================================== */
 
         setSelectedCharacterId(null);
       } catch (error) {
         console.error("내 캐릭터 조회 실패:", error);
 
         setCharacters([]);
+        setBookmarkedCharacterIds(new Set());
       } finally {
         setLoading(false);
       }
@@ -339,121 +318,6 @@ const MyCharactersPage = () => {
 
     fetchMyCharacters();
   }, []);
-
-  /* ========================================
-     즐겨찾기 토글
-  ======================================== */
-
-  const handleBookmarkToggle = async (characterId, event) => {
-    /* ----------------------------------------
-       카드 선택 이벤트 방지
-    ---------------------------------------- */
-
-    event.stopPropagation();
-
-    /* ----------------------------------------
-       이미 처리 중이면 중복 클릭 방지
-    ---------------------------------------- */
-
-    if (bookmarkLoadingId === characterId) {
-      return;
-    }
-
-    setBookmarkLoadingId(characterId);
-
-    try {
-      /* ----------------------------------------
-         현재 로그인 사용자 확인
-      ---------------------------------------- */
-
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError) {
-        throw userError;
-      }
-
-      if (!user) {
-        alert("로그인이 필요합니다.");
-        return;
-      }
-
-      /* ----------------------------------------
-         현재 캐릭터 찾기
-      ---------------------------------------- */
-
-      const currentCharacter = characters.find((character) => character.id === characterId);
-
-      if (!currentCharacter) {
-        return;
-      }
-
-      /* ========================================
-         이미 즐겨찾기 상태
-         → 삭제
-      ======================================== */
-
-      if (currentCharacter.isBookmarked) {
-        const { error } = await supabase
-          .from("character_bookmarks")
-          .delete()
-          .eq("character_id", characterId)
-          .eq("user_id", user.id);
-
-        if (error) {
-          throw error;
-        }
-
-        setCharacters((prevCharacters) =>
-          prevCharacters.map((character) =>
-            character.id === characterId
-              ? {
-                  ...character,
-                  isBookmarked: false,
-                }
-              : character,
-          ),
-        );
-
-        console.log("즐겨찾기 삭제 완료:", characterId);
-      } else {
-        /* ========================================
-           즐겨찾기 상태가 아님
-           → 추가
-        ======================================== */
-
-        const { error } = await supabase.from("character_bookmarks").insert({
-          character_id: characterId,
-          user_id: user.id,
-        });
-
-        if (error) {
-          throw error;
-        }
-
-        setCharacters((prevCharacters) =>
-          prevCharacters.map((character) =>
-            character.id === characterId
-              ? {
-                  ...character,
-                  isBookmarked: true,
-                }
-              : character,
-          ),
-        );
-
-        console.log("즐겨찾기 추가 완료:", characterId);
-      }
-    } catch (error) {
-      console.error("즐겨찾기 처리 실패:", error);
-
-      alert("즐겨찾기 처리 중 문제가 발생했습니다.");
-    } finally {
-      setBookmarkLoadingId(null);
-    }
-  };
 
   /* ========================================
      휴지통 이동
@@ -520,6 +384,22 @@ const MyCharactersPage = () => {
       );
 
       /* ----------------------------------------
+         즐겨찾기 상태에서도 제거
+
+         휴지통으로 이동한 캐릭터는
+         현재 활성 캐릭터 목록에서 사라지므로
+         화면상의 즐겨찾기 상태도 정리
+      ---------------------------------------- */
+
+      setBookmarkedCharacterIds((prev) => {
+        const next = new Set(prev);
+
+        next.delete(selectedCharacterId);
+
+        return next;
+      });
+
+      /* ----------------------------------------
          선택 상태 초기화
       ---------------------------------------- */
 
@@ -534,6 +414,101 @@ const MyCharactersPage = () => {
   };
 
   /* ========================================
+     즐겨찾기 추가 / 삭제
+  ======================================== */
+
+  const handleToggleBookmark = async (characterId) => {
+    /* ----------------------------------------
+       중복 클릭 방지
+    ---------------------------------------- */
+
+    if (bookmarkLoadingId === characterId) {
+      return;
+    }
+
+    try {
+      /* ----------------------------------------
+         현재 로그인 사용자 확인
+      ---------------------------------------- */
+
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError) {
+        throw userError;
+      }
+
+      if (!user) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
+
+      setBookmarkLoadingId(characterId);
+
+      const isBookmarked = bookmarkedCharacterIds.has(characterId);
+
+      /* ========================================
+         즐겨찾기 해제
+      ======================================== */
+
+      if (isBookmarked) {
+        const { error } = await supabase
+          .from("character_bookmarks")
+          .delete()
+          .eq("character_id", characterId)
+          .eq("user_id", user.id);
+
+        if (error) {
+          throw error;
+        }
+
+        setBookmarkedCharacterIds((prev) => {
+          const next = new Set(prev);
+
+          next.delete(characterId);
+
+          return next;
+        });
+
+        console.log("즐겨찾기 해제:", characterId);
+
+        return;
+      }
+
+      /* ========================================
+         즐겨찾기 추가
+      ======================================== */
+
+      const { error } = await supabase.from("character_bookmarks").insert({
+        character_id: characterId,
+        user_id: user.id,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setBookmarkedCharacterIds((prev) => {
+        const next = new Set(prev);
+
+        next.add(characterId);
+
+        return next;
+      });
+
+      console.log("즐겨찾기 추가:", characterId);
+    } catch (error) {
+      console.error("즐겨찾기 처리 실패:", error);
+
+      alert("즐겨찾기 처리에 실패했습니다.");
+    } finally {
+      setBookmarkLoadingId(null);
+    }
+  };
+
+  /* ========================================
      필터 적용
   ======================================== */
 
@@ -542,9 +517,7 @@ const MyCharactersPage = () => {
       return characters;
     }
 
-    return characters.filter((character) => {
-      return character.status === filter;
-    });
+    return characters.filter((character) => character.status === filter);
   }, [characters, filter]);
 
   /* ========================================
@@ -595,7 +568,7 @@ const MyCharactersPage = () => {
   ======================================== */
 
   const renderTags = (character) => {
-    if (character.tags.length === 0) {
+    if (!character.tags || character.tags.length === 0) {
       return "정보 없음";
     }
 
@@ -603,91 +576,33 @@ const MyCharactersPage = () => {
   };
 
   /* ========================================
-     캐릭터 카드
+     즐겨찾기 버튼
   ======================================== */
 
-  const renderCharacterCard = (character, mobile = false) => {
+  const renderBookmarkButton = (character) => {
+    const isBookmarked = bookmarkedCharacterIds.has(character.id);
+
+    const isLoading = bookmarkLoadingId === character.id;
+
     return (
-      <article
-        key={character.id}
-        className={`${styles.characterCard} ${
-          selectedCharacterId === character.id ? styles.selected : ""
-        }`}
-        onClick={() => setSelectedCharacterId(character.id)}
-        style={{ position: "relative" }}
+      <button
+        type="button"
+        aria-label={
+          isBookmarked ? `${character.name} 즐겨찾기 해제` : `${character.name} 즐겨찾기 추가`
+        }
+        title={isBookmarked ? "즐겨찾기 해제" : "즐겨찾기 추가"}
+        disabled={isLoading}
+        className={`${styles.bookmarkButton} ${isBookmarked ? styles.bookmarked : ""}`}
+        onClick={(event) => {
+          event.stopPropagation();
+
+          handleToggleBookmark(character.id);
+        }}
       >
-        {/* ====================================
-            즐겨찾기 버튼
-        ==================================== */}
-
-        <button
-          type="button"
-          aria-label={
-            character.isBookmarked
-              ? `${character.name} 즐겨찾기 해제`
-              : `${character.name} 즐겨찾기 추가`
-          }
-          aria-pressed={character.isBookmarked}
-          onClick={(event) => handleBookmarkToggle(character.id, event)}
-          disabled={bookmarkLoadingId === character.id}
-          style={{
-            position: "absolute",
-            top: "12px",
-            right: "12px",
-            zIndex: 10,
-            width: "36px",
-            height: "36px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 0,
-            border: "none",
-            borderRadius: "50%",
-            background: "rgba(0, 0, 0, 0.55)",
-            color: character.isBookmarked ? "var(--secondary-color, #a09bee)" : "#ffffff",
-            cursor: bookmarkLoadingId === character.id ? "default" : "pointer",
-            opacity: bookmarkLoadingId === character.id ? 0.6 : 1,
-          }}
-        >
-          <span
-            className="material-symbols-rounded"
-            aria-hidden="true"
-            style={{
-              fontSize: "22px",
-              fontVariationSettings: character.isBookmarked ? "'FILL' 1" : "'FILL' 0",
-            }}
-          >
-            star
-          </span>
-        </button>
-
-        {/* ====================================
-            Thumbnail
-        ==================================== */}
-
-        <div className={styles.thumbnail}>
-          <Image
-            src={character.image}
-            alt={character.name}
-            fill
-            sizes={mobile ? "190px" : "(max-width: 1200px) 247.5px, 205px"}
-          />
-        </div>
-
-        {/* ====================================
-            Card Body
-        ==================================== */}
-
-        <div className={styles.cardBody}>
-          <span className={styles.recommended}>추천캐릭터</span>
-
-          <h2>{character.name}</h2>
-
-          <p>{character.description}</p>
-
-          <div className={styles.tags}>{renderTags(character)}</div>
-        </div>
-      </article>
+        <span className="material-symbols-rounded" aria-hidden="true">
+          favorite
+        </span>
+      </button>
     );
   };
 
@@ -771,7 +686,38 @@ const MyCharactersPage = () => {
                 ) : filteredCharacters.length === 0 ? (
                   <p>등록된 캐릭터가 없습니다.</p>
                 ) : (
-                  filteredCharacters.map((character) => renderCharacterCard(character, false))
+                  filteredCharacters.map((character) => (
+                    <article
+                      key={character.id}
+                      className={`${styles.characterCard} ${
+                        selectedCharacterId === character.id ? styles.selected : ""
+                      }`}
+                      onClick={() => setSelectedCharacterId(character.id)}
+                    >
+                      {/* 즐겨찾기 */}
+
+                      {renderBookmarkButton(character)}
+
+                      <div className={styles.thumbnail}>
+                        <Image
+                          src={character.image}
+                          alt={character.name}
+                          fill
+                          sizes="(max-width: 1200px) 247.5px, 205px"
+                        />
+                      </div>
+
+                      <div className={styles.cardBody}>
+                        <span className={styles.recommended}>추천캐릭터</span>
+
+                        <h2>{character.name}</h2>
+
+                        <p>{character.description}</p>
+
+                        <div className={styles.tags}>{renderTags(character)}</div>
+                      </div>
+                    </article>
+                  ))
                 )}
               </div>
 
@@ -785,7 +731,33 @@ const MyCharactersPage = () => {
                 ) : mobileCharacters.length === 0 ? (
                   <p>등록된 캐릭터가 없습니다.</p>
                 ) : (
-                  mobileCharacters.map((character) => renderCharacterCard(character, true))
+                  mobileCharacters.map((character) => (
+                    <article
+                      key={character.id}
+                      className={`${styles.characterCard} ${
+                        selectedCharacterId === character.id ? styles.selected : ""
+                      }`}
+                      onClick={() => setSelectedCharacterId(character.id)}
+                    >
+                      {/* 즐겨찾기 */}
+
+                      {renderBookmarkButton(character)}
+
+                      <div className={styles.thumbnail}>
+                        <Image src={character.image} alt={character.name} fill sizes="190px" />
+                      </div>
+
+                      <div className={styles.cardBody}>
+                        <span className={styles.recommended}>추천캐릭터</span>
+
+                        <h2>{character.name}</h2>
+
+                        <p>{character.description}</p>
+
+                        <div className={styles.tags}>{renderTags(character)}</div>
+                      </div>
+                    </article>
+                  ))
                 )}
               </div>
             </section>
@@ -816,6 +788,7 @@ const MyCharactersPage = () => {
                 className={styles.deleteButton}
                 onClick={(event) => {
                   event.stopPropagation();
+
                   handleDeleteCharacter();
                 }}
               >
@@ -860,7 +833,12 @@ const MyCharactersPage = () => {
                 <span className="material-symbols-rounded">chevron_left</span>
               </button>
 
-              {Array.from({ length: mobilePageCount }, (_, index) => index + 1).map((page) => (
+              {Array.from(
+                {
+                  length: mobilePageCount,
+                },
+                (_, index) => index + 1,
+              ).map((page) => (
                 <button
                   key={page}
                   type="button"
