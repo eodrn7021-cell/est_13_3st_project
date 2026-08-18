@@ -1,20 +1,24 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/client";
+
+import Footer from "@/components/layout/Footer/Footer";
 
 import styles from "./Sidebar.module.scss";
 
 const Sidebar = ({ open, onClose, page = "mypage" }) => {
   const pathname = usePathname();
+  const router = useRouter();
 
   const [user, setUser] = useState(null);
 
   /* ========================================
-     Supabase
+     로그인 상태
   ======================================== */
 
   useEffect(() => {
@@ -53,6 +57,7 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
 
   /* ========================================
      Sidebar Menu
+     기존 Sidebar 메뉴 그대로 유지
   ======================================== */
 
   const menus = [
@@ -104,8 +109,30 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
   };
 
   /* ========================================
-     Render
+     로그아웃
   ======================================== */
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+
+    const { error } = await supabase.auth.signOut({
+      scope: "local",
+    });
+
+    if (error) {
+      console.error("로그아웃 실패:", error);
+
+      alert("로그아웃에 실패했습니다.");
+
+      return;
+    }
+
+    setUser(null);
+    onClose?.();
+
+    router.replace("/");
+    router.refresh();
+  };
 
   return (
     <>
@@ -128,17 +155,42 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
         aria-label="마이페이지 메뉴"
       >
         {/* ======================================
-            Tablet / Mobile Auth
+            Mobile Header
+            768px 이하에서만 표시
         ====================================== */}
 
-        <div className={styles.authArea}>
+        <div className={styles.mobileHeader}>
+          <Link href="/" className={styles.mobileLogo} onClick={handleMenuClick}>
+            <Image src="/images/icons/logo.png" alt="VisuLore 로고" width={40} height={40} />
+
+            <span>VisuLore</span>
+          </Link>
+
+          <button
+            type="button"
+            className={styles.closeButton}
+            aria-label="메뉴 닫기"
+            onClick={onClose}
+          >
+            <span className="material-symbols-rounded" aria-hidden="true">
+              close
+            </span>
+          </button>
+        </div>
+
+        {/* ======================================
+            Mobile Auth
+            768px 이하에서만 표시
+        ====================================== */}
+
+        <div className={styles.authButtons}>
           {user ? (
             <>
               <Link href="/my-page" className={styles.authSecondary} onClick={handleMenuClick}>
                 마이페이지
               </Link>
 
-              <button type="button" className={styles.authPrimary} onClick={handleMenuClick}>
+              <button type="button" className={styles.authPrimary} onClick={handleLogout}>
                 로그아웃
               </button>
             </>
@@ -156,29 +208,44 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
         </div>
 
         {/* ======================================
-            Navigation
+            Navigation + Footer Scroll Area
         ====================================== */}
 
-        <nav>
-          {menus.map((menu) => (
-            <Link
-              key={menu.href}
-              href={menu.href}
-              className={`
-                ${styles.menu}
-                ${pathname === menu.href ? styles.active : ""}
-                ${menu.icon === "delete" ? styles.trashMenu : ""}
-              `}
-              onClick={handleMenuClick}
-            >
-              <span className="material-symbols-rounded" aria-hidden="true">
-                {menu.icon}
-              </span>
+        <div className={styles.sidebarScroll}>
+          {/* ======================================
+              Navigation
+          ====================================== */}
 
-              <span>{menu.label}</span>
-            </Link>
-          ))}
-        </nav>
+          <nav>
+            {menus.map((menu) => (
+              <Link
+                key={menu.href}
+                href={menu.href}
+                className={`
+                  ${styles.menu}
+                  ${pathname === menu.href ? styles.active : ""}
+                  ${menu.icon === "delete" ? styles.trashMenu : ""}
+                `}
+                onClick={handleMenuClick}
+              >
+                <span className="material-symbols-rounded" aria-hidden="true">
+                  {menu.icon}
+                </span>
+
+                <span>{menu.label}</span>
+              </Link>
+            ))}
+          </nav>
+
+          {/* ======================================
+              Mobile Footer
+              1200px 이하에서 표시
+          ====================================== */}
+
+          <div className={styles.mobileFooter}>
+            <Footer variant="mobileMenu" />
+          </div>
+        </div>
       </aside>
     </>
   );

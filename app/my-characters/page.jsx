@@ -940,14 +940,11 @@ const MyCharactersPage = () => {
       </div>
 
       {/* =================================
-          Footer
-      ================================= */}
-
-      <Footer />
-
-      {/* =================================
           Mobile Bottom Navigation
       ================================= */}
+      <div className={styles.pageFooter}>
+        <Footer />
+      </div>
 
       <MobileNavigation />
     </div>

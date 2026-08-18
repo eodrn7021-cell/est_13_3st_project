@@ -1381,3 +1381,18 @@
     aspect-ratio: auto;
   }
 }
+
+/* ========================================
+   Responsive Footer
+   768px 이하에서는 Sidebar 내부 Footer 사용
+======================================== */
+
+.pageFooter {
+  display: block;
+}
+
+@media (max-width: 1200px) {
+  .pageFooter {
+    display: none;
+  }
+}

@@ -30,7 +30,7 @@
 
 /* ========================================
    Sidebar
-   기본값
+   기본값 = PC
 ======================================== */
 
 .sidebar {
@@ -48,7 +48,7 @@
   height: 590px;
   min-height: 590px;
 
-  padding: 20px;
+  padding: 20px 20px 100px;
 
   box-sizing: border-box;
 
@@ -70,26 +70,83 @@
 }
 
 /* ========================================
-   Auth Area
-   Tablet / Mobile에서만 사용
+   Mobile Header
 ======================================== */
 
-.authArea {
+.mobileHeader {
   display: none;
+}
+
+.mobileLogo {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: colors.$color_white;
+
+  text-decoration: none;
+
+  font-family: variables.$font_family_kr;
+
+  font-size: 22px;
+
+  font-weight: variables.$font_weight_regular;
+
+  line-height: 1;
+}
+
+.mobileLogo img {
+  flex-shrink: 0;
+}
+
+.closeButton {
+  display: none;
+}
+
+/* ========================================
+   Auth
+======================================== */
+
+.authButtons {
+  display: none;
+}
+
+/* ========================================
+   Sidebar Scroll
+   기본값
+======================================== */
+
+.sidebarScroll {
+  display: flex;
+
+  flex-direction: column;
+
+  width: 100%;
+
+  min-height: 0;
+
+  box-sizing: border-box;
+
+  flex: 0 0 auto;
 }
 
 /* ========================================
    Navigation
 ======================================== */
 
-.sidebar > nav {
+.sidebarScroll > nav {
   display: flex !important;
   flex-direction: column !important;
 
   width: 100%;
-  height: 100%;
+
+  height: auto;
 
   min-height: 0;
+
+  flex: 0 0 auto;
 }
 
 /* ========================================
@@ -214,8 +271,172 @@
 }
 
 /* ========================================
+   Mobile Footer
+   기본값 = PC에서 숨김
+======================================== */
+
+.mobileFooter {
+  display: none;
+}
+
+/* ========================================
+   Footer 내부 압축
+   공용 Footer 파일은 수정하지 않음
+======================================== */
+
+.mobileFooter :global([class*="footer_mobile_menu"]) {
+  width: 100%;
+
+  padding: 0;
+
+  margin: 0;
+
+  background: transparent;
+
+  box-sizing: border-box;
+}
+
+.mobileFooter :global([class*="footer_inner"]) {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  width: 100%;
+
+  max-width: none;
+
+  min-height: 0;
+
+  margin: 0;
+
+  padding: 0;
+
+  gap: 14px;
+
+  box-sizing: border-box;
+}
+
+.mobileFooter :global([class*="footer_brand"]) {
+  width: 100%;
+
+  max-width: none;
+
+  min-width: 0;
+}
+
+.mobileFooter :global([class*="footer_logo"]) {
+  margin-bottom: 5px;
+
+  font-size: 17px;
+
+  line-height: 1.1;
+}
+
+.mobileFooter :global([class*="footer_subtitle"]) {
+  margin-bottom: 5px;
+
+  font-size: 9px;
+
+  line-height: 1.2;
+}
+
+.mobileFooter :global([class*="footer_description"]) {
+  margin-bottom: 6px;
+
+  font-size: 8px;
+
+  line-height: 1.25;
+}
+
+.mobileFooter :global([class*="footer_sns"]) {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 5px;
+}
+
+.mobileFooter :global([class*="footer_sns"] a) {
+  width: 18px;
+  height: 18px;
+}
+
+.mobileFooter :global([class*="footer_sns"] img) {
+  width: 18px;
+  height: 18px;
+}
+
+.mobileFooter :global([class*="footer_copyright"]) {
+  margin: 0;
+
+  font-size: 8px;
+
+  line-height: 1.2;
+
+  white-space: nowrap;
+}
+
+.mobileFooter :global([class*="footer_nav"]) {
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  width: 100%;
+
+  gap: 8px;
+
+  box-sizing: border-box;
+}
+
+.mobileFooter :global([class*="footer_menu_group"]) {
+  width: 100%;
+
+  min-width: 0;
+}
+
+.mobileFooter :global([class*="footer_menu_title"]) {
+  margin-bottom: 4px;
+
+  font-size: 9px;
+
+  line-height: 1;
+}
+
+.mobileFooter :global([class*="footer_menu_line"]) {
+  width: 25px;
+
+  margin-bottom: 5px;
+}
+
+.mobileFooter :global([class*="footer_menu_links"]) {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.mobileFooter :global([class*="footer_menu_links"] a),
+.mobileFooter :global([class*="footer_menu_links"] span) {
+  font-size: 8px;
+
+  line-height: 1.2;
+
+  word-break: keep-all;
+
+  white-space: normal;
+}
+
+/* ========================================
    Tablet
    769px ~ 1200px
+
+   Sidebar 내부 Footer 표시
+   스크롤 없음
 ======================================== */
 
 @media (min-width: 769px) and (max-width: 1200px) {
@@ -226,24 +447,29 @@
   .sidebar {
     position: fixed;
 
-    top: 72px;
-    bottom: 80px;
+    top: 0;
+    bottom: 0;
     left: 0;
+
+    display: flex;
+    flex-direction: column;
 
     width: 290px;
     min-width: 290px;
 
-    height: auto;
-    min-height: 0;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
 
     margin: 0;
 
     padding: 20px;
 
+    box-sizing: border-box;
+
     border-radius: 0 18px 18px 0;
 
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
 
     transform: translateX(-100%);
 
@@ -256,83 +482,70 @@
     transform: translateX(0);
   }
 
-  .sidebar > nav {
+  .sidebarScroll {
+    width: 100%;
+
     height: auto;
+
+    min-height: 0;
+
+    flex: 0 0 auto;
+
+    overflow: visible;
   }
 
-  /* ----------------------------------------
-     Tablet에서 인증 영역 표시
-  ---------------------------------------- */
+  .sidebarScroll > nav {
+    height: auto;
 
-  .authArea {
-    display: flex;
+    flex: 0 0 auto;
+  }
 
-    align-items: center;
+  .menu {
+    height: 56px;
+  }
 
-    gap: 10px;
+  /* ======================================
+     Sidebar Footer
+  ====================================== */
+
+  .mobileFooter {
+    display: block;
 
     width: 100%;
 
-    margin-bottom: 20px;
-  }
+    flex: 0 0 auto;
 
-  .authSecondary,
-  .authPrimary {
-    display: inline-flex;
+    margin-top: 20px;
 
-    align-items: center;
-    justify-content: center;
+    padding-top: 20px;
 
-    height: 44px;
+    padding-bottom: 20px;
 
-    padding: 0 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 
     box-sizing: border-box;
 
-    border-radius: 10px;
-
-    font-family: variables.$font_family_kr;
-
-    font-size: 14px;
-
-    font-weight: variables.$font_weight_regular;
-
-    line-height: 1;
-
-    text-decoration: none;
-
-    cursor: pointer;
+    overflow: visible;
   }
 
-  .authSecondary {
-    flex: 1;
+  .mobileFooter :global(footer) {
+    width: 100%;
 
-    background: transparent;
+    height: auto;
 
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    min-height: 0;
 
-    color: colors.$color_white;
-  }
-
-  .authPrimary {
-    flex: 1;
-
-    background: colors.$gradient_main;
-
-    border: 1px solid transparent;
-
-    color: colors.$color_white;
-  }
-
-  .authSecondary:hover,
-  .authPrimary:hover {
-    transform: translateY(-1px);
+    overflow: visible;
   }
 }
 
 /* ========================================
    Mobile
    768px 이하
+
+   HomeMobileMenu 방식
+   + Sidebar 내부 Footer
+   + Nav/Footer 스크롤
 ======================================== */
 
 @media (max-width: 768px) {
@@ -343,55 +556,110 @@
   .sidebar {
     position: fixed;
 
-    top: 72px;
-    bottom: 80px;
+    top: 0;
+    bottom: 0;
     left: 0;
+
+    display: flex;
+    flex-direction: column;
 
     width: 290px;
     min-width: 290px;
 
-    height: auto;
-    min-height: 0;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
 
-    margin: 0;
+    padding: 18px 16px 16px;
 
-    padding: 20px;
+    box-sizing: border-box;
 
-    border-radius: 0 18px 18px 0;
+    border-radius: 0;
 
-    overflow-x: hidden;
-    overflow-y: auto;
+    background: colors.$color_background_surface;
+
+    overflow: hidden;
 
     transform: translateX(-100%);
 
     transition: transform 0.35s ease;
 
     z-index: 100;
+
+    scrollbar-width: thin;
   }
 
   .sidebar.open {
     transform: translateX(0);
   }
 
-  .sidebar > nav {
-    height: auto;
+  /* ======================================
+     Mobile Header
+  ====================================== */
+
+  .mobileHeader {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+
+    min-height: 48px;
+
+    margin-bottom: 18px;
+
+    box-sizing: border-box;
+
+    flex-shrink: 0;
   }
 
-  /* ----------------------------------------
-     Mobile 인증 영역
-     HomeMobileMenu 참고
-  ---------------------------------------- */
+  .mobileLogo {
+    font-size: 22px;
+  }
 
-  .authArea {
+  .closeButton {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+
+    padding: 0;
+
+    border: 0;
+
+    background: transparent;
+
+    color: colors.$color_white;
+
+    cursor: pointer;
+  }
+
+  .closeButton .material-symbols-rounded {
+    font-size: 26px;
+
+    line-height: 1;
+  }
+
+  /* ======================================
+     Auth Buttons
+  ====================================== */
+
+  .authButtons {
     display: flex;
 
     align-items: center;
 
-    gap: 8px;
+    gap: 10px;
 
     width: 100%;
 
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+
+    flex-shrink: 0;
   }
 
   .authSecondary,
@@ -419,14 +687,9 @@
 
     text-decoration: none;
 
-    cursor: pointer;
-
     white-space: nowrap;
 
-    transition:
-      background 0.2s ease,
-      transform 0.2s ease,
-      border-color 0.2s ease;
+    cursor: pointer;
   }
 
   .authSecondary {
@@ -434,7 +697,7 @@
 
     background: transparent;
 
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
 
     color: colors.$color_white;
   }
@@ -453,6 +716,98 @@
   .authPrimary:hover {
     transform: translateY(-1px);
   }
+
+  /* ======================================
+     Scroll Area
+  ====================================== */
+
+  .sidebarScroll {
+    display: flex;
+
+    flex-direction: column;
+
+    width: 100%;
+
+    min-height: 0;
+
+    flex: 1 1 auto;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    padding-bottom: 100px;
+
+    box-sizing: border-box;
+
+    scrollbar-width: thin;
+
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ======================================
+     Navigation
+  ====================================== */
+
+  .sidebarScroll > nav {
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    width: 100%;
+
+    height: auto;
+
+    min-height: 0;
+
+    flex: 0 0 auto;
+  }
+
+  .menu {
+    height: 56px;
+
+    padding: 0 16px;
+
+    gap: 14px;
+
+    border-radius: 12px;
+
+    font-size: 16px;
+  }
+
+  .menu span:first-child {
+    width: 24px;
+    height: 24px;
+
+    font-size: 24px;
+  }
+
+  /* ======================================
+     Sidebar Footer
+  ====================================== */
+
+  .mobileFooter {
+    display: block;
+
+    width: 100%;
+
+    flex: 0 0 auto;
+
+    margin-top: 28px;
+
+    padding-top: 28px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+    box-sizing: border-box;
+  }
+
+  .mobileFooter :global(footer) {
+    width: 100%;
+
+    height: auto;
+
+    min-height: 0;
+  }
 }
 
 /* ========================================
@@ -462,24 +817,47 @@
 
 @media (max-width: 480px) {
   .sidebar {
-    top: 64px;
-    bottom: 85px;
+    width: 262px;
+    min-width: 262px;
 
-    width: 240px;
-    min-width: 240px;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
 
-    padding: 16px;
+    padding: 16px 14px 14px;
   }
 
-  .authArea {
-    gap: 6px;
+  .mobileHeader {
+    margin-bottom: 14px;
+  }
 
-    margin-bottom: 16px;
+  .mobileLogo {
+    font-size: 20px;
+  }
+
+  .mobileLogo img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .closeButton {
+    width: 36px;
+    height: 36px;
+  }
+
+  .closeButton .material-symbols-rounded {
+    font-size: 24px;
+  }
+
+  .authButtons {
+    gap: 8px;
+
+    margin-bottom: 18px;
   }
 
   .authSecondary,
   .authPrimary {
-    height: 40px;
+    height: 38px;
 
     padding: 0 10px;
 
@@ -488,12 +866,22 @@
     font-size: 13px;
   }
 
+  /* ======================================
+     Mobile Scroll Area
+  ====================================== */
+
+  .sidebarScroll {
+    padding-bottom: 90px;
+  }
+
   .menu {
     height: 48px;
 
-    padding: 0 14px;
+    padding: 0 12px;
 
     gap: 12px;
+
+    border-radius: 10px;
 
     font-size: 15px;
   }
@@ -504,11 +892,23 @@
 
     font-size: 23px;
   }
+
+  .trashMenu {
+    margin-top: 16px;
+  }
+
+  .mobileFooter {
+    margin-top: 22px;
+
+    padding-top: 22px;
+  }
 }
 
 /* ========================================
    PC
    1201px 이상
+
+   기존 PC Sidebar 유지
 ======================================== */
 
 @media (min-width: 1201px) {
@@ -520,10 +920,5 @@
     min-height: 618px;
 
     align-self: flex-start;
-  }
-
-  /* PC에서는 인증 버튼 숨김 */
-  .authArea {
-    display: none;
   }
 }

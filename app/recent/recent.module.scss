@@ -793,3 +793,13 @@
     font-size: 24px;
   }
 }
+
+.pageFooter {
+  display: block;
+}
+
+@media (max-width: 1200px) {
+  .pageFooter {
+    display: none;
+  }
+}
