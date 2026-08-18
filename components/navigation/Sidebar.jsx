@@ -1,11 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+
+import { createClient } from "@/lib/supabase/client";
+
 import styles from "./Sidebar.module.scss";
 
 const Sidebar = ({ open, onClose, page = "mypage" }) => {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const supabase = createClient();
+
+  /* ========================================
+     Sidebar Menu
+  ======================================== */
 
   const menus = [
     {
@@ -35,13 +45,38 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
     },
   ];
 
+  /* ========================================
+     휴지통
+  ======================================== */
+
   if (page === "character" || page === "trash") {
     menus.push({
       icon: "delete",
       label: "휴지통",
-      href: "/trash",
+      href: "/my-trash",
     });
   }
+
+  /* ========================================
+     Logout
+  ======================================== */
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("로그아웃 실패:", error);
+
+      alert("로그아웃에 실패했습니다.");
+
+      return;
+    }
+
+    onClose?.();
+
+    router.replace("/login");
+    router.refresh();
+  };
 
   return (
     <>
@@ -62,10 +97,10 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
               key={menu.href}
               href={menu.href}
               className={`
-              ${styles.menu}
-              ${pathname === menu.href ? styles.active : ""}
-              ${menu.icon === "delete" ? styles.trashMenu : ""}
-            `}
+                ${styles.menu}
+                ${pathname === menu.href ? styles.active : ""}
+                ${menu.icon === "delete" ? styles.trashMenu : ""}
+              `}
               onClick={onClose}
             >
               <span className="material-symbols-rounded" aria-hidden="true">
@@ -77,7 +112,7 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
           ))}
 
           {/* 로그아웃 */}
-          <button type="button" className={styles.logout}>
+          <button type="button" className={styles.logout} onClick={handleLogout}>
             <span className="material-symbols-rounded" aria-hidden="true">
               logout
             </span>

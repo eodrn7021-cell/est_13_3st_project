@@ -1,0 +1,255 @@
+@use "@/styles/abstracts/colors" as *;
+@use "@/styles/abstracts/variables" as *;
+
+/* ========================================
+   Page Wrapper
+======================================== */
+
+.pageWrapper {
+  position: relative;
+
+  min-height: 100vh;
+
+  color: $color_white;
+
+  background:
+    linear-gradient(180deg, rgba(8, 10, 25, 0.08) 0%, rgba(8, 10, 25, 0.2) 100%),
+    url("/images/backgrounds/fantasy-space.webp");
+
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+
+  overflow-x: hidden;
+}
+
+/* ========================================
+   Sidebar + Main
+======================================== */
+
+.contentLayout {
+  display: flex;
+
+  align-items: flex-start;
+
+  width: min(1200px, calc(100% - 80px));
+
+  margin: 16px auto 0;
+
+  gap: 24px;
+
+  min-width: 0;
+
+  box-sizing: border-box;
+}
+
+/* ========================================
+   Page
+======================================== */
+
+.page {
+  flex: 1;
+
+  min-width: 0;
+
+  min-height: 590px;
+
+  padding: 0 0 70px;
+
+  box-sizing: border-box;
+
+  color: $color_white;
+
+  background: transparent;
+
+  display: flex;
+
+  align-items: center;
+}
+
+/* ========================================
+   Container
+======================================== */
+
+.container {
+  width: 100%;
+
+  max-width: 940px;
+
+  margin: 0 auto;
+
+  padding: 0 20px;
+
+  box-sizing: border-box;
+}
+
+/* ========================================
+   Message
+======================================== */
+
+.messageSection {
+  width: 100%;
+
+  min-height: 400px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+}
+
+.messageSection h1 {
+  margin: 0 0 18px;
+
+  color: $color_white;
+
+  font-family: $font_family_kr;
+
+  font-size: 42px;
+
+  font-weight: $font_weight_bold;
+
+  line-height: 1.2;
+
+  letter-spacing: -0.02em;
+}
+
+.messageSection p {
+  margin: 0;
+
+  color: $color_secondary;
+
+  font-family: $font_family_kr;
+
+  font-size: 16px;
+
+  font-weight: $font_weight_regular;
+
+  line-height: 1.5;
+}
+
+/* ========================================
+   Tablet
+   769px ~ 1200px
+======================================== */
+
+@media (min-width: 769px) and (max-width: 1200px) {
+  .contentLayout {
+    width: calc(100% - 48px);
+
+    max-width: 960px;
+
+    gap: 20px;
+  }
+
+  .page {
+    padding: 32px 0 70px;
+
+    min-height: 590px;
+  }
+
+  .container {
+    max-width: 780px;
+
+    padding: 0;
+  }
+
+  .messageSection h1 {
+    font-size: 36px;
+  }
+
+  .messageSection p {
+    font-size: 15px;
+  }
+}
+
+/* ========================================
+   Tablet
+   481px ~ 768px
+======================================== */
+
+@media (max-width: 768px) and (min-width: 481px) {
+  .contentLayout {
+    display: block;
+
+    width: 100%;
+
+    margin: 0;
+  }
+
+  .page {
+    width: 100%;
+
+    min-height: calc(100vh - 160px);
+
+    padding: 32px 0 100px;
+  }
+
+  .container {
+    width: 690px;
+
+    max-width: 690px;
+
+    margin: 0 auto;
+
+    padding: 0;
+  }
+
+  .messageSection {
+    min-height: 420px;
+  }
+
+  .messageSection h1 {
+    font-size: 34px;
+  }
+
+  .messageSection p {
+    font-size: 14px;
+  }
+}
+
+/* ========================================
+   Mobile
+   480px 이하
+======================================== */
+
+@media (max-width: 480px) {
+  .page {
+    min-height: calc(100vh - 150px);
+
+    padding: 24px 0 110px;
+  }
+
+  .container {
+    width: calc(100% - 40px);
+
+    max-width: 400px;
+
+    margin: 0 auto;
+
+    padding: 0;
+  }
+
+  .messageSection {
+    min-height: 420px;
+
+    padding: 20px 10px;
+
+    box-sizing: border-box;
+  }
+
+  .messageSection h1 {
+    margin-bottom: 14px;
+
+    font-size: 28px;
+  }
+
+  .messageSection p {
+    font-size: 12px;
+  }
+}

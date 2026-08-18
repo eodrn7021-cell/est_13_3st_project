@@ -1,0 +1,688 @@
+@use "@/styles/abstracts/colors" as *;
+@use "@/styles/abstracts/variables" as *;
+
+/* ========================================
+   Page Wrapper
+======================================== */
+
+.pageWrapper {
+  position: relative;
+
+  min-height: 100vh;
+
+  color: $color_white;
+
+  background:
+    linear-gradient(180deg, rgba(8, 10, 25, 0.08) 0%, rgba(8, 10, 25, 0.2) 100%),
+    url("/images/backgrounds/fantasy-space.webp");
+
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+
+  overflow-x: hidden;
+}
+
+/* ========================================
+   Sidebar + Main
+======================================== */
+
+.contentLayout {
+  display: flex;
+
+  align-items: flex-start;
+
+  width: min(1200px, calc(100% - 80px));
+
+  margin: 0 auto;
+
+  gap: 24px;
+
+  min-width: 0;
+}
+
+/* ========================================
+   Page
+======================================== */
+
+.page {
+  flex: 1;
+
+  min-width: 0;
+
+  padding: 28px 0 70px;
+
+  box-sizing: border-box;
+
+  color: $color_white;
+}
+
+/* ========================================
+   Container
+======================================== */
+
+.container {
+  width: 100%;
+
+  max-width: 940px;
+
+  margin: 0 auto;
+
+  padding: 0 20px;
+
+  box-sizing: border-box;
+}
+
+/* ========================================
+   Title
+======================================== */
+
+.titleSection {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 36px;
+}
+
+.titleSection h1 {
+  margin: 0 0 8px;
+
+  color: $color_white;
+
+  font-family: $font_family_kr;
+
+  font-size: 24px;
+
+  font-weight: $font_weight_regular;
+
+  line-height: 1;
+}
+
+.titleSection p {
+  margin: 0;
+
+  color: $color_secondary;
+
+  font-family: $font_family_kr;
+
+  font-size: 13px;
+
+  font-weight: $font_weight_regular;
+
+  line-height: 1.5;
+}
+
+/* ========================================
+   Back Button
+======================================== */
+
+.backButton {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 120px;
+
+  height: 40px;
+
+  padding: 0 14px;
+
+  box-sizing: border-box;
+
+  border-radius: 10px;
+
+  background: rgba(32, 35, 58, 0.75);
+
+  border: 1px solid rgba(255, 255, 255, 0.06);
+
+  color: $color_white;
+
+  font-family: $font_family_kr;
+
+  font-size: 13px;
+
+  text-decoration: none;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.backButton:hover {
+  background: $color_secondary;
+
+  transform: translateY(-2px);
+}
+
+/* ========================================
+   Character Section
+======================================== */
+
+.characterSection {
+  width: 100%;
+}
+
+/* ========================================
+   Character Grid
+======================================== */
+
+.characterGrid {
+  display: grid;
+
+  grid-template-columns: repeat(4, 205px);
+
+  gap: 16px;
+
+  width: 100%;
+
+  justify-content: center;
+}
+
+/* ========================================
+   Character Card
+======================================== */
+
+.characterCard {
+  position: relative;
+
+  width: 205px;
+
+  min-width: 205px;
+
+  min-height: 360px;
+
+  overflow: hidden;
+
+  border-radius: 20px;
+
+  background: $color_black;
+
+  border: 1px solid rgba(255, 255, 255, 0.04);
+
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.28);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.characterCard:hover {
+  transform: translateY(-4px);
+
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.38);
+}
+
+/* ========================================
+   Thumbnail
+======================================== */
+
+.thumbnail {
+  position: relative;
+
+  width: 100%;
+
+  height: 220px;
+
+  overflow: hidden;
+
+  background: #11131f;
+}
+
+.thumbnail img {
+  object-fit: cover;
+
+  object-position: center;
+}
+
+/* ========================================
+   Card Body
+======================================== */
+
+.cardBody {
+  padding: 14px;
+
+  box-sizing: border-box;
+}
+
+/* ========================================
+   Deleted Badge
+======================================== */
+
+.deletedBadge {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  height: 20px;
+
+  padding: 0 8px;
+
+  margin-bottom: 8px;
+
+  border-radius: 999px;
+
+  background: $color_tag;
+
+  color: $color_secondary;
+
+  font-family: $font_family_kr;
+
+  font-size: 11px;
+
+  line-height: 1;
+}
+
+/* ========================================
+   Card Title
+======================================== */
+
+.cardBody h2 {
+  margin: 0 0 7px;
+
+  color: $color_white;
+
+  font-family: $font_family_kr;
+
+  font-size: 16px;
+
+  font-weight: $font_weight_regular;
+
+  line-height: 1.3;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+/* ========================================
+   Description
+======================================== */
+
+.cardBody p {
+  margin: 0 0 10px;
+
+  color: $color_secondary;
+
+  font-family: $font_family_kr;
+
+  font-size: 11px;
+
+  line-height: 1.45;
+
+  display: -webkit-box;
+
+  -webkit-line-clamp: 2;
+
+  line-clamp: 2;
+
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+}
+
+/* ========================================
+   Tags
+======================================== */
+
+.tags {
+  display: inline-flex;
+
+  align-items: center;
+
+  min-height: 24px;
+
+  padding: 0 9px;
+
+  box-sizing: border-box;
+
+  border-radius: 999px;
+
+  background: $color_tag;
+
+  color: $color_secondary;
+
+  font-family: $font_family_kr;
+
+  font-size: 11px;
+
+  line-height: 1;
+
+  white-space: nowrap;
+}
+
+/* ========================================
+   Restore Button
+======================================== */
+
+.restoreButton {
+  width: 100%;
+
+  height: 34px;
+
+  margin-top: 14px;
+
+  padding: 0;
+
+  border: 0;
+
+  border-radius: 8px;
+
+  background: $color_primary;
+
+  color: $color_white;
+
+  font-family: $font_family_kr;
+
+  font-size: 13px;
+
+  font-weight: $font_weight_regular;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.restoreButton:hover {
+  background: $color_secondary;
+
+  transform: translateY(-1px);
+}
+
+.restoreButton:disabled {
+  opacity: 0.6;
+
+  cursor: default;
+
+  transform: none;
+}
+
+/* ========================================
+   Empty / Loading
+======================================== */
+
+.message {
+  width: 100%;
+
+  margin: 60px 0;
+
+  color: $color_secondary;
+
+  font-family: $font_family_kr;
+
+  font-size: 14px;
+
+  text-align: center;
+}
+
+/* ========================================
+   Tablet
+======================================== */
+
+@media (max-width: 1200px) {
+  .contentLayout {
+    width: calc(100% - 48px);
+
+    max-width: 960px;
+
+    gap: 20px;
+  }
+
+  .container {
+    max-width: 780px;
+
+    padding: 0;
+  }
+
+  .characterGrid {
+    grid-template-columns: repeat(2, 247.5px);
+
+    gap: 20px;
+  }
+
+  .characterCard {
+    width: 247.5px;
+
+    min-width: 247.5px;
+  }
+}
+
+/* ========================================
+   Mobile
+======================================== */
+
+@media (max-width: 768px) {
+  .contentLayout {
+    width: 100%;
+
+    display: block;
+
+    margin: 0;
+  }
+
+  .page {
+    width: 100%;
+
+    padding: 28px 0 100px;
+  }
+
+  .container {
+    width: calc(100% - 80px);
+
+    max-width: 520px;
+
+    margin: 0 auto;
+  }
+
+  .titleSection {
+    margin-bottom: 28px;
+  }
+
+  .titleSection h1 {
+    font-size: 20px;
+  }
+
+  .titleSection p {
+    font-size: 12px;
+  }
+
+  .backButton {
+    width: 100px;
+
+    height: 34px;
+
+    font-size: 12px;
+  }
+
+  .characterGrid {
+    grid-template-columns: repeat(2, 247.5px);
+
+    gap: 20px;
+  }
+
+  .characterCard {
+    width: 247.5px;
+
+    min-width: 247.5px;
+  }
+}
+
+/* ========================================
+   Small Mobile
+======================================== */
+
+@media (max-width: 480px) {
+  .page {
+    padding: 24px 0 110px;
+  }
+
+  .container {
+    width: calc(100% - 40px);
+
+    max-width: 400px;
+
+    margin: 0 auto;
+  }
+
+  .titleSection {
+    margin-bottom: 24px;
+  }
+
+  .titleSection h1 {
+    font-size: 20px;
+  }
+
+  .titleSection p {
+    font-size: 11px;
+  }
+
+  .backButton {
+    width: 90px;
+
+    height: 30px;
+
+    font-size: 11px;
+  }
+
+  .characterGrid {
+    grid-template-columns: repeat(2, 190px);
+
+    gap: 12px;
+  }
+
+  .characterCard {
+    width: 190px;
+
+    min-width: 190px;
+
+    min-height: 330px;
+
+    border-radius: 15px;
+  }
+
+  .thumbnail {
+    height: 190px;
+  }
+
+  .cardBody {
+    padding: 10px;
+  }
+
+  .cardBody h2 {
+    font-size: 15px;
+  }
+
+  .cardBody p {
+    font-size: 11px;
+  }
+
+  .tags {
+    font-size: 11px;
+  }
+
+  .restoreButton {
+    height: 30px;
+
+    margin-top: 10px;
+
+    font-size: 12px;
+  }
+}
+
+/* ========================================
+   Action Buttons
+======================================== */
+
+.actionButtons {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 8px;
+
+  margin-top: 14px;
+}
+
+/* ========================================
+   Restore Button
+======================================== */
+
+.actionButtons .restoreButton {
+  margin-top: 0;
+}
+
+/* ========================================
+   Permanent Delete Button
+======================================== */
+
+.permanentDeleteButton {
+  width: 100%;
+
+  height: 34px;
+
+  margin: 0;
+
+  padding: 0;
+
+  border: 0;
+
+  border-radius: 8px;
+
+  background: rgba(255, 95, 95, 0.12);
+
+  color: #ff7777;
+
+  font-family: $font_family_kr;
+
+  font-size: 13px;
+
+  font-weight: $font_weight_regular;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.permanentDeleteButton:hover {
+  background: rgba(255, 95, 95, 0.22);
+
+  color: #ff8c8c;
+
+  transform: translateY(-1px);
+}
+
+.permanentDeleteButton:disabled {
+  opacity: 0.6;
+
+  cursor: default;
+
+  transform: none;
+}
+
+/* ========================================
+   Mobile
+======================================== */
+
+@media (max-width: 480px) {
+  .actionButtons {
+    gap: 6px;
+
+    margin-top: 10px;
+  }
+
+  .permanentDeleteButton {
+    height: 30px;
+
+    font-size: 11px;
+  }
+}
