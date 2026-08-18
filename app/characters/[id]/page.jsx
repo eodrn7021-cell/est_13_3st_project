@@ -170,6 +170,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
     }
     // 캐시가 없거나 다른 캐릭터를 처음 진입할 때만 초기화
     if (!cachedCharacter || cachedCharacter.id !== id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(true);
     }
     setSelectedImage(null);

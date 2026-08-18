@@ -82,14 +82,14 @@ const HomeMobileMenu = () => {
   }, [isOpen]);
 
   // 애니메이션 후 메뉴 닫기
-  const handleClose = () => {
+  function handleClose() {
     setIsClosing(true);
 
     setTimeout(() => {
       setIsOpen(false);
       setIsClosing(false);
     }, 250);
-  };
+  }
 
   // 로그아웃
   const handleLogout = async () => {

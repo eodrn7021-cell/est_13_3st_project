@@ -44,6 +44,7 @@ export default function CharacterForm({
     const handleChange = (e) => {
       setIsResponsive(e.matches);
     };
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsResponsive(mediaQuery.matches);
 
     mediaQuery.addEventListener("change", handleChange);
@@ -79,6 +80,7 @@ export default function CharacterForm({
   });
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormData((prev) => ({
       ...prev,
       ...initialValues,

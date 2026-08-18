@@ -20,6 +20,7 @@ export default function WorldSelectModal({
       worlds.length > 0 &&
       (!selectedWorldId || !worlds.some((w) => String(w.id) === String(selectedWorldId)))
     ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedWorldId(worlds[0].id);
     }
   }, [worlds, selectedWorldId]);

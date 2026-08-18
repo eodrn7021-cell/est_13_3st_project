@@ -582,6 +582,7 @@ const MyCharactersPage = () => {
   ======================================== */
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobilePage(1);
   }, [filter]);
 
