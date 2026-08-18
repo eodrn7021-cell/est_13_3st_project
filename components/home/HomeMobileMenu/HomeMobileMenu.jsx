@@ -8,7 +8,11 @@ import Header from "@/components/layout/Header/Header";
 import Footer from "@/components/layout/Footer/Footer";
 import styles from "./HomeMobileMenu.module.scss";
 
-const HomeMobileMenu = ({ headerVariant = "main", hideResponsiveSearch = false }) => {
+const HomeMobileMenu = ({
+  headerVariant = "main",
+  hideResponsiveSearch = false,
+  showSearch = false,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [isClosing, setIsClosing] = useState(false);
@@ -117,6 +121,7 @@ const HomeMobileMenu = ({ headerVariant = "main", hideResponsiveSearch = false }
       <Header
         variant={headerVariant}
         hideResponsiveSearch={hideResponsiveSearch}
+        showSearch={showSearch} // 여기 추가
         onMenuClick={() => {
           setIsClosing(false);
           setIsOpen(true);
