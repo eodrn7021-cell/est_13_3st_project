@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Footer from '@/components/layout/Footer/Footer';
 import HomeSidebar from '@/components/home/HomeSidebar/HomeSidebar';
-import HomeMobileMenu from '@/components/home/HomeMobileMenu/HomeMobileMenu'; // 모바일 메뉴 컴포넌트 불러오기
+import HomeMobileMenu from '@/components/home/HomeMobileMenu/HomeMobileMenu';
 import MobileNavigation from '@/components/layout/MobileNavigation/MobileNavigation';
 import styles from './characters.module.scss';
 
@@ -18,102 +18,78 @@ const CharactersContent = () => {
   const searchParams = useSearchParams();
   const supabase = createClient();
 
-  // 1. URL 쿼리 파라미터 파싱
+  // 1. URL 쿼리 파라미터를 직접 읽어와서 파싱 (상태 동기화 꼬임 방지)
   const searchParamsString = searchParams.toString();
   const tagsParam = searchParams.get('tags') || searchParams.get('tag') || '';
   const currentTags = tagsParam ? tagsParam.split(',').filter(Boolean) : [];
   const searchQuery =
     searchParams.get('search') || searchParams.get('q') || searchParams.get('query') || '';
 
-  // 2. 상태(State) 관리
-  const [characters, setCharacters] = useState([]);
-  const [worlds, setWorlds] = useState([]);
+  const sortParam = searchParams.get('sort');
+  const actualSort =
+    sortParam === 'popular' || sortParam === '추천순'
+      ? '추천순'
+      : sortParam === 'views' || sortParam === '인기순'
+        ? '인기순'
+        : '최신순';
 
-  // 필터 옵션 목록
+  const raceFilter = searchParams.get('race') || '';
+  const themeFilter = searchParams.get('theme') || '';
+  const genderFilter = searchParams.get('gender') || '';
+  const genreFilter = searchParams.get('genre') || '';
+
+  // 2. 상태(State) 관리 - DB 옵션 및 결과 데이터만 관리
+  const [characters, setCharacters] = useState([]);
+
+  // 필터 옵션 목록 (races, themes, genres, gender)
   const [raceOptions, setRaceOptions] = useState([]);
-  const [jobOptions, setJobOptions] = useState([]);
+  const [themeOptions, setThemeOptions] = useState([]);
   const [genderOptions, setGenderOptions] = useState([]);
+  const [genreOptions, setGenreOptions] = useState([]);
 
   // UI 상태
   const [isLoading, setIsLoading] = useState(true);
 
-  // Helper: URL의 sort 값에 따른 한글 필터명 반환
-  const getSortLabelFromUrl = (sortParam) => {
-    if (sortParam === 'popular' || sortParam === '추천순') return '추천순';
-    if (sortParam === 'views' || sortParam === '인기순') return '인기순';
-    return '최신순';
-  };
-
-  // 선택된 필터 조건 상태
-  const [filters, setFilters] = useState({
-    sort: getSortLabelFromUrl(searchParams.get('sort')),
-    world_id: searchParams.get('world_id') || '',
-    race: searchParams.get('race') || '',
-    job_role: searchParams.get('job_role') || '',
-    gender: searchParams.get('gender') || '',
-    tags: currentTags,
-  });
-
-  // URL 변경 감지 및 filters 상태 동기화
+  // DB에서 필터 옵션 조회
   useEffect(() => {
-    setFilters({
-      sort: getSortLabelFromUrl(searchParams.get('sort')),
-      world_id: searchParams.get('world_id') || '',
-      race: searchParams.get('race') || '',
-      job_role: searchParams.get('job_role') || '',
-      gender: searchParams.get('gender') || '',
-      tags: currentTags,
-    });
-  }, [searchParamsString]);
+    const fetchFilterOptions = async () => {
+      const { data: raceData } = await supabase.from('races').select('id, name');
+      if (raceData) setRaceOptions(raceData);
 
-  // 초기 셀렉트박스 옵션 데이터 조회 (세계관, 종족, 직업, 성별)
-  useEffect(() => {
-    const fetchFilterData = async () => {
-      const { data: worldData, error: worldError } = await supabase.from('worlds').select('*');
-      if (worldError) {
-        console.error('세계관 로딩 에러:', worldError);
-      } else if (worldData) {
-        setWorlds(worldData);
-      }
+      const { data: themeData } = await supabase.from('themes').select('id, name');
+      if (themeData) setThemeOptions(themeData);
 
-      const { data: charData, error: charError } = await supabase
-        .from('characters')
-        .select('world_id, race, job_role, gender');
+      const { data: genreData } = await supabase.from('genres').select('id, name');
+      if (genreData) setGenreOptions(genreData);
 
-      if (charError) {
-        console.error('캐릭터 필터 데이터 로딩 에러:', charError);
-      } else if (charData) {
-        const races = Array.from(new Set(charData.map((item) => item.race).filter(Boolean)));
-        const jobs = Array.from(new Set(charData.map((item) => item.job_role).filter(Boolean)));
-        const genders = Array.from(new Set(charData.map((item) => item.gender).filter(Boolean)));
-
-        setRaceOptions(races);
-        setJobOptions(jobs);
+      const { data: charGenderData } = await supabase.from('characters').select('gender');
+      if (charGenderData) {
+        const genders = Array.from(
+          new Set(charGenderData.map((item) => item.gender).filter(Boolean)),
+        );
         setGenderOptions(genders);
-
-        if (!worldData || worldData.length === 0) {
-          const uniqueWorldIds = Array.from(
-            new Set(charData.map((item) => item.world_id).filter(Boolean)),
-          );
-          setWorlds(uniqueWorldIds.map((id) => ({ id, name: `세계관 ${id}` })));
-        }
       }
     };
 
-    fetchFilterData();
+    fetchFilterOptions();
   }, []);
 
-  // 캐릭터 데이터 Fetch
+  // 캐릭터 데이터 Fetch (필터 조건 실시간 반영)
   useEffect(() => {
     const fetchCharacters = async () => {
       setIsLoading(true);
 
-      let query = supabase.from('characters').select('*, worlds(*), character_likes(count)');
+      let query = supabase.from('characters').select('*, worlds!inner(*), character_likes(count)');
 
-      if (filters.world_id) query = query.eq('world_id', Number(filters.world_id));
-      if (filters.race) query = query.eq('race', filters.race);
-      if (filters.job_role) query = query.eq('job_role', filters.job_role);
-      if (filters.gender) query = query.eq('gender', filters.gender);
+      if (raceFilter) query = query.eq('race', raceFilter);
+      if (genderFilter) query = query.eq('gender', genderFilter);
+
+      if (genreFilter) {
+        query = query.eq('worlds.genre', genreFilter);
+      }
+      if (themeFilter) {
+        query = query.or(`theme.eq.${themeFilter},worlds.theme.eq.${themeFilter}`);
+      }
 
       if (searchQuery.trim()) {
         const keyword = `%${searchQuery.trim()}%`;
@@ -126,10 +102,28 @@ const CharactersContent = () => {
 
       if (error) {
         console.error('Supabase Error:', error);
+        let fallbackQuery = supabase
+          .from('characters')
+          .select('*, worlds(*), character_likes(count)');
+        if (raceFilter) fallbackQuery = fallbackQuery.eq('race', raceFilter);
+        if (genderFilter) fallbackQuery = fallbackQuery.eq('gender', genderFilter);
+        const { data: fallbackData } = await fallbackQuery;
+
+        let filtered = fallbackData || [];
+        if (genreFilter) {
+          filtered = filtered.filter(
+            (item) => item.worlds?.genre === genreFilter || item.genre === genreFilter,
+          );
+        }
+        if (themeFilter) {
+          filtered = filtered.filter(
+            (item) => item.worlds?.theme === themeFilter || item.theme === themeFilter,
+          );
+        }
+        setCharacters(filtered);
       } else {
         let resultData = data || [];
 
-        // 다중 조건 정렬 로직
         resultData = [...resultData].sort((a, b) => {
           const likesA = a.character_likes?.[0]?.count || a.like_count || 0;
           const likesB = b.character_likes?.[0]?.count || b.like_count || 0;
@@ -138,17 +132,13 @@ const CharactersContent = () => {
           const timeA = new Date(a.created_at || 0).getTime();
           const timeB = new Date(b.created_at || 0).getTime();
 
-          if (filters.sort === '추천순') {
-            // 1차: 좋아요 높은 순 -> 2차: 조회수 높은 순
+          if (actualSort === '추천순') {
             if (likesB !== likesA) return likesB - likesA;
             return viewsB - viewsA;
-          } else if (filters.sort === '인기순') {
-            // 1차: 조회수 높은 순 -> 2차: 좋아요 높은 순
+          } else if (actualSort === '인기순') {
             if (viewsB !== viewsA) return viewsB - viewsA;
             return likesB - likesA;
           } else {
-            // 최신순 (기본)
-            // 1차: 만들어진 시간 순 -> 2차: 조회수 높은 순
             if (timeB !== timeA) return timeB - timeA;
             return viewsB - viewsA;
           }
@@ -161,14 +151,22 @@ const CharactersContent = () => {
     };
 
     fetchCharacters();
-  }, [filters.sort, filters.world_id, filters.race, filters.job_role, filters.gender, searchQuery]);
+  }, [actualSort, raceFilter, themeFilter, genderFilter, genreFilter, searchQuery]);
 
-  // 핸들러: 상단 필터 변경 시
+  // 핸들러: 상단 드롭다운 필터 변경 시 URL 파라미터 갱신
   const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  // 🔥 핵심: 초기화 버튼 핸들러 (누르는 즉시 URL 파라미터 전부 날리고 전체 목록으로 이동)
+  const handleResetFilters = () => {
+    router.push(pathname);
   };
 
   // 핸들러: 헤더 검색어 제출 캐치
@@ -188,7 +186,7 @@ const CharactersContent = () => {
 
   // 다중 태그 일치 필터링 & 가중치 정렬 처리
   const processDisplayList = () => {
-    if (!filters.tags || filters.tags.length === 0) {
+    if (!currentTags || currentTags.length === 0) {
       return characters;
     }
 
@@ -202,7 +200,7 @@ const CharactersContent = () => {
           item.gender,
         ].filter(Boolean);
 
-        const matchCount = filters.tags.reduce((acc, tag) => {
+        const matchCount = currentTags.reduce((acc, tag) => {
           const isDirectMatch = itemTags.includes(tag);
           const isStoryMatch = item.background_story?.includes(tag);
           return isDirectMatch || isStoryMatch ? acc + 1 : acc;
@@ -228,16 +226,14 @@ const CharactersContent = () => {
 
   return (
     <div className={styles.page_container}>
-      {/* Header 대신 HomeMobileMenu 컴포넌트를 사용해 모바일 대응 및 헤더 동시 처리 */}
       <div
         onClick={handleHeaderCapture}
         onSubmitCapture={handleHeaderCapture}
         onKeyDownCapture={handleHeaderCapture}
       >
-        <HomeMobileMenu headerVariant="main" />
+        <HomeMobileMenu headerVariant="main" showSearch />
       </div>
 
-      {/* 메인 콘텐츠 레이아웃 */}
       <div className={styles.main_wrapper}>
         <div className={styles.layout_body}>
           <div className={styles.pc_sidebar}>
@@ -247,10 +243,11 @@ const CharactersContent = () => {
           <main className={styles.content_area}>
             {/* 상단 드롭다운 필터 바 */}
             <div className={styles.filter_bar}>
+              {/* 정렬 필터 */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.sort || '최신순'}
+                  value={actualSort}
                   onChange={(e) => handleFilterChange('sort', e.target.value)}
                 >
                   <option value="최신순">최신순</option>
@@ -262,16 +259,17 @@ const CharactersContent = () => {
                 </span>
               </div>
 
+              {/* 종족 필터 (races 테이블 연동) */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.race || ''}
+                  value={raceFilter}
                   onChange={(e) => handleFilterChange('race', e.target.value)}
                 >
                   <option value="">종족</option>
-                  {(raceOptions || []).map((race) => (
-                    <option key={race} value={race}>
-                      {race}
+                  {(raceOptions || []).map((item) => (
+                    <option key={item.id || item.name} value={item.name}>
+                      {item.name}
                     </option>
                   ))}
                 </select>
@@ -280,16 +278,17 @@ const CharactersContent = () => {
                 </span>
               </div>
 
+              {/* 테마 필터 (themes 테이블 연동) */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.world_id || ''}
-                  onChange={(e) => handleFilterChange('world_id', e.target.value)}
+                  value={themeFilter}
+                  onChange={(e) => handleFilterChange('theme', e.target.value)}
                 >
                   <option value="">테마</option>
-                  {(worlds || []).map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name || t.title || t.world_name}
+                  {(themeOptions || []).map((item) => (
+                    <option key={item.id || item.name} value={item.name}>
+                      {item.name}
                     </option>
                   ))}
                 </select>
@@ -298,10 +297,11 @@ const CharactersContent = () => {
                 </span>
               </div>
 
+              {/* 성별 필터 (characters.gender 연동) */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.gender || ''}
+                  value={genderFilter}
                   onChange={(e) => handleFilterChange('gender', e.target.value)}
                 >
                   <option value="">성별</option>
@@ -316,16 +316,17 @@ const CharactersContent = () => {
                 </span>
               </div>
 
+              {/* 장르 필터 (genres 테이블 연동) */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.job_role || ''}
-                  onChange={(e) => handleFilterChange('job_role', e.target.value)}
+                  value={genreFilter}
+                  onChange={(e) => handleFilterChange('genre', e.target.value)}
                 >
                   <option value="">장르</option>
-                  {(jobOptions || []).map((job) => (
-                    <option key={job} value={job}>
-                      {job}
+                  {(genreOptions || []).map((item) => (
+                    <option key={item.id || item.name} value={item.name}>
+                      {item.name}
                     </option>
                   ))}
                 </select>
@@ -333,6 +334,22 @@ const CharactersContent = () => {
                   expand_more
                 </span>
               </div>
+
+              {/* 🔥 추가된 초기화 버튼 (인라인 스타일 대신 SCSS 활용 혹은 필요시 클래스 연결) */}
+              {(raceFilter ||
+                themeFilter ||
+                genderFilter ||
+                genreFilter ||
+                searchQuery ||
+                currentTags.length > 0) && (
+                <button
+                  type="button"
+                  className={styles.reset_button || ''}
+                  onClick={handleResetFilters}
+                >
+                  필터 초기화
+                </button>
+              )}
             </div>
 
             {/* 카드 그리드 영역 */}
