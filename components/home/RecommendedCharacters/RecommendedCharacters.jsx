@@ -117,9 +117,6 @@ const RecommendedCharacters = () => {
 
     preventClick.current = false;
     setIsDragging(true);
-
-    // 마우스가 영역 밖으로 나가도 드래그 유지
-    e.currentTarget.setPointerCapture?.(e.pointerId);
   };
 
   // 드래그하면 실제 카드도 같이 이동
@@ -130,8 +127,14 @@ const RecommendedCharacters = () => {
 
     setDragOffset(distance);
 
+    // 실제로 10px 이상 움직였을 때만 드래그로 판단
     if (Math.abs(distance) > 10) {
       preventClick.current = true;
+
+      // 실제 드래그가 시작된 뒤에만 pointer capture
+      if (!e.currentTarget.hasPointerCapture?.(e.pointerId)) {
+        e.currentTarget.setPointerCapture?.(e.pointerId);
+      }
     }
   };
 
@@ -160,7 +163,10 @@ const RecommendedCharacters = () => {
     setDragOffset(0);
     setIsDragging(false);
 
-    e.currentTarget.releasePointerCapture?.(e.pointerId);
+    // 실제로 pointer capture가 걸려 있을 때만 해제
+    if (e.currentTarget.hasPointerCapture?.(e.pointerId)) {
+      e.currentTarget.releasePointerCapture?.(e.pointerId);
+    }
   };
 
   // 드래그 취소
