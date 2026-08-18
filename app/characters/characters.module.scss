@@ -220,12 +220,14 @@
   }
 }
 
-/* Card Grid Container */
+/* Card Grid Container (페이드아웃 지우고 칼같이 자르기 적용) */
 .card_grid_container {
   flex: 1;
   width: 100%;
   min-width: 0;
   min-height: 0;
+
+  /* PC 기본 높이 및 스크롤 설정 */
   max-height: calc(100vh - 260px);
   overflow-y: auto;
   padding-right: 6px;
@@ -239,6 +241,37 @@
   &::-webkit-scrollbar-thumb {
     background: $color_text_muted;
     border-radius: 10px;
+  }
+}
+
+/* Media Queries (반응형 1200px 이하) */
+@media (max-width: 1200px) {
+  .main_wrapper {
+    .pc_sidebar {
+      display: none;
+    }
+
+    .content_area {
+      width: 100%;
+    }
+  }
+
+  .card_grid_container {
+    /* 하단바 높이 + 20px 간격을 뺀 위치까지만 딱 스크롤 영역으로 제한 */
+    max-height: calc(100vh - 180px);
+  }
+
+  .pc_footer_wrapper {
+    display: none;
+  }
+
+  .mobile_nav_wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 999;
+    display: block;
+    width: 100%;
   }
 }
 
@@ -379,7 +412,7 @@
       }
     }
 
-    /* 다채로운 크기의 핀터레스트 스타일을 만드는 카드 높이 패턴 복구 */
+    /* 다채로운 크기의 핀터레스트 스타일을 만드는 카드 높이 패턴 */
     &:nth-child(6n + 1) {
       height: 180px;
     }
