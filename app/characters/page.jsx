@@ -432,12 +432,4 @@ const CharactersPage = () => {
   );
 };
 
-const CharactersPage = () => {
-  return (
-    <Suspense fallback={null}>
-      <CharactersContent />
-    </Suspense>
-  );
-};
-
 export default CharactersPage;
