@@ -13,7 +13,7 @@ import styles from "./page.module.scss";
 const HomePage = () => {
   return (
     <>
-      <HomeMobileMenu />
+      <HomeMobileMenu hideResponsiveSearch />
 
       <main className={styles.home}>
         {/* 사이드바 + 메인 콘텐츠 */}
@@ -87,7 +87,9 @@ const HomePage = () => {
 
       <MobileNavigation />
 
-      <Footer />
+      <div className={styles.home_footer}>
+        <Footer />
+      </div>
     </>
   );
 };

@@ -51,7 +51,10 @@ const PopularStories = () => {
         <h2 className="kr_body_b">인기 스토리</h2>
 
         {/* 추후 캐릭터 목록의 좋아요순 정렬과 연결 */}
-        <Link href="/characters?sort=likes" className={`kr_caption ${styles.popular_stories_more}`}>
+        <Link
+          href="/characters?sort=popular"
+          className={`kr_caption ${styles.popular_stories_more}`}
+        >
           더보기
           <span
             className={`material-symbols-rounded ${styles.popular_stories_more_icon}`}
