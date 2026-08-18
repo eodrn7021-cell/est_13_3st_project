@@ -196,7 +196,7 @@
     font-weight: variables.$font_weight_bold;
     line-height: 1;
     color: colors.$color_white;
-    cursor: pointer;
+    cursor: default;
     user-select: none;
 
     input[type="checkbox"] {
@@ -205,7 +205,7 @@
       width: 16px;
       height: 16px;
       accent-color: colors.$color_primary;
-      cursor: pointer;
+      cursor: default;
       flex-shrink: 0;
     }
   }

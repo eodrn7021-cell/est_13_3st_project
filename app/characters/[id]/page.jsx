@@ -389,7 +389,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
             .from("characters")
             .select("id, name")
             .eq("world_id", data.world_id)
-            .order("created_at", { ascending: true });
+            .order("created_at", { ascending: false });
           
           if (chars) {
             setWorldCharacters(chars);
@@ -451,6 +451,18 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
 
     fetchCharacterAndUser();
   }, [id, isGeneratingMode, router]);
+
+  useEffect(() => {
+    // 선택된 캐릭터가 아코디언 영역 내에 보이도록 스크롤 이동
+    const activeDesktop = document.getElementById("active-desktop-item");
+    if (activeDesktop) {
+      activeDesktop.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+    const activeMobile = document.getElementById("active-mobile-item");
+    if (activeMobile) {
+      activeMobile.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [id, worldCharacters, isCharacterOpen]);
 
   const handleLikeToggle = async () => {
     if (!currentUser) {
@@ -810,17 +822,22 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
               worldCharacters.map((char) => (
                 <div
                   key={char.id}
+                  id={String(char.id) === String(id) ? "active-desktop-item" : undefined}
                   className={`${sidebarStyles.subItem} ${String(char.id) === String(id) ? sidebarStyles.active : ""}`}
-                  onClick={() => router.push(`/characters/${char.id}`)}
+                  onClick={() => router.push(`/characters/${char.id}`, { scroll: false })}
                 >
-                  <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
-                    auto_stories
-                  </span>
+                  {String(char.id) === String(id) ? (
+                    <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+                      auto_stories
+                    </span>
+                  ) : (
+                    <span className="icon_24" style={{ display: "inline-flex", width: "24px", height: "24px", flexShrink: 0 }} />
+                  )}
                   <span className="kr_body_b">{char.name}</span>
                 </div>
               ))
             ) : (
-              <div className={`${createStyles.topSubItem} ${createStyles.active}`}>
+              <div className={`${sidebarStyles.subItem} ${sidebarStyles.active}`}>
                 <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
                   auto_stories
                 </span>
@@ -865,7 +882,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
     setIsDeleting(true);
     try {
       const res = await fetch("/api/characters/delete", {
-        method: "POST",
+        method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ characterId: id }),
       });
@@ -955,15 +972,15 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
         </div>
       )}
 
-      <button type="button" className={sidebarStyles.sideButton} onClick={() => setIsHelpModalOpen(true)}>
-        <span className={sidebarStyles.buttonIcon}>
-          <HelpOutlineIcon />
-        </span>
-        <span className="kr_body_b">도움말</span>
-      </button>
-
       {isOwner && (
         <>
+          <button type="button" className={sidebarStyles.sideButton} onClick={() => setIsHelpModalOpen(true)}>
+            <span className={sidebarStyles.buttonIcon}>
+              <HelpOutlineIcon />
+            </span>
+            <span className="kr_body_b">도움말</span>
+          </button>
+
           <button type="button" className={sidebarStyles.sideButton} onClick={handleEdit}>
             <span className="kr_body_b">수정</span>
           </button>
@@ -1013,12 +1030,17 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                   worldCharacters.map((char) => (
                     <div
                       key={char.id}
+                      id={String(char.id) === String(id) ? "active-mobile-item" : undefined}
                       className={`${createStyles.topSubItem} ${String(char.id) === String(id) ? createStyles.active : ""}`}
-                      onClick={() => router.push(`/characters/${char.id}`)}
+                      onClick={() => router.push(`/characters/${char.id}`, { scroll: false })}
                     >
-                      <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
-                        auto_stories
-                      </span>
+                      {String(char.id) === String(id) ? (
+                        <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+                          auto_stories
+                        </span>
+                      ) : (
+                        <span className="icon_24" style={{ display: "inline-flex", width: "24px", height: "24px", flexShrink: 0 }} />
+                      )}
                       <span className="kr_body_b">{char.name}</span>
                     </div>
                   ))
@@ -1064,7 +1086,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                   justifyContent: "center",
                   borderRadius: "16px"
                 }}>
-                  <span className="kr_body_b" style={{ color: "rgba(255,255,255,0.8)" }}>캐릭터 변경 중...</span>
+                  <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>캐릭터 변경 중...</span>
                 </div>
               )}
               {isWorldRegenerating && (
@@ -1081,7 +1103,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                 }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
                     <div className="spinner"></div>
-                    <span className="kr_body_b" style={{ color: "var(--color-white)" }}>세계관 이미지 생성 중...</span>
+                    <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>세계관 이미지 생성 중...</span>
                   </div>
                 </div>
               )}

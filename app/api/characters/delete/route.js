@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-export async function POST(req) {
+export async function DELETE(req) {
   try {
     const body = await req.json();
     const { characterId } = body;
@@ -10,7 +10,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "캐릭터 ID가 필요합니다." }, { status: 400 });
     }
 
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // 1. 현재 사용자 확인
     const { data: { user } } = await supabase.auth.getUser();
