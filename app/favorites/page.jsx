@@ -85,7 +85,7 @@ const FavoritesPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   /* ========================================
-     즐겨찾기 캐릭터
+    북마크 캐릭터
   ======================================== */
 
   const [favoriteCharacters, setFavoriteCharacters] = useState([]);
@@ -99,7 +99,7 @@ const FavoritesPage = () => {
   const [removingId, setRemovingId] = useState(null);
 
   /* ========================================
-     즐겨찾기 조회
+     북마크 조회
   ======================================== */
 
   useEffect(() => {
@@ -128,13 +128,13 @@ const FavoritesPage = () => {
           return;
         }
 
-        console.log("즐겨찾기 현재 사용자 UUID:", user.id);
+        console.log("북마크 현재 사용자 UUID:", user.id);
 
         /* ====================================
            2. 현재 사용자의 북마크 조회
 
            created_at 기준으로
-           최근 즐겨찾기한 순서
+           최근 북마크한 순서
         ==================================== */
 
         const { data: bookmarkData, error: bookmarkError } = await supabase
@@ -147,10 +147,10 @@ const FavoritesPage = () => {
           throw bookmarkError;
         }
 
-        console.log("현재 사용자의 즐겨찾기:", bookmarkData);
+        console.log("현재 사용자의 북마크:", bookmarkData);
 
         /* ====================================
-           즐겨찾기가 없는 경우
+           북마크가 없는 경우
         ==================================== */
 
         if (!bookmarkData || bookmarkData.length === 0) {
@@ -178,7 +178,7 @@ const FavoritesPage = () => {
           throw characterError;
         }
 
-        console.log("즐겨찾기 캐릭터:", characterData);
+        console.log("북마크 캐릭터:", characterData);
 
         /* ====================================
            5. bookmark 순서를 유지하면서
@@ -211,11 +211,11 @@ const FavoritesPage = () => {
           })
           .filter(Boolean);
 
-        console.log("화면용 즐겨찾기 캐릭터:", formattedCharacters);
+        console.log("화면용 북마크 캐릭터:", formattedCharacters);
 
         setFavoriteCharacters(formattedCharacters);
       } catch (error) {
-        console.error("즐겨찾기 조회 실패:", error);
+        console.error("북마크 조회 실패:", error);
 
         setFavoriteCharacters([]);
       } finally {
@@ -227,7 +227,7 @@ const FavoritesPage = () => {
   }, []);
 
   /* ========================================
-     즐겨찾기 삭제
+     북마크 삭제
   ======================================== */
 
   const handleRemoveFavorite = async (characterId) => {
@@ -235,7 +235,7 @@ const FavoritesPage = () => {
       return;
     }
 
-    const confirmed = window.confirm("이 캐릭터를 즐겨찾기에서 삭제하시겠습니까?");
+    const confirmed = window.confirm("이 캐릭터를 북마크에서 삭제하시겠습니까?");
 
     if (!confirmed) {
       return;
@@ -285,11 +285,11 @@ const FavoritesPage = () => {
         prevCharacters.filter((character) => character.id !== characterId),
       );
 
-      alert("즐겨찾기에서 삭제되었습니다.");
+      alert("북마크에서 삭제되었습니다.");
     } catch (error) {
-      console.error("즐겨찾기 삭제 실패:", error);
+      console.error("북마크 삭제 실패:", error);
 
-      alert("즐겨찾기에서 삭제하지 못했습니다.");
+      alert("북마크에서 삭제하지 못했습니다.");
     } finally {
       setRemovingId(null);
     }
@@ -334,7 +334,7 @@ const FavoritesPage = () => {
 
             <section className={styles.titleSection}>
               <div>
-                <h1>즐겨찾기</h1>
+                <h1>북마크</h1>
 
                 <p>마음에 드는 캐릭터를 모아볼 수 있습니다.</p>
               </div>
@@ -350,16 +350,16 @@ const FavoritesPage = () => {
 
             <section className={styles.characterSection}>
               {loading ? (
-                <p className={styles.message}>즐겨찾기를 불러오는 중입니다...</p>
+                <p className={styles.message}>북마크를 불러오는 중입니다...</p>
               ) : favoriteCharacters.length === 0 ? (
                 <div className={styles.emptyState}>
                   <span className="material-symbols-rounded" aria-hidden="true">
                     favorite_border
                   </span>
 
-                  <h2>즐겨찾기한 캐릭터가 없습니다.</h2>
+                  <h2>북마크한 캐릭터가 없습니다.</h2>
 
-                  <p>마음에 드는 캐릭터를 즐겨찾기에 추가해보세요.</p>
+                  <p>마음에 드는 캐릭터를 북마크에 추가해보세요.</p>
 
                   <Link href="/my-characters" className={styles.emptyButton}>
                     내 캐릭터 보러가기
@@ -386,12 +386,6 @@ const FavoritesPage = () => {
                             sizes="(max-width: 768px) 45vw, 285px"
                           />
 
-                          <span className={styles.favoriteBadge}>
-                            <span className="material-symbols-rounded" aria-hidden="true">
-                              favorite
-                            </span>
-                          </span>
-
                           <div className={styles.cardGradient} />
 
                           <div className={styles.cardContent}>
@@ -415,13 +409,13 @@ const FavoritesPage = () => {
                         className={styles.removeButton}
                         onClick={() => handleRemoveFavorite(character.id)}
                         disabled={removingId === character.id}
-                        aria-label={`${character.name} 즐겨찾기 삭제`}
+                        aria-label={`${character.name} 북마크 삭제`}
                       >
                         <span className="material-symbols-rounded" aria-hidden="true">
                           favorite
                         </span>
 
-                        <span>{removingId === character.id ? "삭제 중..." : "즐겨찾기 삭제"}</span>
+                        <span>{removingId === character.id ? "삭제 중..." : "북마크 삭제"}</span>
                       </button>
                     </article>
                   ))}
@@ -433,14 +427,12 @@ const FavoritesPage = () => {
       </div>
 
       {/* =================================
-          Footer
-      ================================= */}
-
-      <Footer />
-
-      {/* =================================
           Mobile Navigation
       ================================= */}
+
+      <div className={styles.pageFooter}>
+        <Footer />
+      </div>
 
       <MobileNavigation />
     </div>

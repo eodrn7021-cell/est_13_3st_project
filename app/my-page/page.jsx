@@ -277,39 +277,41 @@ const MyPage = () => {
         );
 
         /* ====================================
-           10. 즐겨찾기 조회
+           10. 북마크 조회
+
+           현재 로그인 사용자가 북마크한
+           모든 캐릭터를 조회
+
+           내 캐릭터뿐만 아니라
+           팀원이 만든 캐릭터도 포함
         ==================================== */
 
-        let bookmarkData = [];
+        const { data: bookmarkData, error: bookmarkError } = await supabase
+          .from("character_bookmarks")
+          .select("character_id")
+          .eq("user_id", user.id);
 
-        if (characterIds.length > 0) {
-          const { data, error: bookmarkError } = await supabase
-            .from("character_bookmarks")
-            .select("character_id")
-            .eq("user_id", user.id)
-            .in("character_id", characterIds);
-
-          if (bookmarkError) {
-            throw bookmarkError;
-          }
-
-          bookmarkData = data ?? [];
+        if (bookmarkError) {
+          throw bookmarkError;
         }
 
+        console.log("마이페이지 전체 북마크:", bookmarkData);
+
         /* ====================================
-           휴지통 캐릭터의 즐겨찾기는
-           마이페이지 통계에서 제외
+           내 캐릭터 중 휴지통에 있는 캐릭터의
+           북마크만 통계에서 제외
+
+           팀원이 만든 캐릭터의 북마크는
+           정상적으로 카운트
         ==================================== */
 
-        const activeCharacterIdSet = new Set(activeCharacters.map((character) => character.id));
-
-        const activeBookmarkCount = bookmarkData.filter((item) =>
-          activeCharacterIdSet.has(item.character_id),
+        const activeBookmarkCount = (bookmarkData ?? []).filter(
+          (item) => !trashCharacterIds.includes(item.character_id),
         ).length;
 
         setBookmarkCount(activeBookmarkCount);
 
-        console.log("마이페이지 즐겨찾기 수:", activeBookmarkCount);
+        console.log("마이페이지 북마크 수:", activeBookmarkCount);
 
         /* ====================================
            11. 최근 생성한 캐릭터 3개
@@ -419,7 +421,7 @@ const MyPage = () => {
               </div>
 
               <div className={styles.statCard}>
-                <h3>즐겨찾기</h3>
+                <h3>북마크</h3>
 
                 <strong>{loading ? "-" : bookmarkCount}</strong>
               </div>
@@ -493,14 +495,12 @@ const MyPage = () => {
       </div>
 
       {/* ====================================
-          Footer
-      ==================================== */}
-
-      <Footer />
-
-      {/* ====================================
           Mobile Navigation
       ==================================== */}
+
+      <div className={styles.pageFooter}>
+        <Footer />
+      </div>
 
       <MobileNavigation />
     </div>

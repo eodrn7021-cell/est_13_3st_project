@@ -582,6 +582,7 @@ const MyCharactersPage = () => {
   ======================================== */
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobilePage(1);
   }, [filter]);
 
@@ -940,14 +941,11 @@ const MyCharactersPage = () => {
       </div>
 
       {/* =================================
-          Footer
-      ================================= */}
-
-      <Footer />
-
-      {/* =================================
           Mobile Bottom Navigation
       ================================= */}
+      <div className={styles.pageFooter}>
+        <Footer />
+      </div>
 
       <MobileNavigation />
     </div>

@@ -435,14 +435,12 @@ const RecentPage = () => {
       </div>
 
       {/* =================================
-          Footer
-      ================================= */}
-
-      <Footer />
-
-      {/* =================================
           Mobile Navigation
       ================================= */}
+
+      <div className={styles.pageFooter}>
+        <Footer />
+      </div>
 
       <MobileNavigation />
     </div>

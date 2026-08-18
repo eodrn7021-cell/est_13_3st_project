@@ -871,3 +871,13 @@
     height: 360px;
   }
 }
+
+.pageFooter {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .pageFooter {
+    display: none;
+  }
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use, useRef } from "react";
+import { Suspense, useState, useEffect, use, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,7 +31,7 @@ let cachedWorldCharacters = [];
 let cachedIsOwner = false;
 let cachedDbImageHistory = [];
 
-export default function CharacterDetailPage({ params: paramsPromise }) {
+function CharacterDetailContent({ params: paramsPromise }) {
   const params = use(paramsPromise);
   const { id } = params;
   const router = useRouter();
@@ -298,6 +298,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
     }
     // 캐시가 없거나 다른 캐릭터를 처음 진입할 때만 초기화
     if (!cachedCharacter || cachedCharacter.id !== id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(true);
     }
     setSelectedImage(null);
@@ -1213,5 +1214,13 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
       {/* 모바일 하단 네비게이션 */}
       <MobileNavigation />
     </div>
+  );
+}
+
+export default function CharacterDetailPage(props) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CharacterDetailContent {...props} />
+    </Suspense>
   );
 }
