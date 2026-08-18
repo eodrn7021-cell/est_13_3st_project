@@ -9,6 +9,7 @@ import Footer from "@/components/layout/Footer/Footer";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
 import CharacterForm from "@/components/character/CharacterForm/CharacterForm";
 import WorldSelectModal from "@/components/character/WorldSelectModal/WorldSelectModal";
+import HelpModal from "@/components/character/HelpModal/HelpModal";
 import CreateMobileMenu from "@/components/character/CreateMobileMenu/CreateMobileMenu";
 import { createClient } from "@/lib/supabase/client";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
@@ -31,6 +32,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   const [selectedWorld, setSelectedWorld] = useState(null);
   const [existingWorldId, setExistingWorldId] = useState(null);
   const [existingWorldCharacters, setExistingWorldCharacters] = useState([]);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   const [activeNav, setActiveNav] = useState("world");
   const [isCharacterOpen, setIsCharacterOpen] = useState(false);
@@ -616,7 +618,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   const sidebarBottomContent = (
     <>
-      <button type="button" className={sidebarStyles.sideButton}>
+      <button type="button" className={sidebarStyles.sideButton} onClick={() => setIsHelpModalOpen(true)}>
         <span className={sidebarStyles.buttonIcon}>
           <HelpOutlineIcon />
         </span>
@@ -747,7 +749,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
           />
         </div>
 
-        <div style={{ flex: 1, minWidth: 0, height: "100%" }}>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <CharacterForm
             key={selectedCharacterId || "draft"}
             id="characterForm"
@@ -822,6 +824,12 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         onSelectNewWorld={handleSelectNewWorld}
         onSelectExistingWorld={handleSelectExistingWorld}
         onClose={() => router.back()}
+      />
+
+      {/* 도움말 모달 */}
+      <HelpModal
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
       />
 
       {/* 하단 풋터 (PC에서만 표시) */}

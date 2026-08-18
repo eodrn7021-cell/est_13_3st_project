@@ -12,6 +12,7 @@ import CharacterDetail from "@/components/character/CharacterDetail/CharacterDet
 import Button from "@/components/common/Button/Button";
 import LoginModal from "@/components/auth/LoginModal/LoginModal";
 import ConfirmModal from "@/components/common/Modal/ConfirmModal";
+import HelpModal from "@/components/character/HelpModal/HelpModal";
 import { createClient } from "@/lib/supabase/client";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
 import createStyles from "@/app/characters/create/create.module.scss";
@@ -41,6 +42,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   const [isLiked, setIsLiked] = useState(() => Boolean(cachedCharacter?.initialIsLiked));
   const [isBookmarked, setIsBookmarked] = useState(() => Boolean(cachedCharacter?.initialIsBookmarked));
@@ -674,7 +676,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
         </div>
       )}
 
-      <button type="button" className={sidebarStyles.sideButton}>
+      <button type="button" className={sidebarStyles.sideButton} onClick={() => setIsHelpModalOpen(true)}>
         <span className={sidebarStyles.buttonIcon}>
           <HelpOutlineIcon />
         </span>
@@ -765,7 +767,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
         </div>
 
         {/* 메인 폼 위치에 CharacterDetail 컴포넌트 배치 */}
-        <div style={{ flex: 1, minWidth: 0, height: "100%", position: "relative" }}>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", position: "relative" }}>
           {loading && !character ? (
             <div style={{ padding: "40px", textAlign: "center" }}>
               <span className="kr_body_b">캐릭터 정보 불러오는 중...</span>
@@ -855,12 +857,11 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
       {/* 로그인 확인 모달 */}
       <ConfirmModal
         isOpen={isConfirmModalOpen}
-        title="로그인 필요"
         message="로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?"
-        confirmText="이동하기"
+        confirmText="로그인"
         cancelText="취소"
-        onConfirm={handleLoginConfirm}
         onCancel={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleLoginConfirm}
       />
 
       {/* 로그인 모달 */}
@@ -871,6 +872,11 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
           console.log("로그인 성공:", user);
           window.location.reload();
         }}
+      />
+
+      <HelpModal
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
       />
 
       {/* 하단 풋터 (PC에서만 표시) */}

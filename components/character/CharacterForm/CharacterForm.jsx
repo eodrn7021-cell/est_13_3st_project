@@ -252,6 +252,7 @@ export default function CharacterForm({
                       placeholder="세계관 이름"
                       value={formData.title}
                       onChange={(e) => handleChange("title", e.target.value)}
+                      disabled={isReadOnly}
                     />
                     <Select
                       fieldTitle="테마"
@@ -260,6 +261,7 @@ export default function CharacterForm({
                       onChange={(val) => handleChange("theme", val)}
                       isOpen={activeSelect === "theme"}
                       onToggle={(nextState) => setActiveSelect(nextState ? "theme" : null)}
+                      disabled={isReadOnly}
                     />
                     <Select
                       fieldTitle="장르"
@@ -268,6 +270,7 @@ export default function CharacterForm({
                       onChange={(val) => handleChange("genre", val)}
                       isOpen={activeSelect === "genre"}
                       onToggle={(nextState) => setActiveSelect(nextState ? "genre" : null)}
+                      disabled={isReadOnly}
                     />
                   </>
                 ) : (
@@ -326,7 +329,7 @@ export default function CharacterForm({
             }
             value={isWorldMode ? formData.myth_history : formData.background_story}
             onChange={(e) => handleChange(isWorldMode ? "myth_history" : "background_story", e.target.value)}
-            disabled={!isWorldMode && isReadOnly}
+            disabled={isReadOnly}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
             collapsible={isResponsive}
@@ -334,6 +337,7 @@ export default function CharacterForm({
             onToggle={() => toggleCard("cardOne")}
             showActionButton={true}
             onActionButtonClick={() => handleAutoGenerate(isWorldMode ? "myth_history" : "background_story")}
+            actionButtonDisabled={isGeneratingField}
           />
         </div>
 
@@ -348,7 +352,7 @@ export default function CharacterForm({
             }
             value={isWorldMode ? formData.religion_culture : formData.appearance}
             onChange={(e) => handleChange(isWorldMode ? "religion_culture" : "appearance", e.target.value)}
-            disabled={!isWorldMode && isReadOnly}
+            disabled={isReadOnly}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
             collapsible={isResponsive}
@@ -356,6 +360,7 @@ export default function CharacterForm({
             onToggle={() => toggleCard("cardTwo")}
             showActionButton={true}
             onActionButtonClick={() => handleAutoGenerate(isWorldMode ? "religion_culture" : "appearance")}
+            actionButtonDisabled={isGeneratingField}
           />
         </div>
 
@@ -370,7 +375,7 @@ export default function CharacterForm({
             }
             value={isWorldMode ? formData.social_structure : formData.personality}
             onChange={(e) => handleChange(isWorldMode ? "social_structure" : "personality", e.target.value)}
-            disabled={!isWorldMode && isReadOnly}
+            disabled={isReadOnly}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
             collapsible={isResponsive}
@@ -378,6 +383,7 @@ export default function CharacterForm({
             onToggle={() => toggleCard("cardThree")}
             showActionButton={true}
             onActionButtonClick={() => handleAutoGenerate(isWorldMode ? "social_structure" : "personality")}
+            actionButtonDisabled={isGeneratingField}
           />
         </div>
       </div>
@@ -394,7 +400,7 @@ export default function CharacterForm({
             }
             value={isWorldMode ? formData.climate_landmarks : formData.abilities}
             onChange={(e) => handleChange(isWorldMode ? "climate_landmarks" : "abilities", e.target.value)}
-            disabled={!isWorldMode && isReadOnly}
+            disabled={isReadOnly}
             containerStyle={{ height: "100%" }}
             inputStyle={{ flex: 1 }}
             collapsible={isResponsive}
@@ -402,6 +408,7 @@ export default function CharacterForm({
             onToggle={() => toggleCard("cardFour")}
             showActionButton={true}
             onActionButtonClick={() => handleAutoGenerate(isWorldMode ? "climate_landmarks" : "abilities")}
+            actionButtonDisabled={isGeneratingField}
           />
         </div>
 
@@ -421,6 +428,7 @@ export default function CharacterForm({
               onToggle={() => toggleCard("cardFive")}
               showActionButton={true}
               onActionButtonClick={() => handleAutoGenerate("resource_currency")}
+              actionButtonDisabled={isGeneratingField}
             />
           ) : (
             otherCharacters.length === 0 ? (
@@ -434,6 +442,7 @@ export default function CharacterForm({
                 collapsible={isResponsive}
                 isOpen={!isResponsive || openCard === "cardFive"}
                 onToggle={() => toggleCard("cardFive")}
+                showActionButton={false}
               />
             ) : (
               <div className={`${styles.splitViewContainer} ${isResponsive && openCard !== 'cardFive' ? styles.closed : ''}`}>
@@ -453,6 +462,7 @@ export default function CharacterForm({
                     className={styles.actionButton}
                     aria-label="자동 작성"
                     onClick={() => handleAutoGenerate("relationships")}
+                    disabled={isGeneratingField}
                   >
                     <span className="material-symbols-outlined icon_14">
                       auto_awesome
@@ -469,7 +479,6 @@ export default function CharacterForm({
                         onChange={(val) => setActiveRelTabId(val)}
                         isOpen={activeSelect === "relatedCharacter"}
                         onToggle={(nextState) => setActiveSelect(nextState ? "relatedCharacter" : null)}
-                        disabled={isReadOnly}
                       />
                     </div>
                     <div className={styles.splitInputContainer}>

@@ -93,6 +93,29 @@
   gap: 6px;
   padding-left: 20px;
   margin-top: 4px;
+  max-height: 170px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  
+  width: calc(100% + 10px);
+  margin-right: -10px;
+  padding-right: 4px;
+  box-sizing: border-box;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: colors.$color_secondary_dark;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: colors.$color_primary;
+  }
 }
 
 .subItem {
@@ -102,10 +125,11 @@
   align-items: center;
   gap: 12px;
   padding: 5px 10px;
-  width: calc(100% + 10px);
-  margin-right: -10px;
+  width: 100%;
+  margin-right: 0;
   height: 38px;
   box-sizing: border-box;
+  flex-shrink: 0;
   border-radius: 10px 0px 0px 10px;
   color: colors.$color_white;
   font-family: variables.$font_family_kr;
