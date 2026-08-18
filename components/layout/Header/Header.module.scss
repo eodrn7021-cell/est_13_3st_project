@@ -18,6 +18,10 @@
   position: relative;
 }
 
+.header_inner_search {
+  justify-content: flex-start;
+}
+
 .header_logo {
   display: inline-flex;
   align-items: center;
@@ -40,7 +44,7 @@
 .header_actions {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 0px;
 }
 
 .header_buttons {
@@ -50,6 +54,8 @@
 }
 
 .header_logout {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -63,12 +69,24 @@
 
   cursor: pointer;
 
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: colors.$gradient_side;
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+    pointer-events: none;
+  }
 
-  &:hover {
-    background: colors.$color_primary;
+  &:hover::before,
+  &:focus-visible::before {
+    opacity: 1;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
   }
 
   &:focus-visible {
@@ -135,6 +153,14 @@
     outline-offset: 3px;
   }
 }
+.header_pc_search {
+  flex: 0 0 304px;
+  width: 304px;
+  max-width: 304px;
+  margin-left: auto;
+  margin-right: 20px;
+}
+
 /* 태블릿 */
 @media (max-width: 1200px) {
   .header {

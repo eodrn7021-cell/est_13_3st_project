@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Footer from "@/components/layout/Footer/Footer";
 import HomeSidebar from "@/components/home/HomeSidebar/HomeSidebar";
 import HomeMobileMenu from "@/components/home/HomeMobileMenu/HomeMobileMenu";
@@ -12,14 +13,16 @@ import styles from "./page.module.scss";
 const HomePage = () => {
   return (
     <>
-      <HomeMobileMenu />
+      <HomeMobileMenu hideResponsiveSearch />
 
       <main className={styles.home}>
         {/* 사이드바 + 메인 콘텐츠 */}
         <div className={styles.home_inner}>
           {/* PC 사이드바 */}
           <div className={styles.home_sidebar_wrapper}>
-            <HomeSidebar />
+            <Suspense fallback={null}>
+              <HomeSidebar />
+            </Suspense>
           </div>
 
           {/* 메인 콘텐츠 */}
@@ -84,7 +87,9 @@ const HomePage = () => {
 
       <MobileNavigation />
 
-      <Footer />
+      <div className={styles.home_footer}>
+        <Footer />
+      </div>
     </>
   );
 };

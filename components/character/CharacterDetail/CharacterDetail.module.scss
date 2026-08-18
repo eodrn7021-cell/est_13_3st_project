@@ -6,6 +6,8 @@
   grid-template-columns: 1fr 488px;
   gap: 20px;
   width: 100%;
+  height: 100%;
+  flex: 1;
   box-sizing: border-box;
 
   @media (max-width: 1200px) {
@@ -18,7 +20,8 @@
   flex-direction: column;
   gap: 12px;
   width: 100%;
-  height: 810px;
+  height: 100%;
+  min-height: 810px;
   padding: 20px 24px;
   background-color: colors.$color_input_70;
   border: 1px solid colors.$color_tag_stroke;
@@ -166,6 +169,41 @@
   word-break: break-word;
 }
 
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pageBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  background-color: transparent;
+  border: none;
+  color: colors.$color_text_muted;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &:hover:not(:disabled) {
+    color: colors.$color_white;
+  }
+
+  &.activePage {
+    color: colors.$color_white;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 .commentForm {
   display: flex;
   flex-direction: column;
@@ -242,6 +280,7 @@
   flex-direction: column;
   gap: 9px;
   width: 488px;
+  height: 100%;
   min-height: 810px;
   padding: 30px 10px;
   background-color: colors.$color_input_70;

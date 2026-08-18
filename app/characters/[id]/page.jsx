@@ -2,14 +2,17 @@
 
 import { Suspense, useState, useEffect, use, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
-import Header from "@/components/layout/Header/Header";
+import HomeMobileMenu from "@/components/home/HomeMobileMenu/HomeMobileMenu";
+import MobileNavigation from "@/components/layout/MobileNavigation/MobileNavigation";
 import Footer from "@/components/layout/Footer/Footer";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
 import CharacterDetail from "@/components/character/CharacterDetail/CharacterDetail";
 import Button from "@/components/common/Button/Button";
 import LoginModal from "@/components/auth/LoginModal/LoginModal";
 import ConfirmModal from "@/components/common/Modal/ConfirmModal";
+import HelpModal from "@/components/character/HelpModal/HelpModal";
 import { createClient } from "@/lib/supabase/client";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
 import createStyles from "@/app/characters/create/create.module.scss";
@@ -34,25 +37,12 @@ function CharacterDetailContent({ params: paramsPromise }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // 최초 진입 시 URL에 generating=true가 있는지 한 번만 확인하고 상태로 유지
-  const [isGeneratingMode] = useState(searchParams.get("generating") === "true");
+  const [generatingMode] = useState(searchParams.get("generating"));
+  const [isGeneratingMode] = useState(Boolean(generatingMode));
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // 뒤쪽 스크롤 방지
-  useEffect(() => {
-    if (!isMobileMenuOpen) return;
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousBodyOverflow;
-      document.documentElement.style.overflow = previousHtmlOverflow;
-    };
-  }, [isMobileMenuOpen]);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   const [isLiked, setIsLiked] = useState(() => Boolean(cachedCharacter?.initialIsLiked));
   const [isBookmarked, setIsBookmarked] = useState(() => Boolean(cachedCharacter?.initialIsBookmarked));
@@ -60,11 +50,21 @@ function CharacterDetailContent({ params: paramsPromise }) {
   const [isLiking, setIsLiking] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
 
+  const [isWorldLiked, setIsWorldLiked] = useState(false);
+  const [isWorldBookmarked, setIsWorldBookmarked] = useState(false);
+  const [worldLikes, setWorldLikes] = useState(0);
+  const [isWorldLiking, setIsWorldLiking] = useState(false);
+  const [isWorldBookmarking, setIsWorldBookmarking] = useState(false);
+
   const [character, setCharacter] = useState(() => cachedCharacter);
   const [loading, setLoading] = useState(!cachedCharacter);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isWorldRegenerating, setIsWorldRegenerating] = useState(false);
   const [dbImageHistory, setDbImageHistory] = useState(() => cachedDbImageHistory);
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const [dbWorldImageHistory, setDbWorldImageHistory] = useState([]);
+  const [selectedWorldImage, setSelectedWorldImage] = useState(null);
 
   const [activeNav, setActiveNav] = useState("character");
   const [isCharacterOpen, setIsCharacterOpen] = useState(true);
@@ -73,6 +73,9 @@ function CharacterDetailContent({ params: paramsPromise }) {
   // 코멘트 상태
   const [comments, setComments] = useState([]);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+
+  const [worldComments, setWorldComments] = useState([]);
+  const [isSubmittingWorldComment, setIsSubmittingWorldComment] = useState(false);
 
   // 현재 사용자 세션 정보 및 소유자 여부 상태
   const [currentUser, setCurrentUser] = useState(null);
@@ -91,6 +94,19 @@ function CharacterDetailContent({ params: paramsPromise }) {
       }
     } catch (err) {
       console.warn("이미지 히스토리 조회 오류:", err);
+    }
+  };
+
+  const fetchWorldImageHistory = async (worldId) => {
+    if (!worldId) return;
+    try {
+      const res = await fetch(`/api/worlds/images?worldId=${worldId}`);
+      if (res.ok) {
+        const json = await res.json();
+        setDbWorldImageHistory(json?.images || []);
+      }
+    } catch (err) {
+      console.warn("세계관 이미지 히스토리 조회 오류:", err);
     }
   };
 
@@ -113,6 +129,28 @@ function CharacterDetailContent({ params: paramsPromise }) {
       }
 
       setSelectedImage(result.imageUrl);
+
+      // 이미지가 생성되면 자동으로 메인 이미지로 저장
+      try {
+        const saveRes = await fetch("/api/characters/set-main-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            characterId: charId || id,
+            imageUrl: result.imageUrl,
+          }),
+        });
+        const saveResult = await saveRes.json();
+        if (saveRes.ok && !saveResult.error) {
+          setCharacter((prev) => ({
+            ...prev,
+            image_url: result.imageUrl,
+          }));
+        }
+      } catch (saveErr) {
+        console.error("자동 대표 이미지 저장 중 오류:", saveErr);
+      }
+
       await fetchImageHistory(charId || id);
     } catch (err) {
       console.error("자동 이미지 생성 요청 오류:", err);
@@ -121,38 +159,128 @@ function CharacterDetailContent({ params: paramsPromise }) {
     }
   };
 
-  const handleSaveMainImage = async () => {
-    const targetImage = selectedImage || character?.image_url;
-    if (!targetImage || !id) {
-      alert("저장할 이미지가 선택되지 않았습니다.");
-      return;
-    }
-
+  const triggerWorldImageGeneration = async (worldId) => {
+    setIsWorldRegenerating(true);
     try {
-      const res = await fetch("/api/characters/set-main-image", {
+      const res = await fetch("/api/worlds/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          characterId: id,
-          imageUrl: targetImage,
-        }),
+        body: JSON.stringify({ worldId }),
       });
 
       const result = await res.json();
+
       if (!res.ok || result.error) {
-        alert(result.error || "대표 이미지 저장 실패");
+        console.error("세계관 이미지 생성 중 오류:", result.error);
+        setIsWorldRegenerating(false);
         return;
       }
 
-      setCharacter((prev) => ({
-        ...prev,
-        image_url: targetImage,
-      }));
-      await fetchImageHistory(id);
-      alert("선택한 이미지가 캐릭터 대표 이미지로 지정 및 저장되었습니다!");
+      // 이미지가 생성되면 자동으로 메인 이미지로 저장
+      try {
+        const saveRes = await fetch("/api/worlds/set-main-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            worldId: worldId,
+            imageUrl: result.imageUrl,
+          }),
+        });
+        
+        if (saveRes.ok) {
+           setCharacter((prev) => prev ? {
+             ...prev,
+             worlds: prev.worlds ? { ...prev.worlds, image_url: result.imageUrl } : null
+           } : prev);
+           await fetchWorldImageHistory(worldId);
+        }
+      } catch (saveErr) {
+        console.error("세계관 메인 이미지 저장 중 오류:", saveErr);
+      }
     } catch (err) {
-      console.error("대표 이미지 저장 오류:", err);
-      alert("대표 이미지 저장 중 오류가 발생했습니다.");
+      console.error("세계관 이미지 생성 요청 오류:", err);
+    } finally {
+      setIsWorldRegenerating(false);
+    }
+  };
+
+  const handleRegenerateImage = async () => {
+    if (activeNav === "world") {
+      if (isWorldRegenerating || !character?.world_id) return;
+      await triggerWorldImageGeneration(character.world_id);
+    } else {
+      if (isRegenerating || !id) return;
+      await triggerImageGeneration(id);
+    }
+  };
+
+  const handleSaveMainImage = async () => {
+    if (activeNav === "world") {
+      const targetImage = selectedWorldImage || character?.worlds?.image_url;
+      if (!targetImage || !character?.world_id) {
+        alert("저장할 세계관 이미지가 선택되지 않았습니다.");
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/worlds/set-main-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            worldId: character.world_id,
+            imageUrl: targetImage,
+          }),
+        });
+
+        const result = await res.json();
+        if (!res.ok || result.error) {
+          alert(result.error || "대표 이미지 저장 실패");
+          return;
+        }
+
+        setCharacter((prev) => prev ? {
+          ...prev,
+          worlds: prev.worlds ? { ...prev.worlds, image_url: targetImage } : null
+        } : prev);
+        await fetchWorldImageHistory(character.world_id);
+        alert("선택한 이미지가 세계관 대표 이미지로 지정 및 저장되었습니다!");
+      } catch (err) {
+        console.error("세계관 대표 이미지 저장 오류:", err);
+        alert("세계관 대표 이미지 저장 중 오류가 발생했습니다.");
+      }
+    } else {
+      const targetImage = selectedImage || character?.image_url;
+      if (!targetImage || !id) {
+        alert("저장할 이미지가 선택되지 않았습니다.");
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/characters/set-main-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            characterId: id,
+            imageUrl: targetImage,
+          }),
+        });
+
+        const result = await res.json();
+        if (!res.ok || result.error) {
+          alert(result.error || "대표 이미지 저장 실패");
+          return;
+        }
+
+        setCharacter((prev) => ({
+          ...prev,
+          image_url: targetImage,
+        }));
+        await fetchImageHistory(id);
+        alert("선택한 이미지가 캐릭터 대표 이미지로 지정 및 저장되었습니다!");
+      } catch (err) {
+        console.error("대표 이미지 저장 오류:", err);
+        alert("대표 이미지 저장 중 오류가 발생했습니다.");
+      }
     }
   };
 
@@ -174,6 +302,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
       setLoading(true);
     }
     setSelectedImage(null);
+    setSelectedWorldImage(null);
 
     const fetchCharacterAndUser = async () => {
       const supabase = createClient();
@@ -234,13 +363,34 @@ function CharacterDetailContent({ params: paramsPromise }) {
         setIsOwner(ownerCheck);
         cachedIsOwner = ownerCheck;
 
+        // 세계관 좋아요, 북마크 상태 조회
+        if (data.world_id) {
+          try {
+            const [
+              { count: wLikesCount },
+              { data: wLikeData },
+              { data: wBookmarkData }
+            ] = await Promise.all([
+              supabase.from("world_likes").select("*", { count: "exact", head: true }).eq("world_id", data.world_id),
+              user ? supabase.from("world_likes").select("id").eq("world_id", data.world_id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
+              user ? supabase.from("world_bookmarks").select("id").eq("world_id", data.world_id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null })
+            ]);
+
+            setWorldLikes(wLikesCount || 0);
+            setIsWorldLiked(Boolean(wLikeData));
+            setIsWorldBookmarked(Boolean(wBookmarkData));
+          } catch (wErr) {
+            console.error("세계관 좋아요/북마크 조회 오류:", wErr);
+          }
+        }
+
         // 생성창이 아닐 때만 해당 세계관의 다른 캐릭터들 조회
         if (!isGeneratingMode && data.world_id) {
           const { data: chars } = await supabase
             .from("characters")
             .select("id, name")
             .eq("world_id", data.world_id)
-            .order("created_at", { ascending: true });
+            .order("created_at", { ascending: false });
           
           if (chars) {
             setWorldCharacters(chars);
@@ -261,11 +411,38 @@ function CharacterDetailContent({ params: paramsPromise }) {
           console.error("코멘트 조회 오류:", commentErr);
         }
 
+        // 세계관 코멘트 조회
+        if (data.world_id) {
+          try {
+            const wCommentsRes = await fetch(`/api/worlds/comments?worldId=${data.world_id}`);
+            if (wCommentsRes.ok) {
+              const wCommentsJson = await wCommentsRes.json();
+              if (wCommentsJson.success) {
+                setWorldComments(wCommentsJson.comments || []);
+              }
+            }
+          } catch (wCommentErr) {
+            console.error("세계관 코멘트 조회 오류:", wCommentErr);
+          }
+          await fetchWorldImageHistory(data.world_id);
+        }
+
         await fetchImageHistory(data.id);
         // 새로고침 시 무한 자동 생성을 막기 위해, isGeneratingMode일 때만 1회 실행
         if (isGeneratingMode && !generationTriggered.current) {
           generationTriggered.current = true;
-          triggerImageGeneration(data.id);
+          
+          if (generatingMode === "all" || generatingMode === "true") {
+            triggerImageGeneration(data.id).then(() => {
+              if (data.world_id && data.worlds && !data.worlds.image_url) {
+                triggerWorldImageGeneration(data.world_id);
+              }
+            });
+          } else if (generatingMode === "character") {
+            triggerImageGeneration(data.id);
+          } else if (generatingMode === "world" && data.world_id) {
+            triggerWorldImageGeneration(data.world_id);
+          }
           
           // 새로고침 시 다시 생성되지 않도록 URL에서 파라미터 제거
           router.replace(`/characters/${data.id}`);
@@ -275,6 +452,18 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
     fetchCharacterAndUser();
   }, [id, isGeneratingMode, router]);
+
+  useEffect(() => {
+    // 선택된 캐릭터가 아코디언 영역 내에 보이도록 스크롤 이동
+    const activeDesktop = document.getElementById("active-desktop-item");
+    if (activeDesktop) {
+      activeDesktop.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+    const activeMobile = document.getElementById("active-mobile-item");
+    if (activeMobile) {
+      activeMobile.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [id, worldCharacters, isCharacterOpen]);
 
   const handleLikeToggle = async () => {
     if (!currentUser) {
@@ -402,6 +591,38 @@ function CharacterDetailContent({ params: paramsPromise }) {
     }
   };
 
+  const handleAddWorldComment = async (content) => {
+    if (!currentUser) {
+      setIsConfirmModalOpen(true);
+      return;
+    }
+    const targetWorldId = character?.world_id;
+    if (isSubmittingWorldComment || !content?.trim() || !targetWorldId) return;
+
+    setIsSubmittingWorldComment(true);
+    try {
+      const res = await fetch("/api/worlds/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ worldId: targetWorldId, content: content.trim() }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        alert(result.error || "코멘트 등록 중 오류가 발생했습니다.");
+        return;
+      }
+
+      setWorldComments((prev) => [result.comment, ...prev]);
+    } catch (err) {
+      console.error("세계관 코멘트 등록 예외:", err);
+      alert("코멘트 등록 중 오류가 발생했습니다.");
+    } finally {
+      setIsSubmittingWorldComment(false);
+    }
+  };
+
   const handleBookmarkToggle = async () => {
     if (!currentUser) {
       setIsConfirmModalOpen(true);
@@ -471,17 +692,93 @@ function CharacterDetailContent({ params: paramsPromise }) {
     }
   };
 
-  const handleRegenerateImage = async () => {
-    if (isRegenerating || !id) return;
-    await triggerImageGeneration(id);
+  const handleWorldLikeToggle = async () => {
+    if (!currentUser) {
+      setIsConfirmModalOpen(true);
+      return;
+    }
+    const targetWorldId = character?.world_id;
+    if (isWorldLiking || !targetWorldId) return;
+
+    setIsWorldLiking(true);
+    const prevIsLiked = isWorldLiked;
+    const prevLikes = worldLikes;
+
+    setIsWorldLiked(!prevIsLiked);
+    setWorldLikes((prev) => (prevIsLiked ? Math.max(0, prev - 1) : prev + 1));
+
+    try {
+      const res = await fetch("/api/worlds/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ worldId: targetWorldId }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        setIsWorldLiked(prevIsLiked);
+        setWorldLikes(prevLikes);
+        alert(result.error || "좋아요 처리 중 오류가 발생했습니다.");
+        return;
+      }
+
+      setIsWorldLiked(result.isLiked);
+      setWorldLikes(result.likes);
+    } catch (err) {
+      console.error("세계관 좋아요 처리 중 예외 발생:", err);
+      setIsWorldLiked(prevIsLiked);
+      setWorldLikes(prevLikes);
+    } finally {
+      setIsWorldLiking(false);
+    }
   };
+
+  const handleWorldBookmarkToggle = async () => {
+    if (!currentUser) {
+      setIsConfirmModalOpen(true);
+      return;
+    }
+    const targetWorldId = character?.world_id;
+    if (isWorldBookmarking || !targetWorldId) return;
+
+    setIsWorldBookmarking(true);
+    const prevIsBookmarked = isWorldBookmarked;
+
+    setIsWorldBookmarked(!prevIsBookmarked);
+
+    try {
+      const res = await fetch("/api/worlds/bookmark", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ worldId: targetWorldId }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        setIsWorldBookmarked(prevIsBookmarked);
+        alert(result.error || "북마크 처리 중 오류가 발생했습니다.");
+        return;
+      }
+
+      setIsWorldBookmarked(result.isBookmarked);
+    } catch (err) {
+      console.error("세계관 북마크 처리 중 예외 발생:", err);
+      setIsWorldBookmarked(prevIsBookmarked);
+    } finally {
+      setIsWorldBookmarking(false);
+    }
+  };
+
+  // 삭제 대상 (handleRegenerateImage 함수는 위로 이동됨)
 
   const world = character?.worlds;
   const worldTitle = world?.name || world?.title || "";
   const characterName = character?.name || "";
 
   // 현재 캐릭터의 DB 히스토리 중 가장 최근 4개 이미지 추출
-  const imageHistory = dbImageHistory.slice(0, 4);
+  const imageHistory = activeNav === "world" ? dbWorldImageHistory.slice(0, 4) : dbImageHistory.slice(0, 4);
 
   const handleSelectWorld = () => {
     setActiveNav("world");
@@ -526,17 +823,22 @@ function CharacterDetailContent({ params: paramsPromise }) {
               worldCharacters.map((char) => (
                 <div
                   key={char.id}
+                  id={String(char.id) === String(id) ? "active-desktop-item" : undefined}
                   className={`${sidebarStyles.subItem} ${String(char.id) === String(id) ? sidebarStyles.active : ""}`}
-                  onClick={() => router.push(`/characters/${char.id}`)}
+                  onClick={() => router.push(`/characters/${char.id}`, { scroll: false })}
                 >
-                  <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
-                    auto_stories
-                  </span>
+                  {String(char.id) === String(id) ? (
+                    <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+                      auto_stories
+                    </span>
+                  ) : (
+                    <span className="icon_24" style={{ display: "inline-flex", width: "24px", height: "24px", flexShrink: 0 }} />
+                  )}
                   <span className="kr_body_b">{char.name}</span>
                 </div>
               ))
             ) : (
-              <div className={`${createStyles.topSubItem} ${createStyles.active}`}>
+              <div className={`${sidebarStyles.subItem} ${sidebarStyles.active}`}>
                 <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
                   auto_stories
                 </span>
@@ -554,12 +856,18 @@ function CharacterDetailContent({ params: paramsPromise }) {
           <div className={sidebarStyles.imageGrid}>
             {imageHistory.map((imgSrc, idx) => (
               <div
-                key={idx}
+                key={imgSrc}
                 className={sidebarStyles.thumbBox}
-                onClick={() => setSelectedImage(imgSrc)}
+                onClick={() => {
+                  if (activeNav === "world") {
+                    setSelectedWorldImage(imgSrc);
+                  } else {
+                    setSelectedImage(imgSrc);
+                  }
+                }}
                 style={{ cursor: "pointer" }}
               >
-                <img src={imgSrc} alt={`생성 이미지 ${idx + 1}`} />
+                <Image src={imgSrc} alt={`생성 이미지 ${idx + 1}`} fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: 'cover' }} />
               </div>
             ))}
           </div>
@@ -567,6 +875,43 @@ function CharacterDetailContent({ params: paramsPromise }) {
       )}
     </>
   );
+
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!confirm("정말 이 캐릭터를 삭제하시겠습니까?\n삭제된 캐릭터는 복구할 수 없습니다.")) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch("/api/characters/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ characterId: id }),
+      });
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        alert(result.error || "삭제에 실패했습니다.");
+        setIsDeleting(false);
+        return;
+      }
+      alert("캐릭터가 성공적으로 삭제되었습니다.");
+      // 모듈 단위 캐시 무효화
+      cachedCharacter = null;
+      router.push("/");
+    } catch (err) {
+      console.error("삭제 중 오류:", err);
+      alert("삭제 중 오류가 발생했습니다.");
+      setIsDeleting(false);
+    }
+  };
+
+  const handleEdit = () => {
+    // 생성창으로 이동하면서 worldId와 charId를 전달 (create 페이지에서 처리할 수 있도록)
+    if (character?.world_id) {
+      router.push(`/characters/create?worldId=${character.world_id}&charId=${id}`);
+    } else {
+      router.push("/characters/create");
+    }
+  };
 
   const sidebarBottomContent = (
     <>
@@ -588,7 +933,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
         </div>
         <div className={sidebarStyles.statRow}>
           <span className="kr_body">좋아요 :</span>
-          <span className="kr_body">{likes}</span>
+          <span className="kr_body">{activeNav === "world" ? worldLikes : likes}</span>
         </div>
       </div>
 
@@ -597,13 +942,13 @@ function CharacterDetailContent({ params: paramsPromise }) {
           <button
             type="button"
             aria-label="좋아요"
-            className={isLiked ? sidebarStyles.active : ""}
-            onClick={handleLikeToggle}
-            disabled={isLiking}
+            className={(activeNav === "world" ? isWorldLiked : isLiked) ? sidebarStyles.active : ""}
+            onClick={activeNav === "world" ? handleWorldLikeToggle : handleLikeToggle}
+            disabled={activeNav === "world" ? isWorldLiking : isLiking}
           >
             <span
               className="material-symbols-outlined icon_36"
-              style={isLiked ? { fontVariationSettings: "'FILL' 1" } : undefined}
+              style={(activeNav === "world" ? isWorldLiked : isLiked) ? { fontVariationSettings: "'FILL' 1" } : undefined}
             >
               favorite
             </span>
@@ -614,13 +959,13 @@ function CharacterDetailContent({ params: paramsPromise }) {
           <button
             type="button"
             aria-label="북마크"
-            className={isBookmarked ? sidebarStyles.activeBookmark : ""}
-            onClick={handleBookmarkToggle}
-            disabled={isBookmarking}
+            className={(activeNav === "world" ? isWorldBookmarked : isBookmarked) ? sidebarStyles.activeBookmark : ""}
+            onClick={activeNav === "world" ? handleWorldBookmarkToggle : handleBookmarkToggle}
+            disabled={activeNav === "world" ? isWorldBookmarking : isBookmarking}
           >
             <span
               className="material-symbols-outlined icon_36"
-              style={isBookmarked ? { fontVariationSettings: "'FILL' 1" } : undefined}
+              style={(activeNav === "world" ? isWorldBookmarked : isBookmarked) ? { fontVariationSettings: "'FILL' 1" } : undefined}
             >
               bookmark
             </span>
@@ -628,21 +973,21 @@ function CharacterDetailContent({ params: paramsPromise }) {
         </div>
       )}
 
-      <button type="button" className={sidebarStyles.sideButton}>
-        <span className={sidebarStyles.buttonIcon}>
-          <HelpOutlineIcon />
-        </span>
-        <span className="kr_body_b">도움말</span>
-      </button>
-
       {isOwner && (
         <>
-          <button type="button" className={sidebarStyles.sideButton}>
+          <button type="button" className={sidebarStyles.sideButton} onClick={() => setIsHelpModalOpen(true)}>
+            <span className={sidebarStyles.buttonIcon}>
+              <HelpOutlineIcon />
+            </span>
+            <span className="kr_body_b">도움말</span>
+          </button>
+
+          <button type="button" className={sidebarStyles.sideButton} onClick={handleEdit}>
             <span className="kr_body_b">수정</span>
           </button>
 
-          <button type="button" className={sidebarStyles.sideButton}>
-            <span className="kr_body_b">삭제</span>
+          <button type="button" className={sidebarStyles.sideButton} onClick={handleDelete} disabled={isDeleting}>
+            <span className="kr_body_b">{isDeleting ? "삭제 중..." : "삭제"}</span>
           </button>
         </>
       )}
@@ -651,28 +996,8 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
   return (
     <div className={createStyles.pageContainer}>
-      {/* 상단 헤더 */}
-      <Header variant="main" onMenuClick={() => setIsMobileMenuOpen(true)} />
-
-      {/* 모바일 햄버거 메뉴 사이드바 */}
-      {isMobileMenuOpen && (
-        <div className={createStyles.mobileDrawerWrapper}>
-          <div className={createStyles.mobileDrawerOverlay} onClick={() => setIsMobileMenuOpen(false)} />
-          <div className={createStyles.mobileDrawer}>
-            <div className={createStyles.drawerHeader}>
-              <button type="button" className={createStyles.drawerCloseBtn} onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="material-symbols-rounded">close</span>
-              </button>
-            </div>
-            <div className={createStyles.drawerContent}>
-              <Sidebar
-                topContent={sidebarTopContent}
-                bottomContent={sidebarBottomContent}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 상단 헤더 및 글로벌 모바일 메뉴 사이드바 */}
+      <HomeMobileMenu headerVariant="main" />
 
       {/* 모바일/태블릿 (<= 1024px) 상단바 */}
       <div className={createStyles.topNavSection}>
@@ -706,12 +1031,17 @@ function CharacterDetailContent({ params: paramsPromise }) {
                   worldCharacters.map((char) => (
                     <div
                       key={char.id}
+                      id={String(char.id) === String(id) ? "active-mobile-item" : undefined}
                       className={`${createStyles.topSubItem} ${String(char.id) === String(id) ? createStyles.active : ""}`}
-                      onClick={() => router.push(`/characters/${char.id}`)}
+                      onClick={() => router.push(`/characters/${char.id}`, { scroll: false })}
                     >
-                      <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
-                        auto_stories
-                      </span>
+                      {String(char.id) === String(id) ? (
+                        <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+                          auto_stories
+                        </span>
+                      ) : (
+                        <span className="icon_24" style={{ display: "inline-flex", width: "24px", height: "24px", flexShrink: 0 }} />
+                      )}
                       <span className="kr_body_b">{char.name}</span>
                     </div>
                   ))
@@ -739,7 +1069,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
         </div>
 
         {/* 메인 폼 위치에 CharacterDetail 컴포넌트 배치 */}
-        <div style={{ flex: 1, minWidth: 0, height: "100%", position: "relative" }}>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", position: "relative" }}>
           {loading && !character ? (
             <div style={{ padding: "40px", textAlign: "center" }}>
               <span className="kr_body_b">캐릭터 정보 불러오는 중...</span>
@@ -757,21 +1087,94 @@ function CharacterDetailContent({ params: paramsPromise }) {
                   justifyContent: "center",
                   borderRadius: "16px"
                 }}>
-                  <span className="kr_body_b" style={{ color: "rgba(255,255,255,0.8)" }}>캐릭터 변경 중...</span>
+                  <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>캐릭터 변경 중...</span>
+                </div>
+              )}
+              {isWorldRegenerating && (
+                <div style={{
+                  position: "absolute",
+                  top: 0, left: 0, right: 0, bottom: 0,
+                  backgroundColor: "rgba(15, 17, 26, 0.7)",
+                  zIndex: 49,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "16px",
+                  backdropFilter: "blur(4px)"
+                }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+                    <div className="spinner"></div>
+                    <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>세계관 이미지 생성 중...</span>
+                  </div>
                 </div>
               )}
               <CharacterDetail
-                character={character ? { ...character, image_url: selectedImage || character.image_url } : null}
+                character={character ? { 
+                  ...character, 
+                  image_url: activeNav === "world" 
+                    ? (selectedWorldImage || character?.worlds?.image_url) 
+                    : (selectedImage || character?.image_url) 
+                } : null}
+                activeNav={activeNav}
                 onRegenerateImage={handleRegenerateImage}
                 onSaveImage={handleSaveMainImage}
-                isRegenerating={isRegenerating}
+                isRegenerating={activeNav === "world" ? isWorldRegenerating : isRegenerating}
                 isGeneratingMode={isGeneratingMode}
                 isOwner={isOwner}
                 currentUser={currentUser}
-                comments={comments}
-                onAddComment={handleAddComment}
-                isSubmittingComment={isSubmittingComment}
+                comments={activeNav === "world" ? worldComments : comments}
+                onAddComment={activeNav === "world" ? handleAddWorldComment : handleAddComment}
+                isSubmittingComment={activeNav === "world" ? isSubmittingWorldComment : isSubmittingComment}
               />
+
+              {/* 모바일/태블릿용 메타 정보 및 액션 버튼 (PC에서는 숨김 처리) */}
+              <div className={createStyles.mobileMetaActionsWrapper}>
+                <div className={createStyles.mobileMetaGrid}>
+                  <div className={`kr_body ${createStyles.mobileMetaItem}`}>
+                    작성자 : <span>{character?.author_name || "알 수 없음"}</span>
+                  </div>
+                  <div className={`kr_body ${createStyles.mobileMetaItem}`}>
+                    생성일 : <span>{character?.created_at ? new Date(character.created_at).toLocaleDateString("ko-KR") : "-"}</span>
+                  </div>
+                  <div className={`kr_body ${createStyles.mobileMetaItem}`}>
+                    조회수 : <span>{character?.view_count ?? 0}</span>
+                  </div>
+                  <div className={`kr_body ${createStyles.mobileMetaItem}`}>
+                    좋아요 : <span>{activeNav === "world" ? worldLikes : likes}</span>
+                  </div>
+                </div>
+                
+                {isOwner ? (
+                  <div className={createStyles.mobileActionGrid}>
+                    <button className={`kr_body_b ${createStyles.actionBtnPrimary}`} onClick={handleEdit}>
+                      수정
+                    </button>
+                    <button className={`kr_body_b ${createStyles.actionBtnSecondary}`} onClick={handleDelete} disabled={isDeleting}>
+                      {isDeleting ? "삭제 중..." : "삭제"}
+                    </button>
+                  </div>
+                ) : (
+                  <div className={createStyles.mobileActionGrid}>
+                    <button
+                      className={`${createStyles.actionBtnIcon} ${(activeNav === "world" ? isWorldLiked : isLiked) ? createStyles.active : ""}`}
+                      onClick={activeNav === "world" ? handleWorldLikeToggle : handleLikeToggle}
+                      disabled={activeNav === "world" ? isWorldLiking : isLiking}
+                    >
+                      <span className="material-symbols-outlined icon_24" style={(activeNav === "world" ? isWorldLiked : isLiked) ? { fontVariationSettings: "'FILL' 1" } : undefined}>favorite</span>
+                    </button>
+                    <button className={createStyles.actionBtnIcon} onClick={handleShare}>
+                      <span className="material-symbols-outlined icon_24">share</span>
+                    </button>
+                    <button
+                      className={`${createStyles.actionBtnIcon} ${(activeNav === "world" ? isWorldBookmarked : isBookmarked) ? createStyles.active : ""}`}
+                      onClick={activeNav === "world" ? handleWorldBookmarkToggle : handleBookmarkToggle}
+                      disabled={activeNav === "world" ? isWorldBookmarking : isBookmarking}
+                    >
+                      <span className="material-symbols-outlined icon_24" style={(activeNav === "world" ? isWorldBookmarked : isBookmarked) ? { fontVariationSettings: "'FILL' 1" } : undefined}>bookmark</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
@@ -780,12 +1183,11 @@ function CharacterDetailContent({ params: paramsPromise }) {
       {/* 로그인 확인 모달 */}
       <ConfirmModal
         isOpen={isConfirmModalOpen}
-        title="로그인 필요"
         message="로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?"
-        confirmText="이동하기"
+        confirmText="로그인"
         cancelText="취소"
-        onConfirm={handleLoginConfirm}
         onCancel={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleLoginConfirm}
       />
 
       {/* 로그인 모달 */}
@@ -798,8 +1200,19 @@ function CharacterDetailContent({ params: paramsPromise }) {
         }}
       />
 
-      {/* 하단 풋터 */}
-      <Footer />
+      <HelpModal
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
+        mode="detail"
+      />
+
+      {/* 하단 풋터 (PC에서만 표시) */}
+      <div className={createStyles.desktopFooterWrapper}>
+        <Footer />
+      </div>
+
+      {/* 모바일 하단 네비게이션 */}
+      <MobileNavigation />
     </div>
   );
 }
