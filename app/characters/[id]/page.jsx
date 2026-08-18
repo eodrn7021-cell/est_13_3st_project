@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use, useRef } from "react";
+import { Suspense, useState, useEffect, use, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/layout/Header/Header";
@@ -28,7 +28,7 @@ let cachedWorldCharacters = [];
 let cachedIsOwner = false;
 let cachedDbImageHistory = [];
 
-export default function CharacterDetailPage({ params: paramsPromise }) {
+function CharacterDetailContent({ params: paramsPromise }) {
   const params = use(paramsPromise);
   const { id } = params;
   const router = useRouter();
@@ -800,5 +800,13 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
       {/* 하단 풋터 */}
       <Footer />
     </div>
+  );
+}
+
+export default function CharacterDetailPage(props) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CharacterDetailContent {...props} />
+    </Suspense>
   );
 }

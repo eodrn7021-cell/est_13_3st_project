@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -13,7 +13,7 @@ import Tag from '@/components/common/Tag/Tag';
 import styles from './characters.module.scss';
 import Image from 'next/image';
 
-const CharactersPage = () => {
+function CharactersContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -364,6 +364,14 @@ const CharactersPage = () => {
         <MobileNavigation />
       </div>
     </div>
+  );
+}
+
+const CharactersPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CharactersContent />
+    </Suspense>
   );
 };
 
