@@ -127,24 +127,14 @@
   }
 }
 
-.auth_buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  width: 100%;
-  margin-top: 30px;
-}
-
-.auth_button {
-  flex: 1;
+.auth_buttons .auth_button {
+  flex: 1 1 0;
   min-width: 0;
-  width: 100%;
   height: 42px;
   padding: 0 12px;
+  border-radius: 12px;
   font-size: 14px;
   line-height: 1;
-  border-radius: 12px;
   box-sizing: border-box;
   transform: none;
 
@@ -154,7 +144,16 @@
   }
 }
 
-.auth_button[class*="button_secondary"] {
+.auth_buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 30px;
+}
+
+.auth_buttons .auth_button[class*="button_secondary"] {
   color: colors.$color_white;
   border: 1px solid colors.$color_secondary;
   background: transparent;
@@ -166,7 +165,7 @@
   }
 }
 
-.auth_primary_button {
+.auth_buttons .auth_primary_button {
   border: 0;
 
   &:hover:not(:disabled) {
