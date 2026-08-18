@@ -32,6 +32,7 @@ export default function Textarea({
   onToggle,
   showActionButton = true,
   actionButtonIcon = "auto_awesome",
+  actionButtonDisabled = false,
   onActionButtonClick,
   ...props
 }) {
@@ -95,6 +96,7 @@ export default function Textarea({
                 onActionButtonClick(e);
               }
             }}
+            disabled={actionButtonDisabled}
             aria-label="자동 작성"
           >
             <span className="material-symbols-outlined icon_14">

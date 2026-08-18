@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import styles from "./WorldSelectModal.module.scss";
+import Select from "@/components/form/Select/Select";
 
 export default function WorldSelectModal({
   isOpen,
@@ -117,17 +118,15 @@ export default function WorldSelectModal({
               >
                 <label className={styles.selectLabel}>내 세계관 목록</label>
                 {worlds.length > 0 ? (
-                  <select
-                    className={styles.selectBox}
+                  <Select
                     value={selectedWorldId}
-                    onChange={(e) => setSelectedWorldId(e.target.value)}
-                  >
-                    {worlds.map((world) => (
-                      <option key={world.id} value={world.id}>
-                        {world.name || world.title || `세계관 #${world.id}`} ({world.theme || "테마 미지정"})
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setSelectedWorldId(val)}
+                    options={worlds.map((world) => ({
+                      id: world.id,
+                      value: world.id,
+                      label: `${world.name || world.title || `세계관 #${world.id}`} (${world.theme || "테마 미지정"})`
+                    }))}
+                  />
                 ) : (
                   <p className={styles.emptyMsg}>
                     현재 저장된 세계관이 없습니다. 새로운 세계관에서 생성을 선택해주세요.

@@ -9,6 +9,7 @@ import Footer from "@/components/layout/Footer/Footer";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
 import CharacterForm from "@/components/character/CharacterForm/CharacterForm";
 import WorldSelectModal from "@/components/character/WorldSelectModal/WorldSelectModal";
+import HelpModal from "@/components/character/HelpModal/HelpModal";
 import CreateMobileMenu from "@/components/character/CreateMobileMenu/CreateMobileMenu";
 import { createClient } from "@/lib/supabase/client";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
@@ -31,6 +32,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   const [selectedWorld, setSelectedWorld] = useState(null);
   const [existingWorldId, setExistingWorldId] = useState(null);
   const [existingWorldCharacters, setExistingWorldCharacters] = useState([]);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   const [activeNav, setActiveNav] = useState("world");
   const [isCharacterOpen, setIsCharacterOpen] = useState(false);
@@ -447,25 +449,31 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
     setIsSubmitting(true);
 
     try {
-      // 1. DB 정보 수정
-      const updateRes = await fetch("/api/characters/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          characterId: selectedCharObj.id,
-        }),
-      });
+      const isFormChanged = Object.keys(formData).some(
+        (key) => formData[key] !== initialFormValues[key]
+      );
 
-      const updateResult = await updateRes.json();
-      if (!updateRes.ok || updateResult.error) {
-        alert(updateResult.error || "캐릭터 수정 중 오류가 발생했습니다.");
-        setIsSubmitting(false);
-        return;
+      if (isFormChanged) {
+        // 1. 내용이 변경된 경우에만 DB 정보 수정
+        const updateRes = await fetch("/api/characters/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...formData,
+            characterId: selectedCharObj.id,
+          }),
+        });
+
+        const updateResult = await updateRes.json();
+        if (!updateRes.ok || updateResult.error) {
+          alert(updateResult.error || "수정 중 오류가 발생했습니다.");
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       // 2. 상세 페이지로 이동하여 비동기로 이미지 재생성 (상세 페이지의 isGeneratingMode가 처리함)
-      router.push(`/characters/${selectedCharObj.id}?generating=true`);
+      router.push(`/characters/${selectedCharObj.id}?generating=${activeNav}`);
     } catch (err) {
       console.error("수정 후 이미지 재생성 중 에러:", err);
       alert("서버 처리 중 오류가 발생했습니다.");
@@ -503,7 +511,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         return;
       }
 
-      router.push(`/characters/${result.characterId}?generating=true`);
+      router.push(`/characters/${result.characterId}?generating=all`);
     } catch (err) {
       console.error("서버 요청 중 예외 발생:", err);
       alert("서버 연결 처리 중 오류가 발생했습니다.");
@@ -616,7 +624,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   const sidebarBottomContent = (
     <>
-      <button type="button" className={sidebarStyles.sideButton}>
+      <button type="button" className={sidebarStyles.sideButton} onClick={() => setIsHelpModalOpen(true)}>
         <span className={sidebarStyles.buttonIcon}>
           <HelpOutlineIcon />
         </span>
@@ -747,7 +755,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
           />
         </div>
 
-        <div style={{ flex: 1, minWidth: 0, height: "100%" }}>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <CharacterForm
             key={selectedCharacterId || "draft"}
             id="characterForm"
@@ -822,6 +830,12 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         onSelectNewWorld={handleSelectNewWorld}
         onSelectExistingWorld={handleSelectExistingWorld}
         onClose={() => router.back()}
+      />
+
+      {/* 도움말 모달 */}
+      <HelpModal
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
       />
 
       {/* 하단 풋터 (PC에서만 표시) */}

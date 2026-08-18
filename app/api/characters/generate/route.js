@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
-import { generateCharacterSummary } from "@/lib/ai/summary";
+import { generateCharacterSummary, generateWorldSummary } from "@/lib/ai/summary";
 
 async function getSupabaseServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -22,8 +22,12 @@ export async function POST(request) {
     let worldId = data.existingWorldId;
     let isNewWorldCreated = false;
 
+    let worldSummaryText = null;
+
     // 1. 기존 세계관 ID가 없는 경우에만 신규 세계관(worlds) 테이블 데이터 저장
     if (!worldId) {
+      worldSummaryText = await generateWorldSummary(data);
+
       const { data: worldRes, error: worldError } = await supabase
         .from("worlds")
         .insert({
@@ -36,6 +40,7 @@ export async function POST(request) {
           climate_landmarks: data.climate_landmarks || null,
           resource_currency: data.resource_currency || null,
           creator_id: userId,
+          summary_text: worldSummaryText,
         })
         .select()
         .single();

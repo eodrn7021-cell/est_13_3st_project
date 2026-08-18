@@ -12,6 +12,7 @@ import CharacterDetail from "@/components/character/CharacterDetail/CharacterDet
 import Button from "@/components/common/Button/Button";
 import LoginModal from "@/components/auth/LoginModal/LoginModal";
 import ConfirmModal from "@/components/common/Modal/ConfirmModal";
+import HelpModal from "@/components/character/HelpModal/HelpModal";
 import { createClient } from "@/lib/supabase/client";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
 import createStyles from "@/app/characters/create/create.module.scss";
@@ -36,11 +37,12 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // 최초 진입 시 URL에 generating=true가 있는지 한 번만 확인하고 상태로 유지
-  const [isGeneratingMode] = useState(searchParams.get("generating") === "true");
+  const [generatingMode] = useState(searchParams.get("generating"));
+  const [isGeneratingMode] = useState(Boolean(generatingMode));
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   const [isLiked, setIsLiked] = useState(() => Boolean(cachedCharacter?.initialIsLiked));
   const [isBookmarked, setIsBookmarked] = useState(() => Boolean(cachedCharacter?.initialIsBookmarked));
@@ -48,11 +50,21 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
   const [isLiking, setIsLiking] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
 
+  const [isWorldLiked, setIsWorldLiked] = useState(false);
+  const [isWorldBookmarked, setIsWorldBookmarked] = useState(false);
+  const [worldLikes, setWorldLikes] = useState(0);
+  const [isWorldLiking, setIsWorldLiking] = useState(false);
+  const [isWorldBookmarking, setIsWorldBookmarking] = useState(false);
+
   const [character, setCharacter] = useState(() => cachedCharacter);
   const [loading, setLoading] = useState(!cachedCharacter);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isWorldRegenerating, setIsWorldRegenerating] = useState(false);
   const [dbImageHistory, setDbImageHistory] = useState(() => cachedDbImageHistory);
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const [dbWorldImageHistory, setDbWorldImageHistory] = useState([]);
+  const [selectedWorldImage, setSelectedWorldImage] = useState(null);
 
   const [activeNav, setActiveNav] = useState("character");
   const [isCharacterOpen, setIsCharacterOpen] = useState(true);
@@ -61,6 +73,9 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
   // 코멘트 상태
   const [comments, setComments] = useState([]);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+
+  const [worldComments, setWorldComments] = useState([]);
+  const [isSubmittingWorldComment, setIsSubmittingWorldComment] = useState(false);
 
   // 현재 사용자 세션 정보 및 소유자 여부 상태
   const [currentUser, setCurrentUser] = useState(null);
@@ -79,6 +94,19 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
       }
     } catch (err) {
       console.warn("이미지 히스토리 조회 오류:", err);
+    }
+  };
+
+  const fetchWorldImageHistory = async (worldId) => {
+    if (!worldId) return;
+    try {
+      const res = await fetch(`/api/worlds/images?worldId=${worldId}`);
+      if (res.ok) {
+        const json = await res.json();
+        setDbWorldImageHistory(json?.images || []);
+      }
+    } catch (err) {
+      console.warn("세계관 이미지 히스토리 조회 오류:", err);
     }
   };
 
@@ -131,38 +159,128 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
     }
   };
 
-  const handleSaveMainImage = async () => {
-    const targetImage = selectedImage || character?.image_url;
-    if (!targetImage || !id) {
-      alert("저장할 이미지가 선택되지 않았습니다.");
-      return;
-    }
-
+  const triggerWorldImageGeneration = async (worldId) => {
+    setIsWorldRegenerating(true);
     try {
-      const res = await fetch("/api/characters/set-main-image", {
+      const res = await fetch("/api/worlds/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          characterId: id,
-          imageUrl: targetImage,
-        }),
+        body: JSON.stringify({ worldId }),
       });
 
       const result = await res.json();
+
       if (!res.ok || result.error) {
-        alert(result.error || "대표 이미지 저장 실패");
+        console.error("세계관 이미지 생성 중 오류:", result.error);
+        setIsWorldRegenerating(false);
         return;
       }
 
-      setCharacter((prev) => ({
-        ...prev,
-        image_url: targetImage,
-      }));
-      await fetchImageHistory(id);
-      alert("선택한 이미지가 캐릭터 대표 이미지로 지정 및 저장되었습니다!");
+      // 이미지가 생성되면 자동으로 메인 이미지로 저장
+      try {
+        const saveRes = await fetch("/api/worlds/set-main-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            worldId: worldId,
+            imageUrl: result.imageUrl,
+          }),
+        });
+        
+        if (saveRes.ok) {
+           setCharacter((prev) => prev ? {
+             ...prev,
+             worlds: prev.worlds ? { ...prev.worlds, image_url: result.imageUrl } : null
+           } : prev);
+           await fetchWorldImageHistory(worldId);
+        }
+      } catch (saveErr) {
+        console.error("세계관 메인 이미지 저장 중 오류:", saveErr);
+      }
     } catch (err) {
-      console.error("대표 이미지 저장 오류:", err);
-      alert("대표 이미지 저장 중 오류가 발생했습니다.");
+      console.error("세계관 이미지 생성 요청 오류:", err);
+    } finally {
+      setIsWorldRegenerating(false);
+    }
+  };
+
+  const handleRegenerateImage = async () => {
+    if (activeNav === "world") {
+      if (isWorldRegenerating || !character?.world_id) return;
+      await triggerWorldImageGeneration(character.world_id);
+    } else {
+      if (isRegenerating || !id) return;
+      await triggerImageGeneration(id);
+    }
+  };
+
+  const handleSaveMainImage = async () => {
+    if (activeNav === "world") {
+      const targetImage = selectedWorldImage || character?.worlds?.image_url;
+      if (!targetImage || !character?.world_id) {
+        alert("저장할 세계관 이미지가 선택되지 않았습니다.");
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/worlds/set-main-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            worldId: character.world_id,
+            imageUrl: targetImage,
+          }),
+        });
+
+        const result = await res.json();
+        if (!res.ok || result.error) {
+          alert(result.error || "대표 이미지 저장 실패");
+          return;
+        }
+
+        setCharacter((prev) => prev ? {
+          ...prev,
+          worlds: prev.worlds ? { ...prev.worlds, image_url: targetImage } : null
+        } : prev);
+        await fetchWorldImageHistory(character.world_id);
+        alert("선택한 이미지가 세계관 대표 이미지로 지정 및 저장되었습니다!");
+      } catch (err) {
+        console.error("세계관 대표 이미지 저장 오류:", err);
+        alert("세계관 대표 이미지 저장 중 오류가 발생했습니다.");
+      }
+    } else {
+      const targetImage = selectedImage || character?.image_url;
+      if (!targetImage || !id) {
+        alert("저장할 이미지가 선택되지 않았습니다.");
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/characters/set-main-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            characterId: id,
+            imageUrl: targetImage,
+          }),
+        });
+
+        const result = await res.json();
+        if (!res.ok || result.error) {
+          alert(result.error || "대표 이미지 저장 실패");
+          return;
+        }
+
+        setCharacter((prev) => ({
+          ...prev,
+          image_url: targetImage,
+        }));
+        await fetchImageHistory(id);
+        alert("선택한 이미지가 캐릭터 대표 이미지로 지정 및 저장되었습니다!");
+      } catch (err) {
+        console.error("대표 이미지 저장 오류:", err);
+        alert("대표 이미지 저장 중 오류가 발생했습니다.");
+      }
     }
   };
 
@@ -183,6 +301,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
       setLoading(true);
     }
     setSelectedImage(null);
+    setSelectedWorldImage(null);
 
     const fetchCharacterAndUser = async () => {
       const supabase = createClient();
@@ -243,6 +362,27 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
         setIsOwner(ownerCheck);
         cachedIsOwner = ownerCheck;
 
+        // 세계관 좋아요, 북마크 상태 조회
+        if (data.world_id) {
+          try {
+            const [
+              { count: wLikesCount },
+              { data: wLikeData },
+              { data: wBookmarkData }
+            ] = await Promise.all([
+              supabase.from("world_likes").select("*", { count: "exact", head: true }).eq("world_id", data.world_id),
+              user ? supabase.from("world_likes").select("id").eq("world_id", data.world_id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
+              user ? supabase.from("world_bookmarks").select("id").eq("world_id", data.world_id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null })
+            ]);
+
+            setWorldLikes(wLikesCount || 0);
+            setIsWorldLiked(Boolean(wLikeData));
+            setIsWorldBookmarked(Boolean(wBookmarkData));
+          } catch (wErr) {
+            console.error("세계관 좋아요/북마크 조회 오류:", wErr);
+          }
+        }
+
         // 생성창이 아닐 때만 해당 세계관의 다른 캐릭터들 조회
         if (!isGeneratingMode && data.world_id) {
           const { data: chars } = await supabase
@@ -270,11 +410,38 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
           console.error("코멘트 조회 오류:", commentErr);
         }
 
+        // 세계관 코멘트 조회
+        if (data.world_id) {
+          try {
+            const wCommentsRes = await fetch(`/api/worlds/comments?worldId=${data.world_id}`);
+            if (wCommentsRes.ok) {
+              const wCommentsJson = await wCommentsRes.json();
+              if (wCommentsJson.success) {
+                setWorldComments(wCommentsJson.comments || []);
+              }
+            }
+          } catch (wCommentErr) {
+            console.error("세계관 코멘트 조회 오류:", wCommentErr);
+          }
+          await fetchWorldImageHistory(data.world_id);
+        }
+
         await fetchImageHistory(data.id);
         // 새로고침 시 무한 자동 생성을 막기 위해, isGeneratingMode일 때만 1회 실행
         if (isGeneratingMode && !generationTriggered.current) {
           generationTriggered.current = true;
-          triggerImageGeneration(data.id);
+          
+          if (generatingMode === "all" || generatingMode === "true") {
+            triggerImageGeneration(data.id).then(() => {
+              if (data.world_id && data.worlds && !data.worlds.image_url) {
+                triggerWorldImageGeneration(data.world_id);
+              }
+            });
+          } else if (generatingMode === "character") {
+            triggerImageGeneration(data.id);
+          } else if (generatingMode === "world" && data.world_id) {
+            triggerWorldImageGeneration(data.world_id);
+          }
           
           // 새로고침 시 다시 생성되지 않도록 URL에서 파라미터 제거
           router.replace(`/characters/${data.id}`);
@@ -411,6 +578,38 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
     }
   };
 
+  const handleAddWorldComment = async (content) => {
+    if (!currentUser) {
+      setIsConfirmModalOpen(true);
+      return;
+    }
+    const targetWorldId = character?.world_id;
+    if (isSubmittingWorldComment || !content?.trim() || !targetWorldId) return;
+
+    setIsSubmittingWorldComment(true);
+    try {
+      const res = await fetch("/api/worlds/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ worldId: targetWorldId, content: content.trim() }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        alert(result.error || "코멘트 등록 중 오류가 발생했습니다.");
+        return;
+      }
+
+      setWorldComments((prev) => [result.comment, ...prev]);
+    } catch (err) {
+      console.error("세계관 코멘트 등록 예외:", err);
+      alert("코멘트 등록 중 오류가 발생했습니다.");
+    } finally {
+      setIsSubmittingWorldComment(false);
+    }
+  };
+
   const handleBookmarkToggle = async () => {
     if (!currentUser) {
       setIsConfirmModalOpen(true);
@@ -480,17 +679,93 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
     }
   };
 
-  const handleRegenerateImage = async () => {
-    if (isRegenerating || !id) return;
-    await triggerImageGeneration(id);
+  const handleWorldLikeToggle = async () => {
+    if (!currentUser) {
+      setIsConfirmModalOpen(true);
+      return;
+    }
+    const targetWorldId = character?.world_id;
+    if (isWorldLiking || !targetWorldId) return;
+
+    setIsWorldLiking(true);
+    const prevIsLiked = isWorldLiked;
+    const prevLikes = worldLikes;
+
+    setIsWorldLiked(!prevIsLiked);
+    setWorldLikes((prev) => (prevIsLiked ? Math.max(0, prev - 1) : prev + 1));
+
+    try {
+      const res = await fetch("/api/worlds/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ worldId: targetWorldId }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        setIsWorldLiked(prevIsLiked);
+        setWorldLikes(prevLikes);
+        alert(result.error || "좋아요 처리 중 오류가 발생했습니다.");
+        return;
+      }
+
+      setIsWorldLiked(result.isLiked);
+      setWorldLikes(result.likes);
+    } catch (err) {
+      console.error("세계관 좋아요 처리 중 예외 발생:", err);
+      setIsWorldLiked(prevIsLiked);
+      setWorldLikes(prevLikes);
+    } finally {
+      setIsWorldLiking(false);
+    }
   };
+
+  const handleWorldBookmarkToggle = async () => {
+    if (!currentUser) {
+      setIsConfirmModalOpen(true);
+      return;
+    }
+    const targetWorldId = character?.world_id;
+    if (isWorldBookmarking || !targetWorldId) return;
+
+    setIsWorldBookmarking(true);
+    const prevIsBookmarked = isWorldBookmarked;
+
+    setIsWorldBookmarked(!prevIsBookmarked);
+
+    try {
+      const res = await fetch("/api/worlds/bookmark", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ worldId: targetWorldId }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        setIsWorldBookmarked(prevIsBookmarked);
+        alert(result.error || "북마크 처리 중 오류가 발생했습니다.");
+        return;
+      }
+
+      setIsWorldBookmarked(result.isBookmarked);
+    } catch (err) {
+      console.error("세계관 북마크 처리 중 예외 발생:", err);
+      setIsWorldBookmarked(prevIsBookmarked);
+    } finally {
+      setIsWorldBookmarking(false);
+    }
+  };
+
+  // 삭제 대상 (handleRegenerateImage 함수는 위로 이동됨)
 
   const world = character?.worlds;
   const worldTitle = world?.name || world?.title || "";
   const characterName = character?.name || "";
 
   // 현재 캐릭터의 DB 히스토리 중 가장 최근 4개 이미지 추출
-  const imageHistory = dbImageHistory.slice(0, 4);
+  const imageHistory = activeNav === "world" ? dbWorldImageHistory.slice(0, 4) : dbImageHistory.slice(0, 4);
 
   const handleSelectWorld = () => {
     setActiveNav("world");
@@ -565,7 +840,13 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
               <div
                 key={imgSrc}
                 className={sidebarStyles.thumbBox}
-                onClick={() => setSelectedImage(imgSrc)}
+                onClick={() => {
+                  if (activeNav === "world") {
+                    setSelectedWorldImage(imgSrc);
+                  } else {
+                    setSelectedImage(imgSrc);
+                  }
+                }}
                 style={{ cursor: "pointer" }}
               >
                 <Image src={imgSrc} alt={`생성 이미지 ${idx + 1}`} fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: 'cover' }} />
@@ -634,7 +915,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
         </div>
         <div className={sidebarStyles.statRow}>
           <span className="kr_body">좋아요 :</span>
-          <span className="kr_body">{likes}</span>
+          <span className="kr_body">{activeNav === "world" ? worldLikes : likes}</span>
         </div>
       </div>
 
@@ -643,13 +924,13 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
           <button
             type="button"
             aria-label="좋아요"
-            className={isLiked ? sidebarStyles.active : ""}
-            onClick={handleLikeToggle}
-            disabled={isLiking}
+            className={(activeNav === "world" ? isWorldLiked : isLiked) ? sidebarStyles.active : ""}
+            onClick={activeNav === "world" ? handleWorldLikeToggle : handleLikeToggle}
+            disabled={activeNav === "world" ? isWorldLiking : isLiking}
           >
             <span
               className="material-symbols-outlined icon_36"
-              style={isLiked ? { fontVariationSettings: "'FILL' 1" } : undefined}
+              style={(activeNav === "world" ? isWorldLiked : isLiked) ? { fontVariationSettings: "'FILL' 1" } : undefined}
             >
               favorite
             </span>
@@ -660,13 +941,13 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
           <button
             type="button"
             aria-label="북마크"
-            className={isBookmarked ? sidebarStyles.activeBookmark : ""}
-            onClick={handleBookmarkToggle}
-            disabled={isBookmarking}
+            className={(activeNav === "world" ? isWorldBookmarked : isBookmarked) ? sidebarStyles.activeBookmark : ""}
+            onClick={activeNav === "world" ? handleWorldBookmarkToggle : handleBookmarkToggle}
+            disabled={activeNav === "world" ? isWorldBookmarking : isBookmarking}
           >
             <span
               className="material-symbols-outlined icon_36"
-              style={isBookmarked ? { fontVariationSettings: "'FILL' 1" } : undefined}
+              style={(activeNav === "world" ? isWorldBookmarked : isBookmarked) ? { fontVariationSettings: "'FILL' 1" } : undefined}
             >
               bookmark
             </span>
@@ -674,7 +955,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
         </div>
       )}
 
-      <button type="button" className={sidebarStyles.sideButton}>
+      <button type="button" className={sidebarStyles.sideButton} onClick={() => setIsHelpModalOpen(true)}>
         <span className={sidebarStyles.buttonIcon}>
           <HelpOutlineIcon />
         </span>
@@ -765,7 +1046,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
         </div>
 
         {/* 메인 폼 위치에 CharacterDetail 컴포넌트 배치 */}
-        <div style={{ flex: 1, minWidth: 0, height: "100%", position: "relative" }}>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", position: "relative" }}>
           {loading && !character ? (
             <div style={{ padding: "40px", textAlign: "center" }}>
               <span className="kr_body_b">캐릭터 정보 불러오는 중...</span>
@@ -786,17 +1067,41 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                   <span className="kr_body_b" style={{ color: "rgba(255,255,255,0.8)" }}>캐릭터 변경 중...</span>
                 </div>
               )}
+              {isWorldRegenerating && (
+                <div style={{
+                  position: "absolute",
+                  top: 0, left: 0, right: 0, bottom: 0,
+                  backgroundColor: "rgba(15, 17, 26, 0.7)",
+                  zIndex: 49,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "16px",
+                  backdropFilter: "blur(4px)"
+                }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+                    <div className="spinner"></div>
+                    <span className="kr_body_b" style={{ color: "var(--color-white)" }}>세계관 이미지 생성 중...</span>
+                  </div>
+                </div>
+              )}
               <CharacterDetail
-                character={character ? { ...character, image_url: selectedImage || character.image_url } : null}
+                character={character ? { 
+                  ...character, 
+                  image_url: activeNav === "world" 
+                    ? (selectedWorldImage || character?.worlds?.image_url) 
+                    : (selectedImage || character?.image_url) 
+                } : null}
+                activeNav={activeNav}
                 onRegenerateImage={handleRegenerateImage}
                 onSaveImage={handleSaveMainImage}
-                isRegenerating={isRegenerating}
+                isRegenerating={activeNav === "world" ? isWorldRegenerating : isRegenerating}
                 isGeneratingMode={isGeneratingMode}
                 isOwner={isOwner}
                 currentUser={currentUser}
-                comments={comments}
-                onAddComment={handleAddComment}
-                isSubmittingComment={isSubmittingComment}
+                comments={activeNav === "world" ? worldComments : comments}
+                onAddComment={activeNav === "world" ? handleAddWorldComment : handleAddComment}
+                isSubmittingComment={activeNav === "world" ? isSubmittingWorldComment : isSubmittingComment}
               />
 
               {/* 모바일/태블릿용 메타 정보 및 액션 버튼 (PC에서는 숨김 처리) */}
@@ -812,7 +1117,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                     조회수 : <span>{character?.view_count ?? 0}</span>
                   </div>
                   <div className={`kr_body ${createStyles.mobileMetaItem}`}>
-                    좋아요 : <span>{likes}</span>
+                    좋아요 : <span>{activeNav === "world" ? worldLikes : likes}</span>
                   </div>
                 </div>
                 
@@ -828,21 +1133,21 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
                 ) : (
                   <div className={createStyles.mobileActionGrid}>
                     <button
-                      className={`${createStyles.actionBtnIcon} ${isLiked ? createStyles.active : ""}`}
-                      onClick={handleLikeToggle}
-                      disabled={isLiking}
+                      className={`${createStyles.actionBtnIcon} ${(activeNav === "world" ? isWorldLiked : isLiked) ? createStyles.active : ""}`}
+                      onClick={activeNav === "world" ? handleWorldLikeToggle : handleLikeToggle}
+                      disabled={activeNav === "world" ? isWorldLiking : isLiking}
                     >
-                      <span className="material-symbols-outlined icon_24" style={isLiked ? { fontVariationSettings: "'FILL' 1" } : undefined}>favorite</span>
+                      <span className="material-symbols-outlined icon_24" style={(activeNav === "world" ? isWorldLiked : isLiked) ? { fontVariationSettings: "'FILL' 1" } : undefined}>favorite</span>
                     </button>
                     <button className={createStyles.actionBtnIcon} onClick={handleShare}>
                       <span className="material-symbols-outlined icon_24">share</span>
                     </button>
                     <button
-                      className={`${createStyles.actionBtnIcon} ${isBookmarked ? createStyles.active : ""}`}
-                      onClick={handleBookmarkToggle}
-                      disabled={isBookmarking}
+                      className={`${createStyles.actionBtnIcon} ${(activeNav === "world" ? isWorldBookmarked : isBookmarked) ? createStyles.active : ""}`}
+                      onClick={activeNav === "world" ? handleWorldBookmarkToggle : handleBookmarkToggle}
+                      disabled={activeNav === "world" ? isWorldBookmarking : isBookmarking}
                     >
-                      <span className="material-symbols-outlined icon_24" style={isBookmarked ? { fontVariationSettings: "'FILL' 1" } : undefined}>bookmark</span>
+                      <span className="material-symbols-outlined icon_24" style={(activeNav === "world" ? isWorldBookmarked : isBookmarked) ? { fontVariationSettings: "'FILL' 1" } : undefined}>bookmark</span>
                     </button>
                   </div>
                 )}
@@ -855,12 +1160,11 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
       {/* 로그인 확인 모달 */}
       <ConfirmModal
         isOpen={isConfirmModalOpen}
-        title="로그인 필요"
         message="로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?"
-        confirmText="이동하기"
+        confirmText="로그인"
         cancelText="취소"
-        onConfirm={handleLoginConfirm}
         onCancel={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleLoginConfirm}
       />
 
       {/* 로그인 모달 */}
@@ -871,6 +1175,12 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
           console.log("로그인 성공:", user);
           window.location.reload();
         }}
+      />
+
+      <HelpModal
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
+        mode="detail"
       />
 
       {/* 하단 풋터 (PC에서만 표시) */}

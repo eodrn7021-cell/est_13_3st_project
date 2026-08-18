@@ -148,27 +148,7 @@
     font-weight: variables.$font_weight_bold;
   }
 
-  .selectBox {
-    width: 100%;
-    height: 46px;
-    padding: 0 16px;
-    border-radius: 12px;
-    background: colors.$color_background_deep;
-    color: colors.$color_white;
-    border: 1px solid colors.$color_tag_stroke;
-    font-size: 0.9rem;
-    outline: none;
-    cursor: pointer;
 
-    &:focus {
-      border-color: colors.$color_primary;
-    }
-
-    option {
-      background-color: colors.$color_background_deep;
-      color: colors.$color_white;
-    }
-  }
 
   .emptyMsg {
     color: colors.$color_white;
