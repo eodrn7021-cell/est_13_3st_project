@@ -8,7 +8,7 @@ import Header from "@/components/layout/Header/Header";
 import Footer from "@/components/layout/Footer/Footer";
 import styles from "./HomeMobileMenu.module.scss";
 
-const HomeMobileMenu = ({ headerVariant = "main" }) => {
+const HomeMobileMenu = ({ headerVariant = "main", hideResponsiveSearch = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [isClosing, setIsClosing] = useState(false);
@@ -116,6 +116,7 @@ const HomeMobileMenu = ({ headerVariant = "main" }) => {
       {/* 기존 Header는 여기에서 그대로 사용 */}
       <Header
         variant={headerVariant}
+        hideResponsiveSearch={hideResponsiveSearch}
         onMenuClick={() => {
           setIsClosing(false);
           setIsOpen(true);

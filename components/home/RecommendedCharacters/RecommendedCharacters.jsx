@@ -67,10 +67,15 @@ const RecommendedCharacters = () => {
       setErrorMessage("");
       const supabase = createClient();
 
-      const { data, error } = await supabase
-        .from("characters")
-        .select("id, name, race, job_role, background_story, image_url")
-        .limit(9);
+      const { data, error } = await supabase.from("characters").select(`
+    id,
+    name,
+    race,
+    job_role,
+    background_story,
+    image_url,
+    character_likes(count)
+  `);
 
       if (error) {
         console.error("추천 캐릭터 조회 실패:", error);
@@ -79,13 +84,17 @@ const RecommendedCharacters = () => {
         return;
       }
 
-      const formattedCharacters = (data || []).map((character) => ({
-        id: character.id,
-        image: character.image_url || "/images/home/recommended-character-01.webp",
-        name: character.name,
-        description: character.background_story || "캐릭터 소개가 아직 없습니다.",
-        tags: [character.race, character.job_role].filter(Boolean),
-      }));
+      const formattedCharacters = (data || [])
+        .map((character) => ({
+          id: character.id,
+          image: character.image_url || "/images/home/recommended-character-01.webp",
+          name: character.name,
+          description: character.background_story || "캐릭터 소개가 아직 없습니다.",
+          tags: [character.race, character.job_role].filter(Boolean),
+          likeCount: character.character_likes?.[0]?.count || 0,
+        }))
+        .sort((a, b) => b.likeCount - a.likeCount)
+        .slice(0, 9);
 
       setRecommendedCharacters(formattedCharacters);
       setIsLoading(false);
