@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Footer from "@/components/layout/Footer/Footer";
 import HomeSidebar from "@/components/home/HomeSidebar/HomeSidebar";
 import HomeMobileMenu from "@/components/home/HomeMobileMenu/HomeMobileMenu";
@@ -19,7 +20,9 @@ const HomePage = () => {
         <div className={styles.home_inner}>
           {/* PC 사이드바 */}
           <div className={styles.home_sidebar_wrapper}>
-            <HomeSidebar />
+            <Suspense fallback={null}>
+              <HomeSidebar />
+            </Suspense>
           </div>
 
           {/* 메인 콘텐츠 */}
