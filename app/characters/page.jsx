@@ -1,79 +1,82 @@
-"use client";
+'use client';
 
-import { useEffect, useState, Suspense } from "react";
-import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import Header from "@/components/layout/Header/Header";
-import Footer from "@/components/layout/Footer/Footer";
-import HomeSidebar from "@/components/home/HomeSidebar/HomeSidebar";
-import MobileNavigation from "@/components/layout/MobileNavigation/MobileNavigation";
-import styles from "./characters.module.scss";
-import Image from "next/image";
+import { useEffect, useState, Suspense } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import Header from '@/components/layout/Header/Header';
+import Footer from '@/components/layout/Footer/Footer';
+import HomeSidebar from '@/components/home/HomeSidebar/HomeSidebar';
+import MobileNavigation from '@/components/layout/MobileNavigation/MobileNavigation';
+import styles from './characters.module.scss';
+import Image from 'next/image';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 const CharactersContent = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const selectedTag = searchParams.get("tag");
+  const supabase = createClient();
 
+  // 1. URL 쿼리 파라미터 파싱 (에러 원인이었던 selectedTags를 안전하게 선언)
+  const searchParamsString = searchParams.toString();
+  const tagsParam = searchParams.get('tags') || searchParams.get('tag') || '';
+  const currentTags = tagsParam ? tagsParam.split(',').filter(Boolean) : [];
+  const searchQuery =
+    searchParams.get('search') || searchParams.get('q') || searchParams.get('query') || '';
+
+  // 2. 상태(State) 관리
   const [characters, setCharacters] = useState([]);
   const [worlds, setWorlds] = useState([]);
 
+  // 필터 옵션 목록
   const [raceOptions, setRaceOptions] = useState([]);
   const [jobOptions, setJobOptions] = useState([]);
   const [genderOptions, setGenderOptions] = useState([]);
 
+  // UI 상태
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // 선택된 필터 조건 상태
   const [filters, setFilters] = useState({
-    sort: searchParams.get("sort") === "popular" ? "인기순" : "최신순",
-    world_id: "",
-    race: "",
-    job_role: "",
-    gender: "",
-    tag: selectedTag || "",
+    sort: searchParams.get('sort') === 'popular' ? '인기순' : '최신순',
+    world_id: searchParams.get('world_id') || '',
+    race: searchParams.get('race') || '',
+    job_role: searchParams.get('job_role') || '',
+    gender: searchParams.get('gender') || '',
+    tags: currentTags,
   });
 
-  const supabase = createClient();
-
-  // URL의 태그 변화 감지
+  // 3. URL 변경 감지 및 filters 상태 동기화 (단일 useEffect로 통합하여 렌더링 최적화)
   useEffect(() => {
-    setFilters((prev) => ({
-      ...prev,
-      tag: selectedTag || "",
-    }));
-  }, [selectedTag]);
+    setFilters({
+      sort: searchParams.get('sort') === 'popular' ? '인기순' : '최신순',
+      world_id: searchParams.get('world_id') || '',
+      race: searchParams.get('race') || '',
+      job_role: searchParams.get('job_role') || '',
+      gender: searchParams.get('gender') || '',
+      tags: currentTags,
+    });
+  }, [searchParamsString]);
 
-  // URL의 정렬(sort) 변화 감지
-  useEffect(() => {
-    const currentSort = searchParams.get("sort");
-    if (currentSort === "popular") {
-      setFilters((prev) => ({ ...prev, sort: "인기순" }));
-    } else if (!currentSort && filters.sort === "인기순" && !searchParams.has("sort")) {
-      setFilters((prev) => ({ ...prev, sort: "최신순" }));
-    }
-  }, [searchParams]);
-
-  // 필터 데이터 및 셀렉트 옵션 로드
+  // 4. 초기 셀렉트박스 옵션 데이터 조회 (세계관, 종족, 직업, 성별)
   useEffect(() => {
     const fetchFilterData = async () => {
-      const { data: worldData, error: worldError } = await supabase.from("worlds").select("*");
+      const { data: worldData, error: worldError } = await supabase.from('worlds').select('*');
       if (worldError) {
-        console.error("세계관 로딩 에러:", worldError);
+        console.error('세계관 로딩 에러:', worldError);
       } else if (worldData) {
         setWorlds(worldData);
       }
 
       const { data: charData, error: charError } = await supabase
-        .from("characters")
-        .select("world_id, race, job_role, gender");
+        .from('characters')
+        .select('world_id, race, job_role, gender');
 
       if (charError) {
-        console.error("캐릭터 필터 데이터 로딩 에러:", charError);
+        console.error('캐릭터 필터 데이터 로딩 에러:', charError);
       } else if (charData) {
         const races = Array.from(new Set(charData.map((item) => item.race).filter(Boolean)));
         const jobs = Array.from(new Set(charData.map((item) => item.job_role).filter(Boolean)));
@@ -95,9 +98,54 @@ const CharactersContent = () => {
     fetchFilterData();
   }, []);
 
-  const searchQuery =
-    searchParams.get("search") || searchParams.get("q") || searchParams.get("query") || "";
+  // 5. 캐릭터 데이터 Fetch (드롭다운 필터 및 정렬 변경 시)
+  useEffect(() => {
+    const fetchCharacters = async () => {
+      setIsLoading(true);
 
+      let query = supabase.from('characters').select('*, worlds(*), character_likes(count)');
+
+      if (filters.world_id) query = query.eq('world_id', Number(filters.world_id));
+      if (filters.race) query = query.eq('race', filters.race);
+      if (filters.job_role) query = query.eq('job_role', filters.job_role);
+      if (filters.gender) query = query.eq('gender', filters.gender);
+
+      if (searchQuery.trim()) {
+        const keyword = `%${searchQuery.trim()}%`;
+        query = query.or(
+          `name.ilike.${keyword},race.ilike.${keyword},job_role.ilike.${keyword},background_story.ilike.${keyword},personality.ilike.${keyword}`,
+        );
+      }
+
+      if (filters.sort === '인기순') {
+        query = query.order('view_count', { ascending: false });
+      } else {
+        query = query.order('created_at', { ascending: false });
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Supabase Error:', error);
+      } else {
+        setCharacters(data || []);
+      }
+
+      setIsLoading(false);
+    };
+
+    fetchCharacters();
+  }, [filters.sort, filters.world_id, filters.race, filters.job_role, filters.gender, searchQuery]);
+
+  // 핸들러: 상단 필터 변경 시
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  // 핸들러: 헤더 검색 및 모바일 메뉴 캐치
   const handleHeaderCapture = (e) => {
     const hamburgerBtn = e.target.closest('[class*="header_menu_button"]');
     if (hamburgerBtn) {
@@ -105,7 +153,7 @@ const CharactersContent = () => {
       return;
     }
 
-    if (e.type === "submit" || (e.type === "keydown" && e.key === "Enter")) {
+    if (e.type === 'submit' || (e.type === 'keydown' && e.key === 'Enter')) {
       const searchInput = e.currentTarget.querySelector(
         'input[type="text"], input[type="search"], input',
       );
@@ -118,73 +166,38 @@ const CharactersContent = () => {
     }
   };
 
-  // 캐릭터 데이터 불러오기
-  useEffect(() => {
-    const fetchCharacters = async () => {
-      setIsLoading(true);
+  // 6. 다중 태그 일치 필터링 & 일치 개수 순(내림차순) 정렬 처리
+  const processDisplayList = () => {
+    if (!filters.tags || filters.tags.length === 0) {
+      return characters;
+    }
 
-      let query = supabase.from("characters").select("*, worlds(*), character_likes(count)");
+    return characters
+      .map((item) => {
+        const itemTags = [
+          item.race,
+          item.job_role,
+          item.worlds?.name,
+          item.worlds?.genre,
+          item.gender,
+        ].filter(Boolean);
 
-      if (filters.world_id) {
-        query = query.eq("world_id", Number(filters.world_id));
-      }
-      if (filters.race) {
-        query = query.eq("race", filters.race);
-      }
-      if (filters.job_role) {
-        query = query.eq("job_role", filters.job_role);
-      }
-      if (filters.gender) {
-        query = query.eq("gender", filters.gender);
-      }
+        // 태그 일치 개수 계산 (단일/복수 태그 및 스토리 검사)
+        const matchCount = filters.tags.reduce((acc, tag) => {
+          const isDirectMatch = itemTags.includes(tag);
+          const isStoryMatch = item.background_story?.includes(tag);
+          return isDirectMatch || isStoryMatch ? acc + 1 : acc;
+        }, 0);
 
-      if (searchQuery.trim()) {
-        const keyword = `%${searchQuery.trim()}%`;
-        query = query.or(
-          `name.ilike.${keyword},race.ilike.${keyword},job_role.ilike.${keyword},background_story.ilike.${keyword},personality.ilike.${keyword}`,
-        );
-      }
-
-      if (filters.sort === "인기순") {
-        query = query.order("view_count", { ascending: false });
-      } else {
-        query = query.order("created_at", { ascending: false });
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Supabase Error:", error);
-      } else {
-        setCharacters(data || []);
-      }
-
-      setIsLoading(false);
-    };
-
-    fetchCharacters();
-  }, [filters.sort, filters.world_id, filters.race, filters.job_role, filters.gender, searchQuery]);
-
-  const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+        return { ...item, matchCount };
+      })
+      .filter((item) => item.matchCount > 0) // 1개 이상 만족하는 경우만 포함 (OR 조건)
+      .sort((a, b) => b.matchCount - a.matchCount); // 일치 개수 많은 순 정렬
   };
 
-  // 💡 태그 필터링 적용 (종족, 직업, 세계관 이름/장르 등에 태그가 포함되는지 검사)
-  const displayList = characters.filter((item) => {
-    if (!filters.tag) return true;
-    const tag = filters.tag;
-    return (
-      item.race === tag ||
-      item.job_role === tag ||
-      item.worlds?.name === tag ||
-      item.worlds?.genre === tag ||
-      item.background_story?.includes(tag)
-    );
-  });
+  const displayList = processDisplayList();
 
+  // 추천 캐릭터 배지 노출용 좋아요 순 정렬
   const sortedByLikes = [...displayList].sort((a, b) => {
     const likesA = a.character_likes?.[0]?.count || a.like_count || 0;
     const likesB = b.character_likes?.[0]?.count || b.like_count || 0;
@@ -204,7 +217,8 @@ const CharactersContent = () => {
         <Header />
       </div>
 
-      <div className={`${styles.mobile_drawer} ${isMobileMenuOpen ? styles.is_open : ""}`}>
+      {/* 모바일 서랍 메뉴 */}
+      <div className={`${styles.mobile_drawer} ${isMobileMenuOpen ? styles.is_open : ''}`}>
         <div className={styles.backdrop} onClick={() => setIsMobileMenuOpen(false)} />
         <div className={styles.drawer_content}>
           <div className={styles.drawer_header}>
@@ -238,6 +252,7 @@ const CharactersContent = () => {
         </div>
       </div>
 
+      {/* 메인 콘텐츠 레이아웃 */}
       <div className={styles.main_wrapper}>
         <div className={styles.layout_body}>
           <div className={styles.pc_sidebar}>
@@ -245,12 +260,13 @@ const CharactersContent = () => {
           </div>
 
           <main className={styles.content_area}>
+            {/* 상단 드롭다운 필터 바 */}
             <div className={styles.filter_bar}>
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.sort || "최신순"}
-                  onChange={(e) => handleFilterChange("sort", e.target.value)}
+                  value={filters.sort || '최신순'}
+                  onChange={(e) => handleFilterChange('sort', e.target.value)}
                 >
                   <option value="최신순">최신순</option>
                   <option value="인기순">인기순</option>
@@ -263,8 +279,8 @@ const CharactersContent = () => {
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.race || ""}
-                  onChange={(e) => handleFilterChange("race", e.target.value)}
+                  value={filters.race || ''}
+                  onChange={(e) => handleFilterChange('race', e.target.value)}
                 >
                   <option value="">종족</option>
                   {(raceOptions || []).map((race) => (
@@ -281,8 +297,8 @@ const CharactersContent = () => {
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.world_id || ""}
-                  onChange={(e) => handleFilterChange("world_id", e.target.value)}
+                  value={filters.world_id || ''}
+                  onChange={(e) => handleFilterChange('world_id', e.target.value)}
                 >
                   <option value="">테마</option>
                   {(worlds || []).map((t) => (
@@ -299,8 +315,8 @@ const CharactersContent = () => {
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.gender || ""}
-                  onChange={(e) => handleFilterChange("gender", e.target.value)}
+                  value={filters.gender || ''}
+                  onChange={(e) => handleFilterChange('gender', e.target.value)}
                 >
                   <option value="">성별</option>
                   {(genderOptions || []).map((gender) => (
@@ -317,8 +333,8 @@ const CharactersContent = () => {
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
-                  value={filters.job_role || ""}
-                  onChange={(e) => handleFilterChange("job_role", e.target.value)}
+                  value={filters.job_role || ''}
+                  onChange={(e) => handleFilterChange('job_role', e.target.value)}
                 >
                   <option value="">장르</option>
                   {(jobOptions || []).map((job) => (
@@ -333,6 +349,7 @@ const CharactersContent = () => {
               </div>
             </div>
 
+            {/* 카드 그리드 영역 */}
             <div className={styles.card_grid_container}>
               {isLoading ? null : displayList && displayList.length > 0 ? (
                 <div className={styles.card_grid}>
@@ -347,11 +364,11 @@ const CharactersContent = () => {
                       >
                         <div className={styles.image_box}>
                           {(isRecommended || item.badge) && (
-                            <span className={styles.badge}>{item.badge || "추천 캐릭터"}</span>
+                            <span className={styles.badge}>{item.badge || '추천 캐릭터'}</span>
                           )}
 
                           {item.image_url ? (
-                            <img src={item.image_url} alt={item.name || "캐릭터 이미지"} />
+                            <img src={item.image_url} alt={item.name || '캐릭터 이미지'} />
                           ) : (
                             <div className={styles.no_image}>
                               <span className={`material-symbols-outlined ${styles.no_image_icon}`}>
@@ -364,7 +381,7 @@ const CharactersContent = () => {
                             <div className={styles.card_info}>
                               <h3>{item.name}</h3>
                               <p className={styles.description}>
-                                {item.background_story || "캐릭터 상세 설명이 없습니다."}
+                                {item.background_story || '캐릭터 상세 설명이 없습니다.'}
                               </p>
                               <div className={styles.tag_badge}>
                                 {[
@@ -373,7 +390,7 @@ const CharactersContent = () => {
                                   item.worlds?.name || item.worlds?.title || item.worlds?.genre,
                                 ]
                                   .filter(Boolean)
-                                  .join(" · ") || "태그 없음"}
+                                  .join(' · ') || '태그 없음'}
                               </div>
                             </div>
                           </div>
