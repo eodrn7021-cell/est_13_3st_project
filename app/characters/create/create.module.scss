@@ -1,6 +1,10 @@
 @use "../../../styles/abstracts/_colors.scss" as colors;
 @use "../../../styles/abstracts/_variables.scss" as variables;
 
+.generatingOverlayText {
+  color: colors.$color_white !important;
+}
+
 .pageContainer {
   min-height: 100vh;
   display: flex;

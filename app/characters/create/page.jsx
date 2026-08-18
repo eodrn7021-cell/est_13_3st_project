@@ -676,7 +676,8 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
           type="button"
           className={`${sidebarStyles.sideButton} ${isAllCheckDone ? sidebarStyles.active : ""}`}
           onClick={handleSaveClick}
-          disabled={!isAllCheckDone || isSubmitting}
+          disabled={isSubmitting}
+          style={{ cursor: isAllCheckDone ? "pointer" : "default" }}
         >
           <span className="kr_body_b">저장 후 이미지생성</span>
         </button>
@@ -687,6 +688,32 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   return (
     <div className={createStyles.pageContainer}>
       {/* 모바일 햄버거 메뉴를 포함한 헤더 */}
+      {isSubmitting && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          zIndex: 9999,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          flexDirection: "column",
+          gap: "16px"
+        }}>
+          <div style={{
+            width: "40px",
+            height: "40px",
+            border: "4px solid rgba(255, 255, 255, 0.3)",
+            borderTop: "4px solid white",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite"
+          }} />
+          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+          <p className={`kr_body_b ${createStyles.generatingOverlayText}`} style={{ fontSize: "18px" }}>데이터 저장 중...</p>
+        </div>
+      )}
+
       <CreateMobileMenu
         headerVariant="account"
         isWorldCheckDone={isWorldCheckDone}
@@ -788,7 +815,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
                 className={`${createStyles.primaryBtn} ${isAllCheckDone ? createStyles.active : ""}`}
                 onClick={handleUpdateOnly}
                 disabled={isSubmitting}
-                style={{ flex: "1 1 240px", maxWidth: "240px" }}
+                style={{ flex: "1 1 240px", maxWidth: "240px", cursor: isAllCheckDone ? "pointer" : "default" }}
               >
                 <span className="kr_body_b">수정 정보 저장</span>
               </button>
@@ -797,7 +824,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
                 className={`${createStyles.primaryBtn} ${isAllCheckDone ? createStyles.active : ""}`}
                 onClick={handleUpdateAndRegenerate}
                 disabled={isSubmitting}
-                style={{ flex: "1 1 240px", maxWidth: "240px" }}
+                style={{ flex: "1 1 240px", maxWidth: "240px", cursor: isAllCheckDone ? "pointer" : "default" }}
               >
                 <span className="kr_body_b">수정 후 이미지 재생성</span>
               </button>
@@ -816,8 +843,9 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
               className={`${createStyles.primaryBtn} ${isAllCheckDone ? createStyles.active : ""}`}
               onClick={handleSaveClick}
               disabled={isSubmitting}
+              style={{ flex: "1 1 auto", maxWidth: "480px", cursor: isAllCheckDone ? "pointer" : "default" }}
             >
-              <span className="kr_body_b">저장후 이미지생성</span>
+              <span className="kr_body_b">저장 후 이미지생성</span>
             </button>
           )}
         </div>

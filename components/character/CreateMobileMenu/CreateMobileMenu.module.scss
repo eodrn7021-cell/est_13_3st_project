@@ -361,6 +361,7 @@
   align-items: center;
   gap: 8px;
   color: colors.$color_white;
+  cursor: default;
 
   input[type="checkbox"] {
     appearance: checkbox;
@@ -369,6 +370,7 @@
     height: 16px;
     accent-color: colors.$color_primary;
     flex-shrink: 0;
+    cursor: default;
   }
 }
 
