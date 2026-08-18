@@ -277,7 +277,7 @@ const MyPage = () => {
         );
 
         /* ====================================
-           10. 즐겨찾기 조회
+           10. 북마크 조회
         ==================================== */
 
         let bookmarkData = [];
@@ -297,7 +297,7 @@ const MyPage = () => {
         }
 
         /* ====================================
-           휴지통 캐릭터의 즐겨찾기는
+           휴지통 캐릭터의 북마크는
            마이페이지 통계에서 제외
         ==================================== */
 
@@ -309,7 +309,7 @@ const MyPage = () => {
 
         setBookmarkCount(activeBookmarkCount);
 
-        console.log("마이페이지 즐겨찾기 수:", activeBookmarkCount);
+        console.log("마이페이지 북마크 수:", activeBookmarkCount);
 
         /* ====================================
            11. 최근 생성한 캐릭터 3개
@@ -419,7 +419,7 @@ const MyPage = () => {
               </div>
 
               <div className={styles.statCard}>
-                <h3>즐겨찾기</h3>
+                <h3>북마크</h3>
 
                 <strong>{loading ? "-" : bookmarkCount}</strong>
               </div>

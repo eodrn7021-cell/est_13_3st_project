@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/client";
 
@@ -9,9 +10,46 @@ import styles from "./Sidebar.module.scss";
 
 const Sidebar = ({ open, onClose, page = "mypage" }) => {
   const pathname = usePathname();
-  const router = useRouter();
 
-  const supabase = createClient();
+  const [user, setUser] = useState(null);
+
+  /* ========================================
+     Supabase
+  ======================================== */
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    let subscription;
+    let isCancelled = false;
+
+    const getCurrentUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (isCancelled) {
+        return;
+      }
+
+      setUser(user);
+
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (!isCancelled) {
+          setUser(session?.user ?? null);
+        }
+      });
+
+      subscription = data.subscription;
+    };
+
+    getCurrentUser();
+
+    return () => {
+      isCancelled = true;
+      subscription?.unsubscribe();
+    };
+  }, []);
 
   /* ========================================
      Sidebar Menu
@@ -30,7 +68,7 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
     },
     {
       icon: "favorite",
-      label: "즐겨찾기",
+      label: "북마크",
       href: "/favorites",
     },
     {
@@ -58,39 +96,69 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
   }
 
   /* ========================================
-     Logout
+     메뉴 클릭
   ======================================== */
 
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      console.error("로그아웃 실패:", error);
-
-      alert("로그아웃에 실패했습니다.");
-
-      return;
-    }
-
+  const handleMenuClick = () => {
     onClose?.();
-
-    router.replace("/login");
-    router.refresh();
   };
+
+  /* ========================================
+     Render
+  ======================================== */
 
   return (
     <>
-      {/* 모바일 / 태블릿 배경 */}
+      {/* ========================================
+          Backdrop
+      ======================================== */}
+
       <div
         className={`${styles.backdrop} ${open ? styles.show : ""}`}
         onClick={onClose}
         aria-hidden="true"
       />
 
+      {/* ========================================
+          Sidebar
+      ======================================== */}
+
       <aside
         className={`${styles.sidebar} ${open ? styles.open : ""}`}
         aria-label="마이페이지 메뉴"
       >
+        {/* ======================================
+            Tablet / Mobile Auth
+        ====================================== */}
+
+        <div className={styles.authArea}>
+          {user ? (
+            <>
+              <Link href="/my-page" className={styles.authSecondary} onClick={handleMenuClick}>
+                마이페이지
+              </Link>
+
+              <button type="button" className={styles.authPrimary} onClick={handleMenuClick}>
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className={styles.authSecondary} onClick={handleMenuClick}>
+                로그인
+              </Link>
+
+              <Link href="/signup" className={styles.authPrimary} onClick={handleMenuClick}>
+                회원가입
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* ======================================
+            Navigation
+        ====================================== */}
+
         <nav>
           {menus.map((menu) => (
             <Link
@@ -101,7 +169,7 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
                 ${pathname === menu.href ? styles.active : ""}
                 ${menu.icon === "delete" ? styles.trashMenu : ""}
               `}
-              onClick={onClose}
+              onClick={handleMenuClick}
             >
               <span className="material-symbols-rounded" aria-hidden="true">
                 {menu.icon}
@@ -110,15 +178,6 @@ const Sidebar = ({ open, onClose, page = "mypage" }) => {
               <span>{menu.label}</span>
             </Link>
           ))}
-
-          {/* 로그아웃 */}
-          <button type="button" className={styles.logout} onClick={handleLogout}>
-            <span className="material-symbols-rounded" aria-hidden="true">
-              logout
-            </span>
-
-            <span>로그아웃</span>
-          </button>
         </nav>
       </aside>
     </>

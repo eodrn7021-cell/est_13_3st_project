@@ -70,6 +70,15 @@
 }
 
 /* ========================================
+   Auth Area
+   Tablet / Mobile에서만 사용
+======================================== */
+
+.authArea {
+  display: none;
+}
+
+/* ========================================
    Navigation
 ======================================== */
 
@@ -198,87 +207,10 @@
 
 /* ========================================
    Trash Menu
-   휴지통만 한 칸 아래
 ======================================== */
 
 .trashMenu {
   margin-top: 20px;
-}
-
-/* ========================================
-   Logout
-======================================== */
-
-.logout {
-  position: relative;
-
-  display: flex !important;
-  flex-direction: row !important;
-
-  align-items: center;
-
-  gap: 16px;
-
-  width: 100%;
-  height: 56px;
-
-  margin-top: 56px;
-
-  padding: 0 18px;
-
-  box-sizing: border-box;
-
-  background: transparent;
-
-  border: 0;
-
-  border-radius: 14px;
-
-  color: colors.$color_highlight;
-
-  cursor: pointer;
-
-  font-family: variables.$font_family_kr;
-
-  font-size: 16px;
-
-  font-weight: variables.$font_weight_regular;
-
-  line-height: 1;
-
-  text-align: left;
-
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
-}
-
-.logout:hover {
-  background: rgba(244, 119, 119, 0.08);
-}
-
-.logout > span {
-  position: relative;
-
-  z-index: 1;
-}
-
-.logout span:first-child {
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  width: 24px;
-  height: 24px;
-
-  color: colors.$color_highlight;
-
-  font-size: 24px;
-
-  line-height: 1;
 }
 
 /* ========================================
@@ -328,10 +260,73 @@
     height: auto;
   }
 
-  .logout {
-    margin-top: 56px;
+  /* ----------------------------------------
+     Tablet에서 인증 영역 표시
+  ---------------------------------------- */
 
-    transform: none;
+  .authArea {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    width: 100%;
+
+    margin-bottom: 20px;
+  }
+
+  .authSecondary,
+  .authPrimary {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    height: 44px;
+
+    padding: 0 16px;
+
+    box-sizing: border-box;
+
+    border-radius: 10px;
+
+    font-family: variables.$font_family_kr;
+
+    font-size: 14px;
+
+    font-weight: variables.$font_weight_regular;
+
+    line-height: 1;
+
+    text-decoration: none;
+
+    cursor: pointer;
+  }
+
+  .authSecondary {
+    flex: 1;
+
+    background: transparent;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+
+    color: colors.$color_white;
+  }
+
+  .authPrimary {
+    flex: 1;
+
+    background: colors.$gradient_main;
+
+    border: 1px solid transparent;
+
+    color: colors.$color_white;
+  }
+
+  .authSecondary:hover,
+  .authPrimary:hover {
+    transform: translateY(-1px);
   }
 }
 
@@ -382,10 +377,81 @@
     height: auto;
   }
 
-  .logout {
-    margin-top: 56px;
+  /* ----------------------------------------
+     Mobile 인증 영역
+     HomeMobileMenu 참고
+  ---------------------------------------- */
 
-    transform: none;
+  .authArea {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    width: 100%;
+
+    margin-bottom: 20px;
+  }
+
+  .authSecondary,
+  .authPrimary {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    height: 42px;
+
+    padding: 0 14px;
+
+    box-sizing: border-box;
+
+    border-radius: 10px;
+
+    font-family: variables.$font_family_kr;
+
+    font-size: 14px;
+
+    font-weight: variables.$font_weight_regular;
+
+    line-height: 1;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+      background 0.2s ease,
+      transform 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .authSecondary {
+    flex: 1;
+
+    background: transparent;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+
+    color: colors.$color_white;
+  }
+
+  .authPrimary {
+    flex: 1;
+
+    background: colors.$gradient_main;
+
+    border: 1px solid transparent;
+
+    color: colors.$color_white;
+  }
+
+  .authSecondary:hover,
+  .authPrimary:hover {
+    transform: translateY(-1px);
   }
 }
 
@@ -405,6 +471,23 @@
     padding: 16px;
   }
 
+  .authArea {
+    gap: 6px;
+
+    margin-bottom: 16px;
+  }
+
+  .authSecondary,
+  .authPrimary {
+    height: 40px;
+
+    padding: 0 10px;
+
+    border-radius: 9px;
+
+    font-size: 13px;
+  }
+
   .menu {
     height: 48px;
 
@@ -421,29 +504,11 @@
 
     font-size: 23px;
   }
-
-  .logout {
-    height: 48px;
-
-    padding: 0 14px;
-
-    gap: 12px;
-
-    font-size: 15px;
-  }
-
-  .logout span:first-child {
-    width: 24px;
-    height: 24px;
-
-    font-size: 23px;
-  }
 }
 
 /* ========================================
    PC
    1201px 이상
-   사이드바 고정 크기
 ======================================== */
 
 @media (min-width: 1201px) {
@@ -457,7 +522,8 @@
     align-self: flex-start;
   }
 
-  .logout {
-    transform: translateY(10px);
+  /* PC에서는 인증 버튼 숨김 */
+  .authArea {
+    display: none;
   }
 }

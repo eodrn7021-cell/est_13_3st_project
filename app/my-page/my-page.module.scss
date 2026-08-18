@@ -751,6 +751,7 @@
 /* ========================================
    Tablet
    481px ~ 768px
+   화면 너비에 따라 유동적으로 축소
 ======================================== */
 
 @media (max-width: 768px) and (min-width: 481px) {
@@ -767,35 +768,65 @@
   }
 
   .container {
-    width: 690px;
+    width: calc(100% - 40px);
     max-width: 690px;
 
     margin: 0 auto;
+
+    box-sizing: border-box;
   }
 
+  /* ==============================
+     Profile
+  ============================== */
+
   .profileSection {
-    width: 688px;
+    width: 100%;
 
     margin: 0 auto 24px;
 
     gap: 16px;
+
+    min-width: 0;
   }
 
   .profileInfo {
     gap: 12px;
+
+    min-width: 0;
+
+    flex: 1 1 auto;
   }
 
   .profileImage {
     width: 64px;
     height: 64px;
+
+    flex-shrink: 0;
+  }
+
+  .profileText {
+    min-width: 0;
   }
 
   .profileText h1 {
     font-size: 24px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
   }
 
   .profileText p {
     font-size: 14px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
   }
 
   /* ==============================
@@ -822,11 +853,12 @@
 
   /* ==============================
      Statistics
-     688 × 84
+     부모 너비에 맞춰 축소
   ============================== */
 
   .stats {
-    width: 688px;
+    width: 100%;
+    max-width: 100%;
 
     height: 84px;
 
@@ -837,37 +869,106 @@
 
   .statCard {
     min-height: 84px;
+
+    min-width: 0;
+  }
+
+  .statCard h3,
+  .statCard strong {
+    white-space: nowrap;
+  }
+
+  /* ==============================
+     Recent
+  ============================== */
+
+  .recentSection {
+    width: 100%;
+
+    min-width: 0;
+  }
+
+  .sectionTitle {
+    width: 100%;
+
+    min-width: 0;
+
+    margin-bottom: 18px;
+  }
+
+  .sectionTitle h2 {
+    min-width: 0;
+
+    font-size: 24px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+  }
+
+  .viewAllButton {
+    flex-shrink: 0;
+
+    white-space: nowrap;
   }
 
   /* ==============================
      Character Grid
-     3 × 210
-     전체 690
+     
+     768px 이하 → 무조건 2열
+     카드 폭은 화면에 따라 자동 축소
   ============================== */
 
   .characterGrid {
-    width: 690px;
+    display: grid;
 
-    grid-template-columns: repeat(3, 210px);
+    width: 100%;
+    max-width: 100%;
 
-    column-gap: 30px;
-    row-gap: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    justify-content: center;
+    column-gap: 20px;
+    row-gap: 20px;
+
+    justify-content: stretch;
+
+    box-sizing: border-box;
   }
 
+  /* ==============================
+     Character Card
+     
+     고정 210px 제거
+     grid 영역에 따라 자동 축소
+  ============================== */
+
   .characterCard {
-    width: 210px;
+    position: relative;
+
+    width: 100%;
+    min-width: 0;
+
     height: 360px;
+    min-height: 360px;
+
+    overflow: hidden;
 
     border-radius: 16px;
   }
 
   .imageWrapper {
-    width: 210px;
-    height: 360px;
+    position: absolute;
+
+    inset: 0;
+
+    width: auto;
+    height: auto;
 
     aspect-ratio: auto;
+
+    overflow: hidden;
   }
 }
 
