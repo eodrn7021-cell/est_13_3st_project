@@ -9,7 +9,7 @@ export async function POST(request) {
       return NextResponse.json({ error: "fieldName is required" }, { status: 400 });
     }
 
-    const alanKey = process.env.NEXT_PUBLIC_ALAN_CLIENT_KEY;
+    const alanKey = process.env.ALAN_CLIENT_KEY;
     if (!alanKey) {
       return NextResponse.json({ error: "ALAN_CLIENT_KEY is missing" }, { status: 500 });
     }
