@@ -877,6 +877,7 @@ export default function CharacterDetailPage({ params: paramsPromise }) {
       <HelpModal
         isOpen={isHelpModalOpen}
         onClose={() => setIsHelpModalOpen(false)}
+        mode="detail"
       />
 
       {/* 하단 풋터 (PC에서만 표시) */}
