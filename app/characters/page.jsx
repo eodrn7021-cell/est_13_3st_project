@@ -18,7 +18,6 @@ const CharactersContent = () => {
   const searchParams = useSearchParams();
   const supabase = createClient();
 
-  // 1. URL 쿼리 파라미터를 직접 읽어와서 파싱 (상태 동기화 꼬임 방지)
   const searchParamsString = searchParams.toString();
   const tagsParam = searchParams.get('tags') || searchParams.get('tag') || '';
   const currentTags = tagsParam ? tagsParam.split(',').filter(Boolean) : [];
@@ -38,30 +37,31 @@ const CharactersContent = () => {
   const genderFilter = searchParams.get('gender') || '';
   const genreFilter = searchParams.get('genre') || '';
 
-  // 2. 상태(State) 관리 - DB 옵션 및 결과 데이터만 관리
   const [characters, setCharacters] = useState([]);
 
-  // 필터 옵션 목록 (races, themes, genres, gender)
   const [raceOptions, setRaceOptions] = useState([]);
   const [themeOptions, setThemeOptions] = useState([]);
   const [genderOptions, setGenderOptions] = useState([]);
   const [genreOptions, setGenreOptions] = useState([]);
 
-  // UI 상태
   const [isLoading, setIsLoading] = useState(true);
 
-  // DB에서 필터 옵션 조회
+  // 필터 옵션(종족, 테마, 장르, 성별 목록)을 불러오는 함수
   useEffect(() => {
     const fetchFilterOptions = async () => {
+      // 종족 데이터 조회
       const { data: raceData } = await supabase.from('races').select('id, name');
       if (raceData) setRaceOptions(raceData);
 
+      // 테마 데이터 조회
       const { data: themeData } = await supabase.from('themes').select('id, name');
       if (themeData) setThemeOptions(themeData);
 
+      // 장르 데이터 조회
       const { data: genreData } = await supabase.from('genres').select('id, name');
       if (genreData) setGenreOptions(genreData);
 
+      // 성별 목록 추출을 위한 캐릭터 데이터 조회
       const { data: charGenderData } = await supabase.from('characters').select('gender');
       if (charGenderData) {
         const genders = Array.from(
@@ -74,57 +74,84 @@ const CharactersContent = () => {
     fetchFilterOptions();
   }, []);
 
-  // 캐릭터 데이터 Fetch (필터 조건 실시간 반영)
+  // 캐릭터 목록을 조건에 맞춰 불러오고 정렬 및 예외 방어를 처리하는 함수
   useEffect(() => {
     const fetchCharacters = async () => {
       setIsLoading(true);
 
-      let query = supabase.from('characters').select('*, worlds!inner(*), character_likes(count)');
+      // 기본 Supabase 조회 쿼리 (worlds 테이블 조인 포함)
+      const baseQuery = supabase
+        .from('characters')
+        .select('*, worlds!inner(*), character_likes(count)');
 
-      if (raceFilter) query = query.eq('race', raceFilter);
-      if (genderFilter) query = query.eq('gender', genderFilter);
+      // 현재 URL의 필터 및 검색 조건을 쿼리에 동적으로 적용하는 내부 함수
+      const applyFilters = (q) => {
+        let filteredQ = q;
+        if (raceFilter) filteredQ = filteredQ.eq('race', raceFilter);
 
-      if (genreFilter) {
-        query = query.eq('worlds.genre', genreFilter);
-      }
-      if (themeFilter) {
-        query = query.or(`theme.eq.${themeFilter},worlds.theme.eq.${themeFilter}`);
-      }
+        if (genderFilter) {
+          const genders = genderFilter
+            .split(',')
+            .map((g) => g.trim())
+            .filter(Boolean);
+          if (genders.length > 1) {
+            filteredQ = filteredQ.in('gender', genders);
+          } else if (genders.length === 1) {
+            filteredQ = filteredQ.eq('gender', genders[0]);
+          }
+        }
 
-      if (searchQuery.trim()) {
-        const keyword = `%${searchQuery.trim()}%`;
-        query = query.or(
-          `name.ilike.${keyword},race.ilike.${keyword},job_role.ilike.${keyword},background_story.ilike.${keyword},personality.ilike.${keyword}`,
-        );
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Supabase Error:', error);
-        let fallbackQuery = supabase
-          .from('characters')
-          .select('*, worlds(*), character_likes(count)');
-        if (raceFilter) fallbackQuery = fallbackQuery.eq('race', raceFilter);
-        if (genderFilter) fallbackQuery = fallbackQuery.eq('gender', genderFilter);
-        const { data: fallbackData } = await fallbackQuery;
-
-        let filtered = fallbackData || [];
         if (genreFilter) {
-          filtered = filtered.filter(
-            (item) => item.worlds?.genre === genreFilter || item.genre === genreFilter,
-          );
+          filteredQ = filteredQ.eq('worlds.genre', genreFilter);
         }
         if (themeFilter) {
-          filtered = filtered.filter(
-            (item) => item.worlds?.theme === themeFilter || item.theme === themeFilter,
+          filteredQ = filteredQ.or(`theme.eq.${themeFilter},worlds.theme.eq.${themeFilter}`);
+        }
+
+        if (searchQuery.trim()) {
+          const keyword = `%${searchQuery.trim()}%`;
+          filteredQ = filteredQ.or(
+            `name.ilike.${keyword},race.ilike.${keyword},job_role.ilike.${keyword},background_story.ilike.${keyword},personality.ilike.${keyword}`,
           );
         }
+        return filteredQ;
+      };
+
+      // 1차 필터 쿼리 실행
+      const { data, error } = await applyFilters(baseQuery);
+
+      // 조인 조건 등으로 인해 1차 쿼리에서 에러 발생 시 폴백(우회) 쿼리 실행
+      if (error) {
+        console.error('Supabase Error:', error);
+        const fallbackBaseQuery = supabase
+          .from('characters')
+          .select('*, worlds(*), character_likes(count)');
+
+        const fallbackQuery = applyFilters(fallbackBaseQuery);
+        const { data: fallbackData, error: fallbackError } = await fallbackQuery;
+
+        // 폴백 쿼리마저 실패할 경우 앱 크래시를 막기 위해 빈 배열 대입 후 종료
+        if (fallbackError) {
+          setCharacters([]);
+          setIsLoading(false);
+          return;
+        }
+
+        const rawFallback = fallbackData || [];
+        const filtered = rawFallback.filter((item) => {
+          const matchGenre =
+            !genreFilter || item.worlds?.genre === genreFilter || item.genre === genreFilter;
+          const matchTheme =
+            !themeFilter || item.worlds?.theme === themeFilter || item.theme === themeFilter;
+          return matchGenre && matchTheme;
+        });
+
         setCharacters(filtered);
       } else {
-        let resultData = data || [];
+        // 정상 조회된 데이터를 정렬 조건(추천순, 인기순, 최신순)에 맞게 정렬
+        const rawData = data || [];
 
-        resultData = [...resultData].sort((a, b) => {
+        const sortedData = [...rawData].sort((a, b) => {
           const likesA = a.character_likes?.[0]?.count || a.like_count || 0;
           const likesB = b.character_likes?.[0]?.count || b.like_count || 0;
           const viewsA = a.view_count || 0;
@@ -144,7 +171,7 @@ const CharactersContent = () => {
           }
         });
 
-        setCharacters(resultData);
+        setCharacters(sortedData);
       }
 
       setIsLoading(false);
@@ -153,7 +180,7 @@ const CharactersContent = () => {
     fetchCharacters();
   }, [actualSort, raceFilter, themeFilter, genderFilter, genreFilter, searchQuery]);
 
-  // 핸들러: 상단 드롭다운 필터 변경 시 URL 파라미터 갱신
+  // 사용자가 필터 드롭다운을 변경했을 때 URL 쿼리 파라미터를 업데이트하는 함수
   const handleFilterChange = (key, value) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value) {
@@ -164,12 +191,13 @@ const CharactersContent = () => {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // 🔥 핵심: 초기화 버튼 핸들러 (누르는 즉시 URL 파라미터 전부 날리고 전체 목록으로 이동)
+  // 적용된 모든 필터와 검색 조건을 초기화하고 기본 페이지로 돌아가는 함수
   const handleResetFilters = () => {
-    router.push(pathname);
+    router.replace(pathname);
+    router.refresh();
   };
 
-  // 핸들러: 헤더 검색어 제출 캐치
+  // 상단 헤더 영역에서 검색창 입력 및 엔터 이벤트를 감지하여 검색 결과 페이지로 이동시키는 함수
   const handleHeaderCapture = (e) => {
     if (e.type === 'submit' || (e.type === 'keydown' && e.key === 'Enter')) {
       const searchInput = e.currentTarget.querySelector(
@@ -184,7 +212,7 @@ const CharactersContent = () => {
     }
   };
 
-  // 다중 태그 일치 필터링 & 가중치 정렬 처리
+  // 현재 입력된 태그(currentTags)를 바탕으로 캐릭터 목록을 필터링하고 매칭 점수를 계산하는 함수
   const processDisplayList = () => {
     if (!currentTags || currentTags.length === 0) {
       return characters;
@@ -214,7 +242,6 @@ const CharactersContent = () => {
 
   const displayList = processDisplayList();
 
-  // 추천 캐릭터 배지 노출용
   const sortedByLikes = [...displayList].sort((a, b) => {
     const likesA = a.character_likes?.[0]?.count || a.like_count || 0;
     const likesB = b.character_likes?.[0]?.count || b.like_count || 0;
@@ -226,6 +253,7 @@ const CharactersContent = () => {
 
   return (
     <div className={styles.page_container}>
+      {/* 모바일 환경 상단 헤더 영역 (이벤트 캡처를 통해 검색 제어) */}
       <div
         onClick={handleHeaderCapture}
         onSubmitCapture={handleHeaderCapture}
@@ -236,14 +264,16 @@ const CharactersContent = () => {
 
       <div className={styles.main_wrapper}>
         <div className={styles.layout_body}>
+          {/* PC 환경 좌측 사이드바 영역 */}
           <div className={styles.pc_sidebar}>
             <HomeSidebar />
           </div>
 
+          {/* 메인 컨텐츠 영역 (필터 바 및 캐릭터 카드 그리드) */}
           <main className={styles.content_area}>
-            {/* 상단 드롭다운 필터 바 */}
+            {/* 정렬 및 상세 필터(종족, 테마, 성별, 장르) 드롭다운 바 영역 */}
             <div className={styles.filter_bar}>
-              {/* 정렬 필터 */}
+              {/* 정렬 기준 선택 (최신순, 추천순, 인기순) */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
@@ -259,7 +289,7 @@ const CharactersContent = () => {
                 </span>
               </div>
 
-              {/* 종족 필터 (races 테이블 연동) */}
+              {/* 종족 필터 선택 */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
@@ -278,7 +308,7 @@ const CharactersContent = () => {
                 </span>
               </div>
 
-              {/* 테마 필터 (themes 테이블 연동) */}
+              {/* 테마 필터 선택 */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
@@ -297,7 +327,7 @@ const CharactersContent = () => {
                 </span>
               </div>
 
-              {/* 성별 필터 (characters.gender 연동) */}
+              {/* 성별 필터 선택 */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
@@ -316,7 +346,7 @@ const CharactersContent = () => {
                 </span>
               </div>
 
-              {/* 장르 필터 (genres 테이블 연동) */}
+              {/* 장르 필터 선택 */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
@@ -335,7 +365,7 @@ const CharactersContent = () => {
                 </span>
               </div>
 
-              {/* 🔥 추가된 초기화 버튼 (인라인 스타일 대신 SCSS 활용 혹은 필요시 클래스 연결) */}
+              {/* 필터나 검색어가 적용되어 있을 때만 노출되는 초기화 버튼 */}
               {(raceFilter ||
                 themeFilter ||
                 genderFilter ||
@@ -352,7 +382,7 @@ const CharactersContent = () => {
               )}
             </div>
 
-            {/* 카드 그리드 영역 */}
+            {/* 캐릭터 카드 목록이 표시되는 그리드 영역 */}
             <div className={styles.card_grid_container}>
               {isLoading ? null : displayList && displayList.length > 0 ? (
                 <div className={styles.card_grid}>
@@ -360,16 +390,19 @@ const CharactersContent = () => {
                     const isRecommended = recommendedIds.has(item.id);
 
                     return (
+                      /* 개별 캐릭터 카드 아이템 (클릭 시 상세 페이지로 이동) */
                       <div
                         key={item.id}
                         className={styles.card_item}
                         onClick={() => router.push(`/characters/${item.id}`)}
                       >
                         <div className={styles.image_box}>
+                          {/* 추천 뱃지 혹은 커스텀 뱃지 표시 */}
                           {(isRecommended || item.badge) && (
                             <span className={styles.badge}>{item.badge || '추천 캐릭터'}</span>
                           )}
 
+                          {/* 캐릭터 이미지 또는 이미지가 없을 때 대체 아이콘 표시 */}
                           {item.image_url ? (
                             <img src={item.image_url} alt={item.name || '캐릭터 이미지'} />
                           ) : (
@@ -380,6 +413,7 @@ const CharactersContent = () => {
                             </div>
                           )}
 
+                          {/* 마우스 호버 시 나타나는 캐릭터 오버레이 정보 영역 */}
                           <div className={styles.card_overlay}>
                             <div className={styles.card_info}>
                               <h3>{item.name}</h3>
@@ -403,6 +437,7 @@ const CharactersContent = () => {
                   })}
                 </div>
               ) : (
+                /* 검색 결과나 데이터가 없을 때 노출되는 빈 상태(Empty State) 화면 */
                 <div className={styles.empty_state}>
                   <span className={`material-symbols-outlined ${styles.empty_icon}`}>error</span>
                   <p className={styles.empty_text}>검색 결과가 없습니다.</p>
@@ -412,18 +447,21 @@ const CharactersContent = () => {
           </main>
         </div>
 
+        {/* 하단 푸터 영역 (PC 전용) */}
         <footer className={styles.pc_footer_wrapper}>
           <Footer />
         </footer>
       </div>
 
+      {/* 모바일 환경 하단 고정 네비게이션바 영역 */}
       <div className={styles.mobile_nav_wrapper}>
         <MobileNavigation />
       </div>
     </div>
   );
-}
+};
 
+// [컴포넌트 역할] Next.js Suspense 경계를 제공하여 클라이언트 컴포넌트의 비동기 렌더링 안정성을 보장하는 페이지 컴포넌트
 const CharactersPage = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
