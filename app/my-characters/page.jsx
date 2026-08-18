@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import Header from "@/components/layout/Header/Header";
 import Footer from "@/components/layout/Footer/Footer";
@@ -86,6 +87,8 @@ const formatCharacter = (character, index, visibility = null) => {
 ======================================== */
 
 const MyCharactersPage = () => {
+  const router = useRouter();
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   /* ========================================
@@ -509,6 +512,60 @@ const MyCharactersPage = () => {
   };
 
   /* ========================================
+     재생성
+     → 캐릭터 상세 페이지 이동
+  ======================================== */
+
+  const handleRegenerate = (characterId) => {
+    router.push(`/characters/${characterId}`);
+  };
+
+  /* ========================================
+     수정
+     → 생성 페이지로 worldId + charId 전달
+  ======================================== */
+
+  const handleEdit = () => {
+    /* ----------------------------------------
+       선택한 캐릭터가 없는 경우
+    ---------------------------------------- */
+
+    if (!selectedCharacterId) {
+      alert("수정할 캐릭터를 먼저 선택해주세요.");
+      return;
+    }
+
+    /* ----------------------------------------
+       선택된 캐릭터 찾기
+    ---------------------------------------- */
+
+    const character = characters.find((item) => item.id === selectedCharacterId);
+
+    if (!character) {
+      alert("선택한 캐릭터를 찾을 수 없습니다.");
+      return;
+    }
+
+    /* ----------------------------------------
+       worldId가 있는 경우
+       → 기존 캐릭터 수정 페이지로 이동
+    ---------------------------------------- */
+
+    if (character.world_id) {
+      router.push(`/characters/create?worldId=${character.world_id}&charId=${character.id}`);
+
+      return;
+    }
+
+    /* ----------------------------------------
+       worldId가 없는 경우
+       → 기존 생성 페이지로 이동
+    ---------------------------------------- */
+
+    router.push("/characters/create");
+  };
+
+  /* ========================================
      필터 적용
   ======================================== */
 
@@ -767,7 +824,20 @@ const MyCharactersPage = () => {
             ================================= */}
 
             <div className={styles.manageButtons}>
-              <button type="button" className={styles.regenerateButton}>
+              <button
+                type="button"
+                className={styles.regenerateButton}
+                onClick={(event) => {
+                  event.stopPropagation();
+
+                  if (!selectedCharacterId) {
+                    alert("재생성할 캐릭터를 먼저 선택해주세요.");
+                    return;
+                  }
+
+                  handleRegenerate(selectedCharacterId);
+                }}
+              >
                 <span className="material-symbols-rounded" aria-hidden="true">
                   add
                 </span>
@@ -775,7 +845,15 @@ const MyCharactersPage = () => {
                 <span>재생성</span>
               </button>
 
-              <button type="button" className={styles.editButton}>
+              <button
+                type="button"
+                className={styles.editButton}
+                onClick={(event) => {
+                  event.stopPropagation();
+
+                  handleEdit();
+                }}
+              >
                 <span className="material-symbols-rounded" aria-hidden="true">
                   edit
                 </span>
