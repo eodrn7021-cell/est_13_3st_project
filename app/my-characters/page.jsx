@@ -50,6 +50,7 @@ const characterTagMap = {
   23: ["왕자", "암흑", "야망"],
   24: ["기사", "왕국", "모험"],
   25: ["기사", "왕국", "개척"],
+  35: ["엘프", "최고신"],
 };
 
 /* ========================================
@@ -103,6 +104,14 @@ const MyCharactersPage = () => {
   ======================================== */
 
   const [filter, setFilter] = useState("all");
+
+  /* ========================================
+     PC / Tablet 페이지
+  ======================================== */
+
+  const [desktopPage, setDesktopPage] = useState(1);
+
+  const DESKTOP_ITEMS_PER_PAGE = 4;
 
   /* ========================================
      모바일 페이지
@@ -578,13 +587,51 @@ const MyCharactersPage = () => {
   }, [characters, filter]);
 
   /* ========================================
-     필터 변경 → 모바일 1페이지
+     필터 변경 → PC / 모바일 1페이지
   ======================================== */
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDesktopPage(1);
     setMobilePage(1);
   }, [filter]);
+
+  /* ========================================
+     PC / Tablet 페이지 수
+  ======================================== */
+
+  const desktopPageCount = Math.max(
+    1,
+    Math.ceil(filteredCharacters.length / DESKTOP_ITEMS_PER_PAGE),
+  );
+
+  /* ========================================
+     PC / Tablet 현재 페이지 데이터
+  ======================================== */
+
+  const desktopStartIndex = (desktopPage - 1) * DESKTOP_ITEMS_PER_PAGE;
+
+  const desktopCharacters = filteredCharacters.slice(
+    desktopStartIndex,
+    desktopStartIndex + DESKTOP_ITEMS_PER_PAGE,
+  );
+
+  /* ========================================
+     PC / Tablet 페이지 이동
+  ======================================== */
+
+  const moveDesktopPage = (page) => {
+    if (page < 1) {
+      setDesktopPage(desktopPageCount);
+      return;
+    }
+
+    if (page > desktopPageCount) {
+      setDesktopPage(1);
+      return;
+    }
+
+    setDesktopPage(page);
+  };
 
   /* ========================================
      모바일 페이지 수
@@ -744,7 +791,7 @@ const MyCharactersPage = () => {
                 ) : filteredCharacters.length === 0 ? (
                   <p>등록된 캐릭터가 없습니다.</p>
                 ) : (
-                  filteredCharacters.map((character) => (
+                  desktopCharacters.map((character) => (
                     <article
                       key={character.id}
                       className={`${styles.characterCard} ${
@@ -884,17 +931,35 @@ const MyCharactersPage = () => {
             ================================= */}
 
             <nav className={styles.paginationDesktop} aria-label="캐릭터 목록 페이지">
-              <button type="button" aria-label="이전 페이지">
+              <button
+                type="button"
+                aria-label="이전 페이지"
+                onClick={() => moveDesktopPage(desktopPage - 1)}
+              >
                 <span className="material-symbols-rounded">chevron_left</span>
               </button>
 
-              {[1, 2, 3, 4, 5].map((page) => (
-                <button key={page} type="button" className={page === 1 ? styles.current : ""}>
+              {Array.from(
+                {
+                  length: desktopPageCount,
+                },
+                (_, index) => index + 1,
+              ).map((page) => (
+                <button
+                  key={page}
+                  type="button"
+                  className={page === desktopPage ? styles.current : ""}
+                  onClick={() => setDesktopPage(page)}
+                >
                   {page}
                 </button>
               ))}
 
-              <button type="button" aria-label="다음 페이지">
+              <button
+                type="button"
+                aria-label="다음 페이지"
+                onClick={() => moveDesktopPage(desktopPage + 1)}
+              >
                 <span className="material-symbols-rounded">chevron_right</span>
               </button>
             </nav>
@@ -943,6 +1008,7 @@ const MyCharactersPage = () => {
       {/* =================================
           Mobile Bottom Navigation
       ================================= */}
+
       <div className={styles.pageFooter}>
         <Footer />
       </div>
