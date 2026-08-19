@@ -2,8 +2,15 @@ import Link from "next/link";
 import styles from "./QuickMenu.module.scss";
 
 const QuickMenu = ({ href, icon, title, description, tabletDescription }) => {
+  const protectedRoutes = ["/characters/create", "/my-page", "/my-characters"];
+  const isProtectedRoute = protectedRoutes.includes(href);
+
   return (
-    <Link className={styles.quick_menu_card} href={href}>
+    <Link
+      className={styles.quick_menu_card}
+      href={href}
+      prefetch={isProtectedRoute ? false : undefined}
+    >
       <span
         className={`material-symbols-rounded icon_24 ${styles.quick_menu_icon}`}
         aria-hidden="true"
