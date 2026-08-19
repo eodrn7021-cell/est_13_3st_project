@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Sidebar from '@/components/layout/Sidebar/Sidebar';
-import Tag from '@/components/common/Tag/Tag';
-import TagModal from '@/components/home/TagModal/TagModal';
-import styles from './HomeSidebar.module.scss';
+import Link from "next/link";
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import Sidebar from "@/components/layout/Sidebar/Sidebar";
+import Tag from "@/components/common/Tag/Tag";
+import TagModal from "@/components/home/TagModal/TagModal";
+import styles from "./HomeSidebar.module.scss";
 
 // DB에 실제 존재하는 장르/테마/종족 데이터 기반 태그 (2줄 레이아웃에 딱 맞는 6개)
 const tags = [
-  { name: '판타지', param: 'genre' },
-  { name: '이세계', param: 'theme' },
-  { name: '아포칼립스', param: 'theme' },
-  { name: '사이버펑크', param: 'theme' },
-  { name: '인간', param: 'race' },
-  { name: '엘프', param: 'race' },
+  { name: "판타지", param: "genre" },
+  { name: "이세계", param: "theme" },
+  { name: "아포칼립스", param: "theme" },
+  { name: "사이버펑크", param: "theme" },
+  { name: "인간", param: "race" },
+  { name: "엘프", param: "race" },
 ];
 
 const HomeSidebar = () => {
@@ -26,10 +26,10 @@ const HomeSidebar = () => {
   const searchParams = useSearchParams();
 
   // 현재 URL에 적용된 필터값 확인
-  const currentGenre = searchParams.get('genre');
-  const currentTheme = searchParams.get('theme');
-  const currentRace = searchParams.get('race');
-  const currentTag = searchParams.get('tag');
+  const currentGenre = searchParams.get("genre");
+  const currentTheme = searchParams.get("theme");
+  const currentRace = searchParams.get("race");
+  const currentTag = searchParams.get("tag");
 
   return (
     <>
@@ -96,12 +96,14 @@ const HomeSidebar = () => {
 
                 // 클릭 시 이동할 URL 지정 (활성화 시 클릭하면 필터 해제, 미활성화 시 해당 필터 적용)
                 const href = isActive
-                  ? '/characters'
+                  ? "/characters"
                   : `/characters?${item.param}=${encodeURIComponent(item.name)}`;
 
                 return (
-                  <Link key={item.name} href={href} style={{ textDecoration: 'none' }}>
-                    <Tag active={isActive}>{item.name}</Tag>
+                  <Link key={item.name} href={href} className={styles.tag_link}>
+                    <Tag active={isActive} tabIndex={-1}>
+                      {item.name}
+                    </Tag>
                   </Link>
                 );
               })}

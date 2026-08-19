@@ -13,6 +13,16 @@
   gap: 4px;
 }
 
+.tag_link {
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+    border-radius: 999px;
+  }
+}
+
 .sidebar_link {
   position: relative;
   display: flex;
