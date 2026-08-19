@@ -41,6 +41,26 @@ const CharactersContent = () => {
 
   const [characters, setCharacters] = useState([]);
 
+  // 화면 크기에 따른 컬럼 개수 상태 및 리사이즈 감지 로직
+  const [columnCount, setColumnCount] = useState(4);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width <= 480) {
+        setColumnCount(2); // 모바일 화면 등에서 2열
+      } else if (width <= 1200) {
+        setColumnCount(3); // 태블릿 화면 등에서 3열
+      } else {
+        setColumnCount(4); // PC 화면에서 4열
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [raceOptions, setRaceOptions] = useState([]);
   const [themeOptions, setThemeOptions] = useState([]);
   const [genderOptions, setGenderOptions] = useState([]);
@@ -188,6 +208,16 @@ const CharactersContent = () => {
     router.refresh();
   };
 
+  // 데이터 배열 재정렬 함수 (동적 컬럼 개수 적용)
+  const reorderForColumnLayout = (items, numColumns = 4) => {
+    if (!items || items.length === 0) return [];
+    const cols = Array.from({ length: numColumns }, () => []);
+    items.forEach((item, index) => {
+      cols[index % numColumns].push(item);
+    });
+    return cols.flat();
+  };
+
   const handleHeaderCapture = (e) => {
     if (e.type === 'submit' || (e.type === 'keydown' && e.key === 'Enter')) {
       const searchInput = e.currentTarget.querySelector(
@@ -237,6 +267,9 @@ const CharactersContent = () => {
   };
 
   const displayList = processDisplayList();
+
+  // ★ [수정] 고정값 4 대신 반응형 상태값(columnCount)을 전달
+  const finalDisplayList = reorderForColumnLayout(displayList, columnCount);
 
   const sortedByLikes = [...displayList].sort((a, b) => {
     const likesA = a.character_likes?.[0]?.count || a.like_count || 0;
@@ -375,9 +408,15 @@ const CharactersContent = () => {
             </div>
 
             <div className={styles.card_grid_container}>
-              {isLoading ? null : displayList && displayList.length > 0 ? (
+              {isLoading ? (
                 <div className={styles.card_grid}>
-                  {displayList.map((item) => {
+                  {Array.from({ length: 20 }).map((_, index) => (
+                    <div key={index} className={styles.skeleton_card} />
+                  ))}
+                </div>
+              ) : finalDisplayList && finalDisplayList.length > 0 ? (
+                <div className={styles.card_grid}>
+                  {finalDisplayList.map((item) => {
                     const isRecommended = recommendedIds.has(item.id);
 
                     return (
