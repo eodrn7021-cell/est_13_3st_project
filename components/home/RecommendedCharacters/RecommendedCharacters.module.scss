@@ -74,6 +74,12 @@
 
   cursor: pointer;
 
+  &:focus-visible {
+    outline: 2px solid colors.$color_primary;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
   // 실제 보이는 점
   &::before {
     content: "";
@@ -147,4 +153,13 @@
   .recommended_placeholder:nth-child(3) {
     display: none;
   }
+}
+.state_message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 360px;
+  color: colors.$color_secondary;
+  text-align: center;
 }

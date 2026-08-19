@@ -25,6 +25,7 @@ const LoginPage = () => {
     const params = new URLSearchParams(window.location.search);
 
     if (params.get("reason") === "protected") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoginNotice("로그인 후 이용해주세요.");
     }
   }, []);
@@ -65,8 +66,7 @@ const LoginPage = () => {
     // 로그인 성공 → 원래 이용하려던 페이지로 이동
     const redirectPath = getRedirectPath();
 
-    router.push(redirectPath);
-    router.refresh();
+    router.replace(redirectPath);
   };
 
   const handleGoogleLogin = async () => {

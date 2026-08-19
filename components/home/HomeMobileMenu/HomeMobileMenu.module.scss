@@ -29,9 +29,10 @@
   left: 0;
   display: flex;
   flex-direction: column;
-  width: min(280px, 82vw);
+  width: 85%;
+  max-width: 320px;
   height: 100dvh;
-  padding: 24px 30px;
+  padding: 24px 20px;
   box-sizing: border-box;
   background: colors.$color_background_surface;
   overflow-y: auto;
@@ -64,8 +65,8 @@
 .drawer_header {
   position: relative;
   display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
 }
 
@@ -76,24 +77,28 @@
   gap: 10px;
   color: colors.$color_white;
   text-decoration: none;
+  margin-top: 28px;
 
   img {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     object-fit: contain;
   }
 }
 
 .logo_text {
   font-family: variables.$font_family_en;
-  font-size: 24px;
-  font-weight: variables.$font_weight_regular;
+  font-size: 2rem;
+  font-weight: variables.$font_weight_bold;
   line-height: 1;
   color: colors.$color_white;
 }
 
 // 닫기
 .close_button {
+  position: absolute;
+  top: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -122,70 +127,49 @@
   }
 }
 
-// 로그인 / 회원가입
+.auth_buttons .auth_button {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1;
+  box-sizing: border-box;
+  transform: none;
+
+  &:hover,
+  &:active {
+    transform: none;
+  }
+}
+
 .auth_buttons {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
   gap: 12px;
+  width: 100%;
   margin-top: 30px;
 }
 
-// 로그인
-.auth_secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 36px;
-  padding: 0 16px;
-  box-sizing: border-box;
-  border: 1px solid colors.$color_secondary;
-  border-radius: 8px;
-  background: transparent;
+.auth_buttons .auth_button[class*="button_secondary"] {
   color: colors.$color_white;
-  font-family: variables.$font_family_kr;
-  font-size: 14px;
-  font-weight: variables.$font_weight_regular;
-  text-decoration: none;
-
-  cursor: pointer;
+  border: 1px solid colors.$color_secondary;
+  background: transparent;
 
   &:hover {
+    color: colors.$color_white;
     border-color: colors.$color_white;
-  }
-
-  &:focus-visible {
-    outline: 2px solid colors.$color_primary;
-    outline-offset: 3px;
+    background: colors.$color_primary_dark;
   }
 }
 
-// 회원가입 / 로그아웃
-.auth_primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 36px;
-  padding: 0 16px;
-  box-sizing: border-box;
+.auth_buttons .auth_primary_button {
   border: 0;
-  border-radius: 8px;
-  background: colors.$color_primary_dark;
-  color: colors.$color_white;
-  font-family: variables.$font_family_kr;
-  font-size: 14px;
-  font-weight: variables.$font_weight_regular;
-  text-decoration: none;
 
-  cursor: pointer;
-
-  &:hover {
-    background: colors.$color_primary;
-  }
-
-  &:focus-visible {
-    outline: 2px solid colors.$color_white;
-    outline-offset: 3px;
+  &:hover:not(:disabled) {
+    border: 0;
   }
 }
 
@@ -256,41 +240,6 @@
 
 // 모바일
 @media (max-width: 600px) {
-  .drawer {
-    width: min(260px, 84vw);
-    padding: 22px 24px;
-  }
-
-  .logo {
-    img {
-      width: 36px;
-      height: 36px;
-    }
-  }
-
-  .logo_text {
-    font-size: 20px;
-  }
-
-  .auth_buttons {
-    margin-top: 28px;
-  }
-
-  .auth_secondary,
-  .auth_primary {
-    height: 34px;
-    padding: 0 14px;
-    font-size: 12px;
-  }
-
-  .navigation {
-    margin-top: 30px;
-  }
-
-  .navigation_item {
-    height: 46px;
-  }
-
   .mobile_footer {
     margin-top: auto;
     padding-top: 24px;

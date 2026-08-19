@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { generateCharacterSummary } from "@/lib/ai/summary";
 
 async function getSupabaseServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -22,6 +23,9 @@ export async function POST(request) {
 
     const supabase = await getSupabaseServerClient();
 
+    // 1.5. AI 요약 생성 (선택 사항, 에러 발생 시 null 반환됨)
+    const summaryText = await generateCharacterSummary(updateFields);
+
     // 1. 캐릭터 테이블 (characters) 데이터 업데이트
     const { data: updatedChar, error: charError } = await supabase
       .from("characters")
@@ -36,6 +40,7 @@ export async function POST(request) {
         personality: updateFields.personality || null,
         abilities: updateFields.abilities || null,
         raw_relationship_input: updateFields.relationships || null,
+        summary_text: summaryText,
         updated_at: new Date().toISOString(),
       })
       .eq("id", characterId)
@@ -66,6 +71,36 @@ export async function POST(request) {
           updated_at: new Date().toISOString(),
         })
         .eq("id", updatedChar.world_id);
+    }
+
+    // 3. 관계(character_relations) 테이블 업데이트
+    if (updateFields.relationships && typeof updateFields.relationships === "object") {
+      // 기존 관계 모두 삭제
+      await supabase
+        .from("character_relations")
+        .delete()
+        .eq("source_character_id", characterId);
+
+      const relationsToInsert = [];
+      for (const [targetId, desc] of Object.entries(updateFields.relationships)) {
+        if (desc && desc.trim() !== "") {
+          relationsToInsert.push({
+            source_character_id: characterId,
+            target_character_id: parseInt(targetId, 10),
+            description: desc.trim(),
+          });
+        }
+      }
+
+      if (relationsToInsert.length > 0) {
+        const { error: relError } = await supabase
+          .from("character_relations")
+          .insert(relationsToInsert);
+        
+        if (relError) {
+          console.error("캐릭터 관계 정보 저장 실패:", relError);
+        }
+      }
     }
 
     return NextResponse.json({

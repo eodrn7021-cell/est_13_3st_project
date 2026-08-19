@@ -10,6 +10,8 @@ const RecommendedCharacters = () => {
 
   const [isLoading, setIsLoading] = useState(true);
 
+  const [errorMessage, setErrorMessage] = useState("");
+
   // 현재 페이지
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -41,10 +43,6 @@ const RecommendedCharacters = () => {
         // PC / 넓은 태블릿: 3개씩
         setCardsPerPage(3);
       }
-
-      // 화면 크기가 바뀌면 첫 페이지로 이동
-      setActiveIndex(0);
-      setDragOffset(0);
     };
 
     handleResize();
@@ -56,30 +54,47 @@ const RecommendedCharacters = () => {
     };
   }, []);
 
+  // 한 페이지에 보여주는 카드 개수가 실제로 바뀔 때만 첫 페이지로 이동
+  useEffect(() => {
+    setActiveIndex(0);
+    setDragOffset(0);
+  }, [cardsPerPage]);
+
   // 추천 캐릭터 조회
   useEffect(() => {
     const fetchRecommendedCharacters = async () => {
       setIsLoading(true);
+      setErrorMessage("");
       const supabase = createClient();
 
-      const { data, error } = await supabase
-        .from("characters")
-        .select("id, name, race, job_role, background_story, image_url")
-        .limit(9);
+      const { data, error } = await supabase.from("characters").select(`
+    id,
+    name,
+    race,
+    job_role,
+    background_story,
+    image_url,
+    character_likes(count)
+  `);
 
       if (error) {
         console.error("추천 캐릭터 조회 실패:", error);
+        setErrorMessage("데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
         setIsLoading(false);
         return;
       }
 
-      const formattedCharacters = (data || []).map((character) => ({
-        id: character.id,
-        image: character.image_url || "/images/home/recommended-character-01.webp",
-        name: character.name,
-        description: character.background_story || "캐릭터 소개가 아직 없습니다.",
-        tags: [character.race, character.job_role].filter(Boolean),
-      }));
+      const formattedCharacters = (data || [])
+        .map((character) => ({
+          id: character.id,
+          image: character.image_url || "/images/home/recommended-character-01.webp",
+          name: character.name,
+          description: character.background_story || "캐릭터 소개가 아직 없습니다.",
+          tags: [character.race, character.job_role].filter(Boolean),
+          likeCount: character.character_likes?.[0]?.count || 0,
+        }))
+        .sort((a, b) => b.likeCount - a.likeCount)
+        .slice(0, 9);
 
       setRecommendedCharacters(formattedCharacters);
       setIsLoading(false);
@@ -115,9 +130,6 @@ const RecommendedCharacters = () => {
 
     preventClick.current = false;
     setIsDragging(true);
-
-    // 마우스가 영역 밖으로 나가도 드래그 유지
-    e.currentTarget.setPointerCapture?.(e.pointerId);
   };
 
   // 드래그하면 실제 카드도 같이 이동
@@ -128,8 +140,14 @@ const RecommendedCharacters = () => {
 
     setDragOffset(distance);
 
+    // 실제로 10px 이상 움직였을 때만 드래그로 판단
     if (Math.abs(distance) > 10) {
       preventClick.current = true;
+
+      // 실제 드래그가 시작된 뒤에만 pointer capture
+      if (!e.currentTarget.hasPointerCapture?.(e.pointerId)) {
+        e.currentTarget.setPointerCapture?.(e.pointerId);
+      }
     }
   };
 
@@ -158,7 +176,10 @@ const RecommendedCharacters = () => {
     setDragOffset(0);
     setIsDragging(false);
 
-    e.currentTarget.releasePointerCapture?.(e.pointerId);
+    // 실제로 pointer capture가 걸려 있을 때만 해제
+    if (e.currentTarget.hasPointerCapture?.(e.pointerId)) {
+      e.currentTarget.releasePointerCapture?.(e.pointerId);
+    }
   };
 
   // 드래그 취소
@@ -188,71 +209,87 @@ const RecommendedCharacters = () => {
   return (
     <section className={styles.recommended}>
       <h2 className={styles.sr_only}>추천 캐릭터</h2>
-
-      {/* 슬라이더 바깥 영역 */}
-      <div
-        className={styles.recommended_list}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerCancel}
-        onClickCapture={handleClickCapture}
-        onDragStart={handleDragStart}
-      >
-        {/* 실제로 좌우 이동하는 슬라이더 트랙 */}
-        <div
-          className={`${styles.recommended_track} ${isDragging ? styles.is_dragging : ""}`}
-          style={{
-            transform: `translateX(calc(-${activeIndex * 100}% + ${dragOffset}px))`,
-          }}
-        >
-          {/* 항상 3페이지 렌더링 */}
-          {characterPages.map((pageCharacters, pageIndex) => (
-            <div key={pageIndex} className={styles.recommended_page}>
-              {isLoading && pageIndex === 0 ? (
-                <>
-                  {/* 로딩 중 가벼운 placeholder 3개 */}
-                  {[0, 1, 2].map((index) => (
-                    <div
-                      key={`placeholder-${index}`}
-                      className={styles.recommended_placeholder}
-                      aria-hidden="true"
-                    />
-                  ))}
-                </>
-              ) : (
-                pageCharacters.map((character, index) => (
-                  <RecommendedCharacterCard
-                    key={character.id}
-                    id={character.id}
-                    image={character.image}
-                    name={character.name}
-                    description={character.description}
-                    tags={character.tags}
-                    isPriority={pageIndex === 0 && index === 0}
-                  />
-                ))
-              )}
-            </div>
-          ))}
+      {!isLoading && errorMessage ? (
+        // 네트워크 오류
+        <div className={styles.state_message} role="alert">
+          <span className="kr_body">{errorMessage}</span>
         </div>
-      </div>
+      ) : !isLoading && recommendedCharacters.length === 0 ? (
+        // 조회된 데이터 없음
+        <div className={styles.state_message}>
+          <span className="kr_body">등록된 추천 캐릭터가 없습니다.</span>
+        </div>
+      ) : (
+        <>
+          {/* 슬라이더 바깥 영역 */}
+          <div
+            className={styles.recommended_list}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
+            onClickCapture={handleClickCapture}
+            onDragStart={handleDragStart}
+          >
+            {/* 실제로 좌우 이동하는 슬라이더 트랙 */}
+            <div
+              className={`${styles.recommended_track} ${isDragging ? styles.is_dragging : ""}`}
+              style={{
+                transform: `translateX(calc(-${activeIndex * 100}% + ${dragOffset}px))`,
+              }}
+            >
+              {/* 항상 3페이지 렌더링 */}
+              {characterPages.map((pageCharacters, pageIndex) => (
+                <div key={pageIndex} className={styles.recommended_page}>
+                  {isLoading && pageIndex === 0 ? (
+                    <>
+                      {/* 로딩 중 placeholder 3개 */}
+                      {[0, 1, 2].map((index) => (
+                        <div
+                          key={`placeholder-${index}`}
+                          className={styles.recommended_placeholder}
+                          aria-hidden="true"
+                        />
+                      ))}
+                    </>
+                  ) : (
+                    pageCharacters.map((character, index) => (
+                      <RecommendedCharacterCard
+                        key={character.id}
+                        id={character.id}
+                        image={character.image}
+                        name={character.name}
+                        description={character.description}
+                        tags={character.tags}
+                        isPriority={pageIndex === 0 && index === 0}
+                        tabIndex={pageIndex === activeIndex ? 0 : -1}
+                      />
+                    ))
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
 
-      {/* 페이지네이션 3개 고정 */}
-      <div className={styles.recommended_slider} aria-label="추천 캐릭터 페이지">
-        {[0, 1, 2].map((index) => (
-          <button
-            key={index}
-            type="button"
-            className={`${styles.slider_dot} ${
-              activeIndex === index ? styles.slider_dot_active : ""
-            }`}
-            onClick={() => handlePageChange(index)}
-            aria-label={`${index + 1}페이지`}
-            aria-current={activeIndex === index ? "page" : undefined}
-          />
-        ))}
-      </div>
+          {/* 페이지네이션 3개 고정 */}
+          {!isLoading && (
+            <div className={styles.recommended_slider} aria-label="추천 캐릭터 페이지">
+              {[0, 1, 2].map((index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className={`${styles.slider_dot} ${
+                    activeIndex === index ? styles.slider_dot_active : ""
+                  }`}
+                  onClick={() => handlePageChange(index)}
+                  aria-label={`${index + 1}페이지`}
+                  aria-current={activeIndex === index ? "page" : undefined}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </section>
   );
 };

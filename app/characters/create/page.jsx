@@ -3,11 +3,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/layout/Header/Header";
 import Footer from "@/components/layout/Footer/Footer";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
 import CharacterForm from "@/components/character/CharacterForm/CharacterForm";
 import WorldSelectModal from "@/components/character/WorldSelectModal/WorldSelectModal";
+import HelpModal from "@/components/character/HelpModal/HelpModal";
+import CreateMobileMenu from "@/components/character/CreateMobileMenu/CreateMobileMenu";
 import { createClient } from "@/lib/supabase/client";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
 import createStyles from "./create.module.scss";
@@ -29,29 +32,18 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   const [selectedWorld, setSelectedWorld] = useState(null);
   const [existingWorldId, setExistingWorldId] = useState(null);
   const [existingWorldCharacters, setExistingWorldCharacters] = useState([]);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   const [activeNav, setActiveNav] = useState("world");
   const [isCharacterOpen, setIsCharacterOpen] = useState(false);
   const [selectedCharacter, setSelectedCharacter] = useState("");
+  // 검색어 상태
+  const [worldSearch, setWorldSearch] = useState("");
 
   const [formData, setFormData] = useState({});
   const [initialFormValues, setInitialFormValues] = useState({});
   const [draftCharValues, setDraftCharValues] = useState({});
   const [isWorldCheckDone, setIsWorldCheckDone] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // 뒤쪽 스크롤 방지
-  useEffect(() => {
-    if (!isMobileMenuOpen) return;
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousBodyOverflow;
-      document.documentElement.style.overflow = previousHtmlOverflow;
-    };
-  }, [isMobileMenuOpen]);
 
   const [isCharCheckDone, setIsCharCheckDone] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,6 +69,96 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
         if (worldsData) {
           setUserWorlds(worldsData);
+
+          // URL 파라미터 확인 (수정 모드 진입)
+          if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            const wId = params.get("worldId");
+            const cId = params.get("charId");
+            
+            if (wId && cId) {
+              const matchedWorld = worldsData.find(w => String(w.id) === String(wId));
+              if (matchedWorld) {
+                setIsModalOpen(false);
+                setSelectedWorld(matchedWorld);
+                setExistingWorldId(matchedWorld.id);
+
+                const filled = {
+                  title: matchedWorld.name || matchedWorld.title || "",
+                  theme: matchedWorld.theme || "",
+                  genre: matchedWorld.genre || "",
+                  myth_history: matchedWorld.myth_history || "",
+                  religion_culture: matchedWorld.religion_culture || "",
+                  social_structure: matchedWorld.social_structure || "",
+                  climate_landmarks: matchedWorld.climate_landmarks || "",
+                  resource_currency: matchedWorld.resource_currency || "",
+                };
+
+                setInitialFormValues(filled);
+                setFormData((prev) => ({ ...prev, ...filled }));
+                setIsWorldCheckDone(Boolean(filled.title?.trim() && filled.theme?.trim() && filled.genre?.trim()));
+
+                // 캐릭터 목록 조회
+                const { data: charsData } = await supabase
+                  .from("characters")
+                  .select("*, character_relations!source_character_id(*)")
+                  .eq("world_id", matchedWorld.id)
+                  .order("created_at", { ascending: false });
+
+                if (charsData) {
+                  setExistingWorldCharacters(charsData);
+                  
+                  // 해당 캐릭터 찾기
+                  const targetChar = charsData.find(c => String(c.id) === String(cId));
+                  if (targetChar) {
+                    setActiveNav("character");
+                    setSelectedCharacterId(`char_${targetChar.id}`);
+                    setSelectedCharObj(targetChar);
+                    setIsReadOnlyChar(false); // 수정 모드로 바로 진입
+                    setIsEditMode(true);
+
+                    // 관계 데이터 맵핑
+                    const relMap = {};
+                    if (targetChar.character_relations && targetChar.character_relations.length > 0) {
+                      targetChar.character_relations.forEach((rel) => {
+                        if (rel.target_character_id && rel.description) {
+                          relMap[rel.target_character_id] = rel.description;
+                        }
+                      });
+                    }
+
+                    const filledChar = {
+                      ...filled,
+                      name: targetChar.name || "",
+                      race: targetChar.race || "",
+                      gender: targetChar.gender || "",
+                      age: targetChar.age || "",
+                      job_role: targetChar.job_role || "",
+                      background_story: targetChar.background_story || "",
+                      appearance: targetChar.appearance || "",
+                      personality: targetChar.personality || "",
+                      abilities: targetChar.abilities || "",
+                      relationships: relMap, // 타겟 아이디를 Key로 가지는 객체로 매핑
+                    };
+                    
+                    setInitialFormValues(filledChar);
+                    setFormData(filledChar);
+
+                    setIsCharCheckDone(Boolean(
+                      filledChar.name?.trim() &&
+                      filledChar.race?.trim() &&
+                      filledChar.gender?.trim() &&
+                      filledChar.age?.trim() &&
+                      filledChar.job_role?.trim() &&
+                      filledChar.background_story?.trim() &&
+                      filledChar.appearance?.trim() &&
+                      filledChar.personality?.trim()
+                    ));
+                  }
+                }
+              }
+            }
+          }
         }
       } catch (err) {
         console.warn("세계관 목록 조회 오류:", err);
@@ -119,17 +201,22 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
     // 해당 세계관에 속한 기존 캐릭터 목록 조회
     try {
       const supabase = createClient();
-      const { data: charsData } = await supabase
+      const { data: charsData, error } = await supabase
         .from("characters")
-        .select("*")
+        .select("*, character_relations!source_character_id(*)")
         .eq("world_id", chosenWorld.id)
         .order("created_at", { ascending: false });
 
-      if (charsData) {
+      if (error) {
+        console.warn("세계관 캐릭터 목록 조회 실패:", error);
+      } else if (charsData) {
         setExistingWorldCharacters(charsData);
+        // 기존 세계관을 선택했으므로 캐릭터 탭이 열리도록 설정
+        setActiveNav("character");
+        setIsCharacterOpen(true);
       }
     } catch (err) {
-      console.warn("세계관 캐릭터 목록 조회 실패:", err);
+      console.warn("세계관 캐릭터 목록 조회 중 예외 발생:", err);
     }
   };
 
@@ -226,7 +313,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         appearance: draftCharValues.appearance || "",
         personality: draftCharValues.personality || "",
         abilities: draftCharValues.abilities || "",
-        relationships: draftCharValues.relationships || "",
+        relationships: draftCharValues.relationships || {},
       };
 
       setInitialFormValues((prev) => ({ ...prev, ...restoreCharValues }));
@@ -251,6 +338,15 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         setIsReadOnlyChar(true);
         setIsEditMode(false);
 
+        const relMap = {};
+        if (foundChar.character_relations && foundChar.character_relations.length > 0) {
+          foundChar.character_relations.forEach((rel) => {
+            if (rel.target_character_id && rel.description) {
+              relMap[rel.target_character_id] = rel.description;
+            }
+          });
+        }
+
         const filledChar = {
           ...formData,
           name: foundChar.name || "",
@@ -262,7 +358,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
           appearance: foundChar.appearance || "",
           personality: foundChar.personality || "",
           abilities: foundChar.abilities || "",
-          relationships: foundChar.raw_relationship_input || foundChar.relationships || "",
+          relationships: relMap,
         };
 
         setInitialFormValues((prev) => ({ ...prev, ...filledChar }));
@@ -285,26 +381,9 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   // '취소' 버튼 클릭 시 ➔ 신규 캐릭터 작성 모드로 복귀
   const handleCancelEditOrView = () => {
-    setSelectedCharObj(null);
-    setIsReadOnlyChar(false);
-    setIsEditMode(false);
-    setSelectedCharacterId("draft_new_character");
-    const resetCharValues = {
-      ...formData,
-      name: "",
-      race: "",
-      gender: "",
-      age: "",
-      job_role: "",
-      background_story: "",
-      appearance: "",
-      personality: "",
-      abilities: "",
-      relationships: "",
-    };
-    setInitialFormValues((prev) => ({ ...prev, ...resetCharValues }));
-    setFormData(resetCharValues);
-    setIsCharCheckDone(false);
+    if (confirm("작성 및 수정 중인 내용이 저장되지 않을 수 있습니다.\n이전 페이지로 돌아가시겠습니까?")) {
+      router.back();
+    }
   };
 
   // '수정' 버튼 클릭 시 ➔ 편집 모드로 전환
@@ -315,7 +394,11 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   // '수정 정보 저장' 버튼 클릭 시 ➔ 캐릭터 DB 정보만 수정 저장
   const handleUpdateOnly = async () => {
-    if (!isAllCheckDone || !selectedCharObj || isSubmitting) return;
+    if (!isAllCheckDone) {
+      alert("모든 체크리스트를 채워주세요.");
+      return;
+    }
+    if (!selectedCharObj || isSubmitting) return;
 
     // 이전 값과 비교하여 변경된 내용이 없는지 확인
     const isFormChanged = Object.keys(formData).some(
@@ -358,29 +441,39 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   // '수정 후 이미지 재생성' 버튼 클릭 시 ➔ DB 수정 + DALL-E 신규 이미지 생성 & 스토리지/히스토리 누적 저장
   const handleUpdateAndRegenerate = async () => {
-    if (!isAllCheckDone || !selectedCharObj || isSubmitting) return;
+    if (!isAllCheckDone) {
+      alert("모든 체크리스트를 채워주세요.");
+      return;
+    }
+    if (!selectedCharObj || isSubmitting) return;
     setIsSubmitting(true);
 
     try {
-      // 1. DB 정보 수정
-      const updateRes = await fetch("/api/characters/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          characterId: selectedCharObj.id,
-        }),
-      });
+      const isFormChanged = Object.keys(formData).some(
+        (key) => formData[key] !== initialFormValues[key]
+      );
 
-      const updateResult = await updateRes.json();
-      if (!updateRes.ok || updateResult.error) {
-        alert(updateResult.error || "캐릭터 수정 중 오류가 발생했습니다.");
-        setIsSubmitting(false);
-        return;
+      if (isFormChanged) {
+        // 1. 내용이 변경된 경우에만 DB 정보 수정
+        const updateRes = await fetch("/api/characters/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...formData,
+            characterId: selectedCharObj.id,
+          }),
+        });
+
+        const updateResult = await updateRes.json();
+        if (!updateRes.ok || updateResult.error) {
+          alert(updateResult.error || "수정 중 오류가 발생했습니다.");
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       // 2. 상세 페이지로 이동하여 비동기로 이미지 재생성 (상세 페이지의 isGeneratingMode가 처리함)
-      router.push(`/characters/${selectedCharObj.id}?generating=true`);
+      router.push(`/characters/${selectedCharObj.id}?generating=${activeNav}`);
     } catch (err) {
       console.error("수정 후 이미지 재생성 중 에러:", err);
       alert("서버 처리 중 오류가 발생했습니다.");
@@ -418,7 +511,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         return;
       }
 
-      router.push(`/characters/${result.characterId}?generating=true`);
+      router.push(`/characters/${result.characterId}?generating=all`);
     } catch (err) {
       console.error("서버 요청 중 예외 발생:", err);
       alert("서버 연결 처리 중 오류가 발생했습니다.");
@@ -531,7 +624,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   const sidebarBottomContent = (
     <>
-      <button type="button" className={sidebarStyles.sideButton}>
+      <button type="button" className={sidebarStyles.sideButton} onClick={() => setIsHelpModalOpen(true)}>
         <span className={sidebarStyles.buttonIcon}>
           <HelpOutlineIcon />
         </span>
@@ -555,7 +648,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
             type="button"
             className={`${sidebarStyles.sideButton} ${isAllCheckDone ? sidebarStyles.active : ""}`}
             onClick={handleUpdateOnly}
-            disabled={!isAllCheckDone || isSubmitting}
+            disabled={isSubmitting}
           >
             <span className="kr_body_b">수정 정보 저장</span>
           </button>
@@ -564,7 +657,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
             type="button"
             className={`${sidebarStyles.sideButton} ${isAllCheckDone ? sidebarStyles.active : ""}`}
             onClick={handleUpdateAndRegenerate}
-            disabled={!isAllCheckDone || isSubmitting}
+            disabled={isSubmitting}
           >
             <span className="kr_body_b">수정 후 이미지 재생성</span>
           </button>
@@ -572,7 +665,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
           <button
             type="button"
             className={sidebarStyles.sideButton}
-            onClick={handleCancelEdit}
+            onClick={handleCancelEditOrView}
           >
             <span className="kr_body_b">취소</span>
           </button>
@@ -583,7 +676,8 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
           type="button"
           className={`${sidebarStyles.sideButton} ${isAllCheckDone ? sidebarStyles.active : ""}`}
           onClick={handleSaveClick}
-          disabled={!isAllCheckDone || isSubmitting}
+          disabled={isSubmitting}
+          style={{ cursor: isAllCheckDone ? "pointer" : "default" }}
         >
           <span className="kr_body_b">저장 후 이미지생성</span>
         </button>
@@ -593,27 +687,38 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   return (
     <div className={createStyles.pageContainer}>
-      <Header variant="account" onMenuClick={() => setIsMobileMenuOpen(true)} />
-
-      {/* 모바일 햄버거 메뉴 사이드바 */}
-      {isMobileMenuOpen && (
-        <div className={createStyles.mobileDrawerWrapper}>
-          <div className={createStyles.mobileDrawerOverlay} onClick={() => setIsMobileMenuOpen(false)} />
-          <div className={createStyles.mobileDrawer}>
-            <div className={createStyles.drawerHeader}>
-              <button type="button" className={createStyles.drawerCloseBtn} onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="material-symbols-rounded">close</span>
-              </button>
-            </div>
-            <div className={createStyles.drawerContent}>
-              <Sidebar
-                topContent={sidebarTopContent}
-                bottomContent={sidebarBottomContent}
-              />
-            </div>
-          </div>
+      {/* 모바일 햄버거 메뉴를 포함한 헤더 */}
+      {isSubmitting && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          zIndex: 9999,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          flexDirection: "column",
+          gap: "16px"
+        }}>
+          <div style={{
+            width: "40px",
+            height: "40px",
+            border: "4px solid rgba(255, 255, 255, 0.3)",
+            borderTop: "4px solid white",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite"
+          }} />
+          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+          <p className={`kr_body_b ${createStyles.generatingOverlayText}`} style={{ fontSize: "18px" }}>데이터 저장 중...</p>
         </div>
       )}
+
+      <CreateMobileMenu
+        headerVariant="account"
+        isWorldCheckDone={isWorldCheckDone}
+        isCharCheckDone={isCharCheckDone}
+      />
 
       {/* 모바일/태블릿 (<= 1024px) 상단바 */}
       <div className={createStyles.topNavSection}>
@@ -677,12 +782,15 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
           />
         </div>
 
-        <div style={{ flex: 1, minWidth: 0, height: "100%" }}>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <CharacterForm
+            key={selectedCharacterId || "draft"}
             id="characterForm"
             mode={activeNav === "world" ? "world" : "character"}
             initialValues={initialFormValues}
             isReadOnly={isReadOnlyChar}
+            worldCharacters={existingWorldCharacters}
+            currentCharacterId={selectedCharObj?.id}
             onChange={handleFormChange}
             onSubmit={handleSubmit}
           />
@@ -701,34 +809,32 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
               <span className="kr_body_b">수정</span>
             </button>
           ) : selectedCharObj && isEditMode ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
-              <div style={{ display: "flex", gap: "10px", width: "100%" }}>
-                <button
-                  type="button"
-                  className={`${createStyles.primaryBtn} ${isAllCheckDone ? createStyles.active : ""}`}
-                  onClick={handleUpdateOnly}
-                  disabled={!isAllCheckDone || isSubmitting}
-                  style={{ flex: 1 }}
-                >
-                  <span className="kr_body_b">수정 정보 저장</span>
-                </button>
-                <button
-                  type="button"
-                  className={`${createStyles.primaryBtn} ${isAllCheckDone ? createStyles.active : ""}`}
-                  onClick={handleUpdateAndRegenerate}
-                  disabled={!isAllCheckDone || isSubmitting}
-                  style={{ flex: 1 }}
-                >
-                  <span className="kr_body_b">수정 후 이미지 재생성</span>
-                </button>
-              </div>
+            <div style={{ display: "flex", flexDirection: "row", gap: "10px", width: "100%", justifyContent: "center" }}>
+              <button
+                type="button"
+                className={`${createStyles.primaryBtn} ${isAllCheckDone ? createStyles.active : ""}`}
+                onClick={handleUpdateOnly}
+                disabled={isSubmitting}
+                style={{ flex: "1 1 240px", maxWidth: "240px", cursor: isAllCheckDone ? "pointer" : "default" }}
+              >
+                <span className="kr_body_b">수정 정보 저장</span>
+              </button>
+              <button
+                type="button"
+                className={`${createStyles.primaryBtn} ${isAllCheckDone ? createStyles.active : ""}`}
+                onClick={handleUpdateAndRegenerate}
+                disabled={isSubmitting}
+                style={{ flex: "1 1 240px", maxWidth: "240px", cursor: isAllCheckDone ? "pointer" : "default" }}
+              >
+                <span className="kr_body_b">수정 후 이미지 재생성</span>
+              </button>
               <button
                 type="button"
                 className={createStyles.primaryBtn}
                 onClick={handleCancelEditOrView}
-                style={{ background: "rgba(255, 255, 255, 0.1)" }}
+                style={{ flex: "1 1 240px", maxWidth: "240px", background: "rgba(255, 255, 255, 0.1)" }}
               >
-                <span className="kr_body_b">취소 (새 캐릭터 작성)</span>
+                <span className="kr_body_b">취소</span>
               </button>
             </div>
           ) : (
@@ -736,9 +842,10 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
               type="button"
               className={`${createStyles.primaryBtn} ${isAllCheckDone ? createStyles.active : ""}`}
               onClick={handleSaveClick}
-              disabled={!isAllCheckDone || isSubmitting}
+              disabled={isSubmitting}
+              style={{ flex: "1 1 auto", maxWidth: "480px", cursor: isAllCheckDone ? "pointer" : "default" }}
             >
-              <span className="kr_body_b">저장후 이미지생성</span>
+              <span className="kr_body_b">저장 후 이미지생성</span>
             </button>
           )}
         </div>
@@ -753,7 +860,16 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         onClose={() => router.back()}
       />
 
-      <Footer />
+      {/* 도움말 모달 */}
+      <HelpModal
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
+      />
+
+      {/* 하단 풋터 (PC에서만 표시) */}
+      <div className={createStyles.desktopFooterWrapper}>
+        <Footer />
+      </div>
     </div>
   );
 }

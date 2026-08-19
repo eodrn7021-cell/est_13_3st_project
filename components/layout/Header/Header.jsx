@@ -7,7 +7,13 @@ import SearchBar from "@/components/common/SearchBar/SearchBar";
 import styles from "./Header.module.scss";
 import { useAuth } from "@/context/AuthContext";
 
-const Header = ({ variant = "main", accountContent = null, onMenuClick }) => {
+const Header = ({
+  variant = "main",
+  accountContent = null,
+  onMenuClick,
+  showSearch = false,
+  hideResponsiveSearch = false,
+}) => {
   // 로그인 사용자
   const { user, loading, signOut } = useAuth();
 
@@ -17,7 +23,7 @@ const Header = ({ variant = "main", accountContent = null, onMenuClick }) => {
 
   return (
     <header className={styles.header}>
-      <div className={styles.header_inner}>
+      <div className={`${styles.header_inner} ${showSearch ? styles.header_inner_search : ""}`}>
         {/* 태블릿·모바일 햄버거 버튼 */}
         <button
           className={styles.header_menu_button}
@@ -32,14 +38,17 @@ const Header = ({ variant = "main", accountContent = null, onMenuClick }) => {
             menu
           </span>
         </button>
-
         {/* 공통 로고 */}
         <Link href="/" className={styles.header_logo}>
           <Image src="/images/icons/logo.png" alt="VisuLore 로고" width={48} height={48} priority />
 
           <span className={`en_t_title ${styles.header_logo_text}`}>VisuLore</span>
         </Link>
-
+        {variant === "main" && showSearch && (
+          <div className={styles.header_pc_search}>
+            <SearchBar />
+          </div>
+        )}
         {/* 메인·캐릭터 목록 페이지 */}
         {variant === "main" && (
           <div className={styles.header_actions}>
@@ -70,7 +79,6 @@ const Header = ({ variant = "main", accountContent = null, onMenuClick }) => {
             </div>
           </div>
         )}
-
         {/* 캐릭터 만들기·캐릭터 상세 페이지 */}
         {variant === "account" && (
           <div className={styles.header_account}>
@@ -84,7 +92,7 @@ const Header = ({ variant = "main", accountContent = null, onMenuClick }) => {
       </div>
 
       {/* 태블릿·모바일에서 아래로 내려오는 검색창 */}
-      {variant === "main" && (
+      {variant === "main" && showSearch && !hideResponsiveSearch && (
         <div className={styles.header_responsive_search}>
           <SearchBar />
         </div>
