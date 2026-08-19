@@ -58,6 +58,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
   const [character, setCharacter] = useState(() => cachedCharacter);
   const [loading, setLoading] = useState(!cachedCharacter);
+  const [notFound, setNotFound] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [isWorldRegenerating, setIsWorldRegenerating] = useState(false);
   const [dbImageHistory, setDbImageHistory] = useState(() => cachedDbImageHistory);
@@ -333,7 +334,13 @@ function CharacterDetailContent({ params: paramsPromise }) {
         .from("characters")
         .select("*, worlds(*)")
         .eq("id", id)
-        .single();
+        .maybeSingle();
+
+      if (!data) {
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
 
       if (data) {
         // 작성자 프로필, 좋아요 수, 로그인한 유저의 좋아요/북마크 상태 병렬 조회
@@ -1096,7 +1103,16 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
         {/* 메인 폼 위치에 CharacterDetail 컴포넌트 배치 */}
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", position: "relative" }}>
-          {loading && !character ? (
+          {notFound ? (
+            <div style={{ padding: "100px 40px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "24px" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "64px", color: "rgba(255,255,255,0.2)" }}>search_off</span>
+              <span className="kr_h2" style={{ color: "var(--color-text-primary, #fff)" }}>존재하지 않는 캐릭터입니다.</span>
+              <span className="kr_body" style={{ color: "rgba(255, 255, 255, 0.6)" }}>URL을 다시 확인하시거나, 이미 삭제된 캐릭터일 수 있습니다.</span>
+              <Button onClick={() => router.push("/")} variant="primary" style={{ marginTop: "16px" }}>
+                메인으로 돌아가기
+              </Button>
+            </div>
+          ) : loading && !character ? (
             <div style={{ padding: "40px", textAlign: "center" }}>
               <span className="kr_body_b">캐릭터 정보 불러오는 중...</span>
             </div>
