@@ -41,12 +41,12 @@ VisuLore : AI를 활용해 사용자가 자신만의 세계관과 캐릭터를 �
 
 ### 2. 팀원
 
-| 이름   | 역할 | 주요 담당                                   | GitHub                            | 연락                    |
-| ------ | ---- | ------------------------------------------- | --------------------------------- | ----------------------- |
-| 조승아 | 팀장 | 메인페이지 기획·디자인·구현                 | https://github.com/eodrn7021-cell | eodrn7021@gmail.com     |
-| 장진혁 | 팀원 | 작품 상세페이지 기획·디자인·구현            | https://github.com/wwg98          | wwwg98@gmail.com        |
-| 이채연 | 팀원 | 목록페이지 기획·디자인·구현                 | https://github.com/codus69        | lcy0269@gmail.com       |
-| 박채원 | 팀원 | 로그인,회원가입,마이페이지 기획·디자인·구현 | https://github.com/chaewon5205    | parkjihae9262@gmail.com |
+| 이름   | 역할 | 주요 담당                                                   | GitHub                            | 연락                    |
+| ------ | ---- | ----------------------------------------------------------- | --------------------------------- | ----------------------- |
+| 조승아 | 팀장 | 메인페이지 기획·디자인·구현/로그인 회원가입 서포트 /Git관리 | https://github.com/eodrn7021-cell | eodrn7021@gmail.com     |
+| 장진혁 | 팀원 | 작품 상세페이지 기획·디자인·구현 Supabase DB초기 연동       | https://github.com/wwg98          | wwwg98@gmail.com        |
+| 이채연 | 팀원 | 목록페이지, 모달 기획·디자인·구현                           | https://github.com/codus69        | lcy0269@gmail.com       |
+| 박채원 | 팀원 | 로그인,회원가입,마이페이지 기획·디자인·구현                 | https://github.com/chaewon5205    | parkjihae9262@gmail.com |
 
 ### 3. 마일스톤
 
@@ -193,6 +193,9 @@ gantt
 │  │  ├─ page.jsx                           // /my-characters
 │  │  └─ my-characters.module.scss          // 내 캐릭터 관리 스타일
 │  │
+│  ├─ my-trash                              // 내 캐릭터 휴지통
+│  ├─ recent
+│  │
 │  ├─ favicon.ico                           // 브라우저 탭 아이콘
 │  ├─ globals.scss                          // 전역 공통 스타일
 │  ├─ layout.jsx                            // 전체 공통 레이아웃
@@ -230,6 +233,9 @@ gantt
 │  │  └─ PopularStories
 │  │
 │  ├─ character                             // 캐릭터 관련 컴포넌트
+│  │  ├─ HelpModal
+│  │  ├─ CreateMobileMenu
+│  │  ├─ WorldSelectModal
 │  │  ├─ CharacterCard
 │  │  ├─ CharacterList
 │  │  ├─ CharacterDetail
@@ -279,4 +285,19 @@ gantt
 
 ## 6. 향후 개선 사항
 
+[UX/UI 및 사용성 개선] [AI 경험(AX) 및 성능 고도화] [플랫폼 확장성 및 소셜 기능]
+
 ## 7. 제작 후기
+
+| 이름   | 제작 후기                                                                                                                                                                                 |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 조승아 | git사용이 미숙했던 제가 3차에서는 팀장도 맡아보고 git관리자가 되어서 팀원들과 함께 프로젝트를 하게되어서 좋았습니다. 새로운 기술로 쉽게 볼 수 없는 페이지를 만들게 되어서 재미있었습니다. |
+| 장진혁 | 처음으로 DB를 연동해 사이트를 만들고 데이터를 직접 관리해 본 경험이 매우 흥미로웠고, 값진 배움으로 남았습니다.                                                                            |
+| 이채연 | 디자인의 전반을 맡아 관리하면서 하면서 figma 사용이 능숙해졌고 UI 구성부터 Supabase DB 연동까지 전체적인 흐름을 배울 수 있어서 유익했습니다.                                              |
+| 박채원 | Next.js와 JavaScript를 활용해 나만의 세계관과 캐릭터를 직접 구현하며, 새로운 기술을 배우고 프로젝트에 적용해 볼 수 있어 뜻깊은 경험이었습니다.                                            |
+
+## 📌 Project Links
+
+- [Figma](https://www.figma.com/deck/UwVicIqCdhRbkww1cbtvKC/8%ED%8C%80-%EC%8A%AC%EB%9D%BC%EC%9D%B4%EB%93%9C?node-id=680-1331&t=mmnIGkpQ8MLHZart-1)
+- [배포 사이트](https://est-13-3st-project-green.vercel.app/)
+- [GitHub Repository](https://github.com/eodrn7021-cell/est_13_3st_project)
