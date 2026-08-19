@@ -300,6 +300,10 @@ function CharacterDetailContent({ params: paramsPromise }) {
     if (!cachedCharacter || cachedCharacter.id !== id) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(true);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDbImageHistory([]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDbWorldImageHistory([]);
     }
     setSelectedImage(null);
     setSelectedWorldImage(null);
@@ -854,22 +858,40 @@ function CharacterDetailContent({ params: paramsPromise }) {
         <div className={sidebarStyles.usedImagesSection}>
           <div className={sidebarStyles.usedImagesTitle}>사용된 이미지</div>
           <div className={sidebarStyles.imageGrid}>
-            {imageHistory.map((imgSrc, idx) => (
-              <div
-                key={imgSrc}
-                className={sidebarStyles.thumbBox}
-                onClick={() => {
-                  if (activeNav === "world") {
-                    setSelectedWorldImage(imgSrc);
-                  } else {
-                    setSelectedImage(imgSrc);
-                  }
-                }}
-                style={{ cursor: "pointer" }}
-              >
-                <Image src={imgSrc} alt={`생성 이미지 ${idx + 1}`} fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: 'cover' }} />
-              </div>
-            ))}
+            {loading ? (
+              Array.from({ length: 4 }).map((_, idx) => (
+                <div
+                  key={`skeleton-${idx}`}
+                  className={sidebarStyles.thumbBox}
+                  style={{
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ color: "rgba(255,255,255,0.2)", fontSize: "24px" }}>image</span>
+                </div>
+              ))
+            ) : (
+              imageHistory.map((imgSrc, idx) => (
+                <div
+                  key={imgSrc}
+                  className={sidebarStyles.thumbBox}
+                  onClick={() => {
+                    if (activeNav === "world") {
+                      setSelectedWorldImage(imgSrc);
+                    } else {
+                      setSelectedImage(imgSrc);
+                    }
+                  }}
+                  style={{ cursor: "pointer" }}
+                >
+                  <Image src={imgSrc} alt={`생성 이미지 ${idx + 1}`} fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: 'cover' }} />
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
