@@ -26,8 +26,20 @@ function HelpOutlineIcon() {
 export default function CreateCharacterPage({ worldData, characterListData }) {
   const router = useRouter();
 
+  const [isHydrated, setIsHydrated] = useState(false);
   // 세계관 모달 및 선택 상태
   const [isModalOpen, setIsModalOpen] = useState(true);
+
+  useEffect(() => {
+    setIsHydrated(true);
+    // URL에 worldId와 charId가 있으면 즉시 모달을 닫아 깜빡임 방지
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("worldId") && params.get("charId")) {
+        setIsModalOpen(false);
+      }
+    }
+  }, []);
   const [userWorlds, setUserWorlds] = useState([]);
   const [selectedWorld, setSelectedWorld] = useState(null);
   const [existingWorldId, setExistingWorldId] = useState(null);
@@ -851,14 +863,16 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         </div>
       </div>
 
-      {/* 세계관 선택 모달 */}
-      <WorldSelectModal
-        isOpen={isModalOpen}
-        worlds={userWorlds}
-        onSelectNewWorld={handleSelectNewWorld}
-        onSelectExistingWorld={handleSelectExistingWorld}
-        onClose={() => router.back()}
-      />
+      {/* 세계관 선택 모달 (수정 모드 진입 시 깜빡임 방지용 지연 렌더링) */}
+      {isHydrated && (
+        <WorldSelectModal
+          isOpen={isModalOpen}
+          worlds={userWorlds}
+          onSelectNewWorld={handleSelectNewWorld}
+          onSelectExistingWorld={handleSelectExistingWorld}
+          onClose={() => router.back()}
+        />
+      )}
 
       {/* 도움말 모달 */}
       <HelpModal
