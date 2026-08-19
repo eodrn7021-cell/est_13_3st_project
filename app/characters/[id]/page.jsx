@@ -304,6 +304,8 @@ function CharacterDetailContent({ params: paramsPromise }) {
       setDbImageHistory([]);
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setDbWorldImageHistory([]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setWorldCharacters([]);
     }
     setSelectedImage(null);
     setSelectedWorldImage(null);
@@ -360,7 +362,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
         setIsLiked(Boolean(userLikeData));
         setIsBookmarked(Boolean(userBookmarkData));
         setLikes(likesCount || 0);
-        setLoading(false);
         
         // 현재 접속 중인 유저가 존재하고, 그 유저의 ID가 캐릭터의 creator_id와 같을 때만 소유자로 판단
         const ownerCheck = Boolean(user && data.creator_id === user.id);
@@ -388,8 +389,8 @@ function CharacterDetailContent({ params: paramsPromise }) {
           }
         }
 
-        // 생성창이 아닐 때만 해당 세계관의 다른 캐릭터들 조회
-        if (!isGeneratingMode && data.world_id) {
+        // 해당 세계관의 다른 캐릭터들 조회 (생성 중에도 기존 세계관 캐릭터 목록을 볼 수 있게 함)
+        if (data.world_id) {
           const { data: chars } = await supabase
             .from("characters")
             .select("id, name")
@@ -432,6 +433,9 @@ function CharacterDetailContent({ params: paramsPromise }) {
         }
 
         await fetchImageHistory(data.id);
+
+        // 모든 데이터(이미지 히스토리 포함) 로딩 완료 후 로딩 상태 해제
+        setLoading(false);
         // 새로고침 시 무한 자동 생성을 막기 위해, isGeneratingMode일 때만 1회 실행
         if (isGeneratingMode && !generationTriggered.current) {
           generationTriggered.current = true;
