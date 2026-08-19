@@ -1,0 +1,39 @@
+@use "@/styles/abstracts/colors" as colors;
+
+.toastContainer {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+
+  &.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  &.hide {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+}
+
+.toastContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(30, 33, 44, 0.9);
+  border: 1px solid rgba(59, 64, 85, 0.6); // $color_tag_stroke
+  border-radius: 8px;
+  padding: 12px 24px;
+  color: colors.$color_white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+
+  span {
+    color: colors.$color_white;
+  }
+}
