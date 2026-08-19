@@ -257,8 +257,8 @@
   }
 
   .card_grid_container {
-    /* 하단바 높이 + 20px 간격을 뺀 위치까지만 딱 스크롤 영역으로 제한 */
-    max-height: calc(100vh - 180px);
+    max-height: calc(100vh - 300px);
+    padding-bottom: 20px;
   }
 
   .pc_footer_wrapper {

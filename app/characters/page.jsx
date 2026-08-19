@@ -30,7 +30,9 @@ const CharactersContent = () => {
       ? '추천순'
       : sortParam === 'views' || sortParam === '인기순'
         ? '인기순'
-        : '최신순';
+        : sortParam === '최신순'
+          ? '최신순'
+          : ''; // sort 파라미터가 없으면 빈 문자열("")로 처리하여 '정렬' 옵션 선택 유도
 
   const raceFilter = searchParams.get('race') || '';
   const themeFilter = searchParams.get('theme') || '';
@@ -49,19 +51,15 @@ const CharactersContent = () => {
   // 필터 옵션(종족, 테마, 장르, 성별 목록)을 불러오는 함수
   useEffect(() => {
     const fetchFilterOptions = async () => {
-      // 종족 데이터 조회
       const { data: raceData } = await supabase.from('races').select('id, name');
       if (raceData) setRaceOptions(raceData);
 
-      // 테마 데이터 조회
       const { data: themeData } = await supabase.from('themes').select('id, name');
       if (themeData) setThemeOptions(themeData);
 
-      // 장르 데이터 조회
       const { data: genreData } = await supabase.from('genres').select('id, name');
       if (genreData) setGenreOptions(genreData);
 
-      // 성별 목록 추출을 위한 캐릭터 데이터 조회
       const { data: charGenderData } = await supabase.from('characters').select('gender');
       if (charGenderData) {
         const genders = Array.from(
@@ -79,12 +77,10 @@ const CharactersContent = () => {
     const fetchCharacters = async () => {
       setIsLoading(true);
 
-      // 기본 Supabase 조회 쿼리 (worlds 테이블 조인 포함)
       const baseQuery = supabase
         .from('characters')
         .select('*, worlds!inner(*), character_likes(count)');
 
-      // 현재 URL의 필터 및 검색 조건을 쿼리에 동적으로 적용하는 내부 함수
       const applyFilters = (q) => {
         let filteredQ = q;
         if (raceFilter) filteredQ = filteredQ.eq('race', raceFilter);
@@ -117,10 +113,8 @@ const CharactersContent = () => {
         return filteredQ;
       };
 
-      // 1차 필터 쿼리 실행
       const { data, error } = await applyFilters(baseQuery);
 
-      // 조인 조건 등으로 인해 1차 쿼리에서 에러 발생 시 폴백(우회) 쿼리 실행
       if (error) {
         console.error('Supabase Error:', error);
         const fallbackBaseQuery = supabase
@@ -130,7 +124,6 @@ const CharactersContent = () => {
         const fallbackQuery = applyFilters(fallbackBaseQuery);
         const { data: fallbackData, error: fallbackError } = await fallbackQuery;
 
-        // 폴백 쿼리마저 실패할 경우 앱 크래시를 막기 위해 빈 배열 대입 후 종료
         if (fallbackError) {
           setCharacters([]);
           setIsLoading(false);
@@ -148,7 +141,6 @@ const CharactersContent = () => {
 
         setCharacters(filtered);
       } else {
-        // 정상 조회된 데이터를 정렬 조건(추천순, 인기순, 최신순)에 맞게 정렬
         const rawData = data || [];
 
         const sortedData = [...rawData].sort((a, b) => {
@@ -166,6 +158,7 @@ const CharactersContent = () => {
             if (viewsB !== viewsA) return viewsB - viewsA;
             return likesB - likesA;
           } else {
+            // 기본값은 최신순 정렬
             if (timeB !== timeA) return timeB - timeA;
             return viewsB - viewsA;
           }
@@ -180,7 +173,6 @@ const CharactersContent = () => {
     fetchCharacters();
   }, [actualSort, raceFilter, themeFilter, genderFilter, genreFilter, searchQuery]);
 
-  // 사용자가 필터 드롭다운을 변경했을 때 URL 쿼리 파라미터를 업데이트하는 함수
   const handleFilterChange = (key, value) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value) {
@@ -191,28 +183,32 @@ const CharactersContent = () => {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // 적용된 모든 필터와 검색 조건을 초기화하고 기본 페이지로 돌아가는 함수
   const handleResetFilters = () => {
     router.replace(pathname);
     router.refresh();
   };
 
-  // 상단 헤더 영역에서 검색창 입력 및 엔터 이벤트를 감지하여 검색 결과 페이지로 이동시키는 함수
   const handleHeaderCapture = (e) => {
     if (e.type === 'submit' || (e.type === 'keydown' && e.key === 'Enter')) {
       const searchInput = e.currentTarget.querySelector(
         'input[type="text"], input[type="search"], input',
       );
 
+      // 검색어가 있는 경우 검색 페이지로 이동
       if (searchInput && searchInput.value.trim()) {
         e.preventDefault();
         const val = searchInput.value.trim();
         router.push(`/characters?search=${encodeURIComponent(val)}`);
       }
+      // 검색어가 비어있는 경우 (빈값 엔터)
+      else if (searchInput && searchInput.value.trim() === '') {
+        e.preventDefault();
+        // 검색 파라미터를 삭제하고 기본 상태로 이동 (정렬 유지 또는 초기화)
+        router.push('/characters');
+      }
     }
   };
 
-  // 현재 입력된 태그(currentTags)를 바탕으로 캐릭터 목록을 필터링하고 매칭 점수를 계산하는 함수
   const processDisplayList = () => {
     if (!currentTags || currentTags.length === 0) {
       return characters;
@@ -253,7 +249,6 @@ const CharactersContent = () => {
 
   return (
     <div className={styles.page_container}>
-      {/* 모바일 환경 상단 헤더 영역 (이벤트 캡처를 통해 검색 제어) */}
       <div
         onClick={handleHeaderCapture}
         onSubmitCapture={handleHeaderCapture}
@@ -264,22 +259,20 @@ const CharactersContent = () => {
 
       <div className={styles.main_wrapper}>
         <div className={styles.layout_body}>
-          {/* PC 환경 좌측 사이드바 영역 */}
           <div className={styles.pc_sidebar}>
             <HomeSidebar />
           </div>
 
-          {/* 메인 컨텐츠 영역 (필터 바 및 캐릭터 카드 그리드) */}
           <main className={styles.content_area}>
-            {/* 정렬 및 상세 필터(종족, 테마, 성별, 장르) 드롭다운 바 영역 */}
             <div className={styles.filter_bar}>
-              {/* 정렬 기준 선택 (최신순, 추천순, 인기순) */}
+              {/* 정렬 기준 선택 (정렬, 최신순, 추천순, 인기순) */}
               <div className={styles.select_wrapper}>
                 <select
                   className={styles.filter_select}
                   value={actualSort}
                   onChange={(e) => handleFilterChange('sort', e.target.value)}
                 >
+                  <option value="">정렬</option>
                   <option value="최신순">최신순</option>
                   <option value="추천순">추천순</option>
                   <option value="인기순">인기순</option>
@@ -365,7 +358,6 @@ const CharactersContent = () => {
                 </span>
               </div>
 
-              {/* 필터나 검색어가 적용되어 있을 때만 노출되는 초기화 버튼 */}
               {(raceFilter ||
                 themeFilter ||
                 genderFilter ||
@@ -382,7 +374,6 @@ const CharactersContent = () => {
               )}
             </div>
 
-            {/* 캐릭터 카드 목록이 표시되는 그리드 영역 */}
             <div className={styles.card_grid_container}>
               {isLoading ? null : displayList && displayList.length > 0 ? (
                 <div className={styles.card_grid}>
@@ -390,19 +381,16 @@ const CharactersContent = () => {
                     const isRecommended = recommendedIds.has(item.id);
 
                     return (
-                      /* 개별 캐릭터 카드 아이템 (클릭 시 상세 페이지로 이동) */
                       <div
                         key={item.id}
                         className={styles.card_item}
                         onClick={() => router.push(`/characters/${item.id}`)}
                       >
                         <div className={styles.image_box}>
-                          {/* 추천 뱃지 혹은 커스텀 뱃지 표시 */}
                           {(isRecommended || item.badge) && (
                             <span className={styles.badge}>{item.badge || '추천 캐릭터'}</span>
                           )}
 
-                          {/* 캐릭터 이미지 또는 이미지가 없을 때 대체 아이콘 표시 */}
                           {item.image_url ? (
                             <img src={item.image_url} alt={item.name || '캐릭터 이미지'} />
                           ) : (
@@ -413,7 +401,6 @@ const CharactersContent = () => {
                             </div>
                           )}
 
-                          {/* 마우스 호버 시 나타나는 캐릭터 오버레이 정보 영역 */}
                           <div className={styles.card_overlay}>
                             <div className={styles.card_info}>
                               <h3>{item.name}</h3>
@@ -437,7 +424,6 @@ const CharactersContent = () => {
                   })}
                 </div>
               ) : (
-                /* 검색 결과나 데이터가 없을 때 노출되는 빈 상태(Empty State) 화면 */
                 <div className={styles.empty_state}>
                   <span className={`material-symbols-outlined ${styles.empty_icon}`}>error</span>
                   <p className={styles.empty_text}>검색 결과가 없습니다.</p>
@@ -447,13 +433,11 @@ const CharactersContent = () => {
           </main>
         </div>
 
-        {/* 하단 푸터 영역 (PC 전용) */}
         <footer className={styles.pc_footer_wrapper}>
           <Footer />
         </footer>
       </div>
 
-      {/* 모바일 환경 하단 고정 네비게이션바 영역 */}
       <div className={styles.mobile_nav_wrapper}>
         <MobileNavigation />
       </div>
@@ -461,7 +445,6 @@ const CharactersContent = () => {
   );
 };
 
-// [컴포넌트 역할] Next.js Suspense 경계를 제공하여 클라이언트 컴포넌트의 비동기 렌더링 안정성을 보장하는 페이지 컴포넌트
 const CharactersPage = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
