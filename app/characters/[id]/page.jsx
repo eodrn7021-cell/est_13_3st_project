@@ -32,6 +32,8 @@ let cachedWorldCharacters = [];
 let cachedIsOwner = false;
 let cachedDbImageHistory = [];
 
+const generatingSet = new Set();
+
 function CharacterDetailContent({ params: paramsPromise }) {
   const params = use(paramsPromise);
   const { id } = params;
@@ -367,7 +369,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
     }
   };
 
-  const generationTriggered = useRef(false);
+
   const viewRecorded = useRef(false);
 
   useEffect(() => {
@@ -558,8 +560,8 @@ function CharacterDetailContent({ params: paramsPromise }) {
         // 모든 데이터(이미지 히스토리 포함) 로딩 완료 후 로딩 상태 해제
         setLoading(false);
         // 새로고침 시 무한 자동 생성을 막기 위해, isGeneratingMode일 때만 1회 실행
-        if (isGeneratingMode && !generationTriggered.current) {
-          generationTriggered.current = true;
+        if (isGeneratingMode && !generatingSet.has(data.id)) {
+          generatingSet.add(data.id);
 
           if (generatingMode === "all" || generatingMode === "true") {
             triggerImageGeneration(data.id).then(() => {
