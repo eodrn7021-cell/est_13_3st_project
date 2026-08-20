@@ -128,8 +128,6 @@ const FavoritesPage = () => {
           return;
         }
 
-        console.log("북마크 현재 사용자 UUID:", user.id);
-
         /* ====================================
            2. 현재 사용자의 북마크 조회
 

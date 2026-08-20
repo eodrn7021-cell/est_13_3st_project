@@ -36,7 +36,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
   const { id } = params;
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [generatingMode] = useState(searchParams.get("generating"));
   const [isGeneratingMode] = useState(Boolean(generatingMode));
 
@@ -45,7 +45,9 @@ function CharacterDetailContent({ params: paramsPromise }) {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   const [isLiked, setIsLiked] = useState(() => Boolean(cachedCharacter?.initialIsLiked));
-  const [isBookmarked, setIsBookmarked] = useState(() => Boolean(cachedCharacter?.initialIsBookmarked));
+  const [isBookmarked, setIsBookmarked] = useState(() =>
+    Boolean(cachedCharacter?.initialIsBookmarked),
+  );
   const [likes, setLikes] = useState(() => cachedCharacter?.likes || 0);
   const [isLiking, setIsLiking] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
@@ -186,13 +188,17 @@ function CharacterDetailContent({ params: paramsPromise }) {
             imageUrl: result.imageUrl,
           }),
         });
-        
+
         if (saveRes.ok) {
-           setCharacter((prev) => prev ? {
-             ...prev,
-             worlds: prev.worlds ? { ...prev.worlds, image_url: result.imageUrl } : null
-           } : prev);
-           await fetchWorldImageHistory(worldId);
+          setCharacter((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  worlds: prev.worlds ? { ...prev.worlds, image_url: result.imageUrl } : null,
+                }
+              : prev,
+          );
+          await fetchWorldImageHistory(worldId);
         }
       } catch (saveErr) {
         console.error("세계관 메인 이미지 저장 중 오류:", saveErr);
@@ -238,10 +244,14 @@ function CharacterDetailContent({ params: paramsPromise }) {
           return;
         }
 
-        setCharacter((prev) => prev ? {
-          ...prev,
-          worlds: prev.worlds ? { ...prev.worlds, image_url: targetImage } : null
-        } : prev);
+        setCharacter((prev) =>
+          prev
+            ? {
+                ...prev,
+                worlds: prev.worlds ? { ...prev.worlds, image_url: targetImage } : null,
+              }
+            : prev,
+        );
         await fetchWorldImageHistory(character.world_id);
         alert("선택한 이미지가 세계관 대표 이미지로 지정 및 저장되었습니다!");
       } catch (err) {
@@ -306,12 +316,12 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
     const fetchCharacterAndUser = async () => {
       const supabase = createClient();
-      
+
       // 1. 현재 접속 중인 유저 및 닉네임 확인
       const { data: authData } = await supabase.auth.getUser();
       const user = authData?.user || null;
       let userProfile = null;
-      
+
       if (user) {
         const { data: profileData } = await supabase
           .from("profiles")
@@ -335,12 +345,31 @@ function CharacterDetailContent({ params: paramsPromise }) {
           { count: likesCount },
           { data: userLikeData },
           { data: userBookmarkData },
-          { data: creatorProfile }
+          { data: creatorProfile },
         ] = await Promise.all([
-          supabase.from("character_likes").select("*", { count: "exact", head: true }).eq("character_id", id),
-          user ? supabase.from("character_likes").select("id").eq("character_id", id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
-          user ? supabase.from("character_bookmarks").select("id").eq("character_id", id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
-          data.creator_id ? supabase.from("profiles").select("nickname").eq("id", data.creator_id).single() : Promise.resolve({ data: null })
+          supabase
+            .from("character_likes")
+            .select("*", { count: "exact", head: true })
+            .eq("character_id", id),
+          user
+            ? supabase
+                .from("character_likes")
+                .select("id")
+                .eq("character_id", id)
+                .eq("user_id", user.id)
+                .maybeSingle()
+            : Promise.resolve({ data: null }),
+          user
+            ? supabase
+                .from("character_bookmarks")
+                .select("id")
+                .eq("character_id", id)
+                .eq("user_id", user.id)
+                .maybeSingle()
+            : Promise.resolve({ data: null }),
+          data.creator_id
+            ? supabase.from("profiles").select("nickname").eq("id", data.creator_id).single()
+            : Promise.resolve({ data: null }),
         ]);
 
         const characterWithStats = {
@@ -357,7 +386,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
         setIsBookmarked(Boolean(userBookmarkData));
         setLikes(likesCount || 0);
         setLoading(false);
-        
+
         // 현재 접속 중인 유저가 존재하고, 그 유저의 ID가 캐릭터의 creator_id와 같을 때만 소유자로 판단
         const ownerCheck = Boolean(user && data.creator_id === user.id);
         setIsOwner(ownerCheck);
@@ -366,15 +395,29 @@ function CharacterDetailContent({ params: paramsPromise }) {
         // 세계관 좋아요, 북마크 상태 조회
         if (data.world_id) {
           try {
-            const [
-              { count: wLikesCount },
-              { data: wLikeData },
-              { data: wBookmarkData }
-            ] = await Promise.all([
-              supabase.from("world_likes").select("*", { count: "exact", head: true }).eq("world_id", data.world_id),
-              user ? supabase.from("world_likes").select("id").eq("world_id", data.world_id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
-              user ? supabase.from("world_bookmarks").select("id").eq("world_id", data.world_id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null })
-            ]);
+            const [{ count: wLikesCount }, { data: wLikeData }, { data: wBookmarkData }] =
+              await Promise.all([
+                supabase
+                  .from("world_likes")
+                  .select("*", { count: "exact", head: true })
+                  .eq("world_id", data.world_id),
+                user
+                  ? supabase
+                      .from("world_likes")
+                      .select("id")
+                      .eq("world_id", data.world_id)
+                      .eq("user_id", user.id)
+                      .maybeSingle()
+                  : Promise.resolve({ data: null }),
+                user
+                  ? supabase
+                      .from("world_bookmarks")
+                      .select("id")
+                      .eq("world_id", data.world_id)
+                      .eq("user_id", user.id)
+                      .maybeSingle()
+                  : Promise.resolve({ data: null }),
+              ]);
 
             setWorldLikes(wLikesCount || 0);
             setIsWorldLiked(Boolean(wLikeData));
@@ -391,7 +434,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
             .select("id, name")
             .eq("world_id", data.world_id)
             .order("created_at", { ascending: false });
-          
+
           if (chars) {
             setWorldCharacters(chars);
             cachedWorldCharacters = chars;
@@ -431,7 +474,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
         // 새로고침 시 무한 자동 생성을 막기 위해, isGeneratingMode일 때만 1회 실행
         if (isGeneratingMode && !generationTriggered.current) {
           generationTriggered.current = true;
-          
+
           if (generatingMode === "all" || generatingMode === "true") {
             triggerImageGeneration(data.id).then(() => {
               if (data.world_id && data.worlds && !data.worlds.image_url) {
@@ -443,7 +486,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
           } else if (generatingMode === "world" && data.world_id) {
             triggerWorldImageGeneration(data.world_id);
           }
-          
+
           // 새로고침 시 다시 생성되지 않도록 URL에서 파라미터 제거
           router.replace(`/characters/${data.id}`);
         }
@@ -486,7 +529,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
             likes: prevIsLiked ? Math.max(0, (prev.likes || 0) - 1) : (prev.likes || 0) + 1,
             initialIsLiked: !prevIsLiked,
           }
-        : prev
+        : prev,
     );
 
     try {
@@ -508,7 +551,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
                 likes: prevLikes,
                 initialIsLiked: prevIsLiked,
               }
-            : prev
+            : prev,
         );
         alert(result.error || "좋아요 처리 중 오류가 발생했습니다.");
         return;
@@ -523,7 +566,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
               likes: result.likes,
               initialIsLiked: result.isLiked,
             }
-          : prev
+          : prev,
       );
     } catch (err) {
       console.error("좋아요 처리 중 예외 발생:", err);
@@ -536,7 +579,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
               likes: prevLikes,
               initialIsLiked: prevIsLiked,
             }
-          : prev
+          : prev,
       );
     } finally {
       setIsLiking(false);
@@ -641,7 +684,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
             ...prev,
             initialIsBookmarked: !prevIsBookmarked,
           }
-        : prev
+        : prev,
     );
 
     try {
@@ -661,7 +704,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
                 ...prev,
                 initialIsBookmarked: prevIsBookmarked,
               }
-            : prev
+            : prev,
         );
         alert(result.error || "북마크 처리 중 오류가 발생했습니다.");
         return;
@@ -674,7 +717,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
               ...prev,
               initialIsBookmarked: result.isBookmarked,
             }
-          : prev
+          : prev,
       );
     } catch (err) {
       console.error("북마크 처리 중 예외 발생:", err);
@@ -685,7 +728,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
               ...prev,
               initialIsBookmarked: prevIsBookmarked,
             }
-          : prev
+          : prev,
       );
     } finally {
       setIsBookmarking(false);
@@ -778,7 +821,8 @@ function CharacterDetailContent({ params: paramsPromise }) {
   const characterName = character?.name || "";
 
   // 현재 캐릭터의 DB 히스토리 중 가장 최근 4개 이미지 추출
-  const imageHistory = activeNav === "world" ? dbWorldImageHistory.slice(0, 4) : dbImageHistory.slice(0, 4);
+  const imageHistory =
+    activeNav === "world" ? dbWorldImageHistory.slice(0, 4) : dbImageHistory.slice(0, 4);
 
   const handleSelectWorld = () => {
     setActiveNav("world");
@@ -798,7 +842,10 @@ function CharacterDetailContent({ params: paramsPromise }) {
         className={`${sidebarStyles.accordionButton} ${activeNav === "world" ? sidebarStyles.active : ""}`}
         onClick={handleSelectWorld}
       >
-        <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+        <span
+          className="material-icons-outlined icon_24"
+          style={{ display: "inline-flex", alignItems: "center" }}
+        >
           history_edu
         </span>
         <span className="kr_body_b">{worldTitle}</span>
@@ -811,7 +858,10 @@ function CharacterDetailContent({ params: paramsPromise }) {
           className={sidebarStyles.accordionButton}
           onClick={handleToggleCharacterAccordion}
         >
-          <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+          <span
+            className="material-icons-outlined icon_24"
+            style={{ display: "inline-flex", alignItems: "center" }}
+          >
             person
           </span>
           <span className="kr_body_b">캐릭터</span>
@@ -828,18 +878,32 @@ function CharacterDetailContent({ params: paramsPromise }) {
                   onClick={() => router.push(`/characters/${char.id}`, { scroll: false })}
                 >
                   {String(char.id) === String(id) ? (
-                    <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+                    <span
+                      className="material-icons-outlined icon_24"
+                      style={{ display: "inline-flex", alignItems: "center" }}
+                    >
                       auto_stories
                     </span>
                   ) : (
-                    <span className="icon_24" style={{ display: "inline-flex", width: "24px", height: "24px", flexShrink: 0 }} />
+                    <span
+                      className="icon_24"
+                      style={{
+                        display: "inline-flex",
+                        width: "24px",
+                        height: "24px",
+                        flexShrink: 0,
+                      }}
+                    />
                   )}
                   <span className="kr_body_b">{char.name}</span>
                 </div>
               ))
             ) : (
               <div className={`${sidebarStyles.subItem} ${sidebarStyles.active}`}>
-                <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+                <span
+                  className="material-icons-outlined icon_24"
+                  style={{ display: "inline-flex", alignItems: "center" }}
+                >
                   auto_stories
                 </span>
                 <span className="kr_body_b">{characterName}</span>
@@ -867,7 +931,13 @@ function CharacterDetailContent({ params: paramsPromise }) {
                 }}
                 style={{ cursor: "pointer" }}
               >
-                <Image src={imgSrc} alt={`생성 이미지 ${idx + 1}`} fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: 'cover' }} />
+                <Image
+                  src={imgSrc}
+                  alt={`생성 이미지 ${idx + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  style={{ objectFit: "cover" }}
+                />
               </div>
             ))}
           </div>
@@ -924,7 +994,9 @@ function CharacterDetailContent({ params: paramsPromise }) {
         <div className={sidebarStyles.statRow}>
           <span className="kr_body">생성일 :</span>
           <span className="kr_body">
-            {character?.created_at ? new Date(character.created_at).toLocaleDateString("ko-KR") : "-"}
+            {character?.created_at
+              ? new Date(character.created_at).toLocaleDateString("ko-KR")
+              : "-"}
           </span>
         </div>
         <div className={sidebarStyles.statRow}>
@@ -948,7 +1020,11 @@ function CharacterDetailContent({ params: paramsPromise }) {
           >
             <span
               className="material-symbols-outlined icon_36"
-              style={(activeNav === "world" ? isWorldLiked : isLiked) ? { fontVariationSettings: "'FILL' 1" } : undefined}
+              style={
+                (activeNav === "world" ? isWorldLiked : isLiked)
+                  ? { fontVariationSettings: "'FILL' 1" }
+                  : undefined
+              }
             >
               favorite
             </span>
@@ -959,13 +1035,21 @@ function CharacterDetailContent({ params: paramsPromise }) {
           <button
             type="button"
             aria-label="북마크"
-            className={(activeNav === "world" ? isWorldBookmarked : isBookmarked) ? sidebarStyles.activeBookmark : ""}
+            className={
+              (activeNav === "world" ? isWorldBookmarked : isBookmarked)
+                ? sidebarStyles.activeBookmark
+                : ""
+            }
             onClick={activeNav === "world" ? handleWorldBookmarkToggle : handleBookmarkToggle}
             disabled={activeNav === "world" ? isWorldBookmarking : isBookmarking}
           >
             <span
               className="material-symbols-outlined icon_36"
-              style={(activeNav === "world" ? isWorldBookmarked : isBookmarked) ? { fontVariationSettings: "'FILL' 1" } : undefined}
+              style={
+                (activeNav === "world" ? isWorldBookmarked : isBookmarked)
+                  ? { fontVariationSettings: "'FILL' 1" }
+                  : undefined
+              }
             >
               bookmark
             </span>
@@ -975,7 +1059,11 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
       {isOwner && (
         <>
-          <button type="button" className={sidebarStyles.sideButton} onClick={() => setIsHelpModalOpen(true)}>
+          <button
+            type="button"
+            className={sidebarStyles.sideButton}
+            onClick={() => setIsHelpModalOpen(true)}
+          >
             <span className={sidebarStyles.buttonIcon}>
               <HelpOutlineIcon />
             </span>
@@ -986,7 +1074,12 @@ function CharacterDetailContent({ params: paramsPromise }) {
             <span className="kr_body_b">수정</span>
           </button>
 
-          <button type="button" className={sidebarStyles.sideButton} onClick={handleDelete} disabled={isDeleting}>
+          <button
+            type="button"
+            className={sidebarStyles.sideButton}
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
             <span className="kr_body_b">{isDeleting ? "삭제 중..." : "삭제"}</span>
           </button>
         </>
@@ -1007,7 +1100,10 @@ function CharacterDetailContent({ params: paramsPromise }) {
             className={`${createStyles.topTabButton} ${activeNav === "world" ? createStyles.active : ""}`}
             onClick={handleSelectWorld}
           >
-            <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+            <span
+              className="material-icons-outlined icon_24"
+              style={{ display: "inline-flex", alignItems: "center" }}
+            >
               history_edu
             </span>
             <span className="kr_body_b">{worldTitle}</span>
@@ -1019,7 +1115,10 @@ function CharacterDetailContent({ params: paramsPromise }) {
               className={createStyles.topTabButton}
               onClick={handleToggleCharacterAccordion}
             >
-              <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+              <span
+                className="material-icons-outlined icon_24"
+                style={{ display: "inline-flex", alignItems: "center" }}
+              >
                 person
               </span>
               <span className="kr_body_b">캐릭터</span>
@@ -1036,18 +1135,32 @@ function CharacterDetailContent({ params: paramsPromise }) {
                       onClick={() => router.push(`/characters/${char.id}`, { scroll: false })}
                     >
                       {String(char.id) === String(id) ? (
-                        <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+                        <span
+                          className="material-icons-outlined icon_24"
+                          style={{ display: "inline-flex", alignItems: "center" }}
+                        >
                           auto_stories
                         </span>
                       ) : (
-                        <span className="icon_24" style={{ display: "inline-flex", width: "24px", height: "24px", flexShrink: 0 }} />
+                        <span
+                          className="icon_24"
+                          style={{
+                            display: "inline-flex",
+                            width: "24px",
+                            height: "24px",
+                            flexShrink: 0,
+                          }}
+                        />
                       )}
                       <span className="kr_body_b">{char.name}</span>
                     </div>
                   ))
                 ) : (
                   <div className={`${createStyles.topSubItem} ${createStyles.active}`}>
-                    <span className="material-icons-outlined icon_24" style={{ display: "inline-flex", alignItems: "center" }}>
+                    <span
+                      className="material-icons-outlined icon_24"
+                      style={{ display: "inline-flex", alignItems: "center" }}
+                    >
                       auto_stories
                     </span>
                     <span className="kr_body_b">{characterName}</span>
@@ -1062,14 +1175,19 @@ function CharacterDetailContent({ params: paramsPromise }) {
       {/* 메인 본문: 사이드바 + CharacterDetail */}
       <main className={createStyles.mainBody}>
         <div className={createStyles.desktopSidebarWrapper}>
-          <Sidebar
-            topContent={sidebarTopContent}
-            bottomContent={sidebarBottomContent}
-          />
+          <Sidebar topContent={sidebarTopContent} bottomContent={sidebarBottomContent} />
         </div>
 
         {/* 메인 폼 위치에 CharacterDetail 컴포넌트 배치 */}
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", position: "relative" }}>
+        <div
+          style={{
+            flex: 1,
+            minWidth: 0,
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
+          }}
+        >
           {loading && !character ? (
             <div style={{ padding: "40px", textAlign: "center" }}>
               <span className="kr_body_b">캐릭터 정보 불러오는 중...</span>
@@ -1077,44 +1195,70 @@ function CharacterDetailContent({ params: paramsPromise }) {
           ) : (
             <>
               {loading && character && (
-                <div style={{
-                  position: "absolute",
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  backgroundColor: "#0f111a",
-                  zIndex: 50,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: "16px"
-                }}>
-                  <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>캐릭터 변경 중...</span>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: "#0f111a",
+                    zIndex: 50,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "16px",
+                  }}
+                >
+                  <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>
+                    캐릭터 변경 중...
+                  </span>
                 </div>
               )}
               {isWorldRegenerating && (
-                <div style={{
-                  position: "absolute",
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  backgroundColor: "rgba(15, 17, 26, 0.7)",
-                  zIndex: 49,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: "16px",
-                  backdropFilter: "blur(4px)"
-                }}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: "rgba(15, 17, 26, 0.7)",
+                    zIndex: 49,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "16px",
+                    backdropFilter: "blur(4px)",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "12px",
+                    }}
+                  >
                     <div className="spinner"></div>
-                    <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>세계관 이미지 생성 중...</span>
+                    <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>
+                      세계관 이미지 생성 중...
+                    </span>
                   </div>
                 </div>
               )}
               <CharacterDetail
-                character={character ? { 
-                  ...character, 
-                  image_url: activeNav === "world" 
-                    ? (selectedWorldImage || character?.worlds?.image_url) 
-                    : (selectedImage || character?.image_url) 
-                } : null}
+                character={
+                  character
+                    ? {
+                        ...character,
+                        image_url:
+                          activeNav === "world"
+                            ? selectedWorldImage || character?.worlds?.image_url
+                            : selectedImage || character?.image_url,
+                      }
+                    : null
+                }
                 activeNav={activeNav}
                 onRegenerateImage={handleRegenerateImage}
                 onSaveImage={handleSaveMainImage}
@@ -1124,7 +1268,9 @@ function CharacterDetailContent({ params: paramsPromise }) {
                 currentUser={currentUser}
                 comments={activeNav === "world" ? worldComments : comments}
                 onAddComment={activeNav === "world" ? handleAddWorldComment : handleAddComment}
-                isSubmittingComment={activeNav === "world" ? isSubmittingWorldComment : isSubmittingComment}
+                isSubmittingComment={
+                  activeNav === "world" ? isSubmittingWorldComment : isSubmittingComment
+                }
               />
 
               {/* 모바일/태블릿용 메타 정보 및 액션 버튼 (PC에서는 숨김 처리) */}
@@ -1134,7 +1280,12 @@ function CharacterDetailContent({ params: paramsPromise }) {
                     작성자 : <span>{character?.author_name || "알 수 없음"}</span>
                   </div>
                   <div className={`kr_body ${createStyles.mobileMetaItem}`}>
-                    생성일 : <span>{character?.created_at ? new Date(character.created_at).toLocaleDateString("ko-KR") : "-"}</span>
+                    생성일 :{" "}
+                    <span>
+                      {character?.created_at
+                        ? new Date(character.created_at).toLocaleDateString("ko-KR")
+                        : "-"}
+                    </span>
                   </div>
                   <div className={`kr_body ${createStyles.mobileMetaItem}`}>
                     조회수 : <span>{character?.view_count ?? 0}</span>
@@ -1143,13 +1294,20 @@ function CharacterDetailContent({ params: paramsPromise }) {
                     좋아요 : <span>{activeNav === "world" ? worldLikes : likes}</span>
                   </div>
                 </div>
-                
+
                 {isOwner ? (
                   <div className={createStyles.mobileActionGrid}>
-                    <button className={`kr_body_b ${createStyles.actionBtnPrimary}`} onClick={handleEdit}>
+                    <button
+                      className={`kr_body_b ${createStyles.actionBtnPrimary}`}
+                      onClick={handleEdit}
+                    >
                       수정
                     </button>
-                    <button className={`kr_body_b ${createStyles.actionBtnSecondary}`} onClick={handleDelete} disabled={isDeleting}>
+                    <button
+                      className={`kr_body_b ${createStyles.actionBtnSecondary}`}
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                    >
                       {isDeleting ? "삭제 중..." : "삭제"}
                     </button>
                   </div>
@@ -1160,17 +1318,37 @@ function CharacterDetailContent({ params: paramsPromise }) {
                       onClick={activeNav === "world" ? handleWorldLikeToggle : handleLikeToggle}
                       disabled={activeNav === "world" ? isWorldLiking : isLiking}
                     >
-                      <span className="material-symbols-outlined icon_24" style={(activeNav === "world" ? isWorldLiked : isLiked) ? { fontVariationSettings: "'FILL' 1" } : undefined}>favorite</span>
+                      <span
+                        className="material-symbols-outlined icon_24"
+                        style={
+                          (activeNav === "world" ? isWorldLiked : isLiked)
+                            ? { fontVariationSettings: "'FILL' 1" }
+                            : undefined
+                        }
+                      >
+                        favorite
+                      </span>
                     </button>
                     <button className={createStyles.actionBtnIcon} onClick={handleShare}>
                       <span className="material-symbols-outlined icon_24">share</span>
                     </button>
                     <button
                       className={`${createStyles.actionBtnIcon} ${(activeNav === "world" ? isWorldBookmarked : isBookmarked) ? createStyles.active : ""}`}
-                      onClick={activeNav === "world" ? handleWorldBookmarkToggle : handleBookmarkToggle}
+                      onClick={
+                        activeNav === "world" ? handleWorldBookmarkToggle : handleBookmarkToggle
+                      }
                       disabled={activeNav === "world" ? isWorldBookmarking : isBookmarking}
                     >
-                      <span className="material-symbols-outlined icon_24" style={(activeNav === "world" ? isWorldBookmarked : isBookmarked) ? { fontVariationSettings: "'FILL' 1" } : undefined}>bookmark</span>
+                      <span
+                        className="material-symbols-outlined icon_24"
+                        style={
+                          (activeNav === "world" ? isWorldBookmarked : isBookmarked)
+                            ? { fontVariationSettings: "'FILL' 1" }
+                            : undefined
+                        }
+                      >
+                        bookmark
+                      </span>
                     </button>
                   </div>
                 )}
@@ -1195,16 +1373,11 @@ function CharacterDetailContent({ params: paramsPromise }) {
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onSuccess={(user) => {
-          console.log("로그인 성공:", user);
           window.location.reload();
         }}
       />
 
-      <HelpModal
-        isOpen={isHelpModalOpen}
-        onClose={() => setIsHelpModalOpen(false)}
-        mode="detail"
-      />
+      <HelpModal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)} mode="detail" />
 
       {/* 하단 풋터 (PC에서만 표시) */}
       <div className={createStyles.desktopFooterWrapper}>
