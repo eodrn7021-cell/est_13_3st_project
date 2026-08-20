@@ -78,7 +78,6 @@ const RecommendedCharacters = () => {
   `);
 
       if (error) {
-        console.error("추천 캐릭터 조회 실패:", error);
         setErrorMessage("데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
         setIsLoading(false);
         return;
