@@ -63,7 +63,6 @@ export default function CharacterDetail({
       document.body.removeChild(link);
       URL.revokeObjectURL(blobUrl);
     } catch (err) {
-      console.warn("이미지 다운로드 예외 발생, 새 창으로 열기:", err);
       window.open(character.image_url, "_blank");
     }
   };

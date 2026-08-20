@@ -23,7 +23,6 @@ export async function GET(request) {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("세계관 코멘트 조회 오류:", error);
       return NextResponse.json(
         { error: "코멘트를 불러오는 중 오류가 발생했습니다.", details: error },
         { status: 500 }
@@ -62,7 +61,6 @@ export async function GET(request) {
 
     return NextResponse.json({ success: true, comments: formattedComments });
   } catch (err) {
-    console.error("세계관 코멘트 GET 예외:", err);
     return NextResponse.json(
       { error: "서버 오류가 발생했습니다." },
       { status: 500 }
@@ -107,7 +105,6 @@ export async function POST(request) {
       .single();
 
     if (insertError) {
-      console.error("세계관 코멘트 등록 오류:", insertError);
       return NextResponse.json(
         { error: "코멘트 등록 중 오류가 발생했습니다." },
         { status: 500 }
@@ -131,7 +128,6 @@ export async function POST(request) {
 
     return NextResponse.json({ success: true, comment: formattedComment });
   } catch (err) {
-    console.error("세계관 코멘트 POST 예외:", err);
     return NextResponse.json(
       { error: "서버 오류가 발생했습니다." },
       { status: 500 }

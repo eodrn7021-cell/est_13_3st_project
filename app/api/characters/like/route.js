@@ -46,7 +46,6 @@ export async function POST(request) {
       .maybeSingle();
 
     if (checkError) {
-      console.error("좋아요 상태 확인 오류:", checkError);
       return NextResponse.json(
         { error: "좋아요 상태 확인 중 오류가 발생했습니다." },
         { status: 500 }
@@ -63,7 +62,6 @@ export async function POST(request) {
         .eq("id", existingLike.id);
 
       if (deleteError) {
-        console.error("좋아요 취소 실패:", deleteError);
         return NextResponse.json(
           { error: "좋아요 취소 중 오류가 발생했습니다." },
           { status: 500 }
@@ -79,7 +77,6 @@ export async function POST(request) {
         });
 
       if (insertError) {
-        console.error("좋아요 등록 실패:", insertError);
         return NextResponse.json(
           { error: "좋아요 등록 중 오류가 발생했습니다." },
           { status: 500 }
@@ -95,7 +92,6 @@ export async function POST(request) {
       .eq("character_id", characterId);
 
     if (countError) {
-      console.error("좋아요 카운트 오류:", countError);
     }
 
     return NextResponse.json({
@@ -104,7 +100,6 @@ export async function POST(request) {
       likes: typeof likesCount === "number" ? likesCount : 0,
     });
   } catch (err) {
-    console.error("좋아요 토글 예외 처리:", err);
     return NextResponse.json(
       { error: "좋아요 처리 중 오류가 발생했습니다." },
       { status: 500 }

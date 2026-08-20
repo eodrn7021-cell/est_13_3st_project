@@ -31,7 +31,6 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
       });
 
       if (error) {
-        console.error("로그인 오류:", error.message);
         setErrorMsg(error.message || "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
       } else {
         alert("로그인되었습니다!");
@@ -39,7 +38,6 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
         if (onClose) onClose();
       }
     } catch (err) {
-      console.error("로그인 예외:", err);
       setErrorMsg("로그인 처리 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);

@@ -46,7 +46,6 @@ export async function POST(request) {
         .single();
 
       if (worldError) {
-        console.error("세계관 DB 저장 실패:", worldError);
         return NextResponse.json(
           { error: "세계관 저장 중 오류가 발생했습니다: " + worldError.message },
           { status: 500 }
@@ -83,7 +82,6 @@ export async function POST(request) {
       .single();
 
     if (charError) {
-      console.error("캐릭터 DB 저장 실패:", charError);
       if (isNewWorldCreated) {
         await supabase.from("worlds").delete().eq("id", worldId);
       }
@@ -112,7 +110,6 @@ export async function POST(request) {
           .insert(relationsToInsert);
         
         if (relError) {
-          console.error("캐릭터 관계 정보 저장 실패:", relError);
         }
       }
     }
@@ -123,7 +120,6 @@ export async function POST(request) {
       characterId: insertedChar.id,
     });
   } catch (err) {
-    console.error("서버 처리 중 전체 예외 발생:", err);
     return NextResponse.json(
       { error: "서버 처리 중 오류가 발생했습니다." },
       { status: 500 }
