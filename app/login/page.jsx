@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AuthButton from "@/components/form/AuthButton/AuthButton";
 import AuthInput from "@/components/form/AuthInput/AuthInput";
@@ -10,7 +9,6 @@ import { createClient } from "@/lib/supabase/client";
 import styles from "./login.module.scss";
 
 const LoginPage = () => {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -66,7 +64,7 @@ const LoginPage = () => {
     // 로그인 성공 → 원래 이용하려던 페이지로 이동
     const redirectPath = getRedirectPath();
 
-    router.replace(redirectPath);
+    window.location.replace(redirectPath);
   };
 
   const handleGoogleLogin = async () => {
