@@ -32,6 +32,8 @@ let cachedWorldCharacters = [];
 let cachedIsOwner = false;
 let cachedDbImageHistory = [];
 
+const generatingSet = new Set();
+
 function CharacterDetailContent({ params: paramsPromise }) {
   const params = use(paramsPromise);
   const { id } = params;
@@ -95,6 +97,19 @@ function CharacterDetailContent({ params: paramsPromise }) {
   const [charProgress, setCharProgress] = useState(0);
   const [isWorldRegenerating, setIsWorldRegenerating] = useState(false);
   const [worldProgress, setWorldProgress] = useState(0);
+
+  // 생성 중 이탈 방지
+  useEffect(() => {
+    const isGenerating = isRegenerating || isWorldRegenerating || isGeneratingMode;
+    const handleBeforeUnload = (e) => {
+      if (isGenerating) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isRegenerating, isWorldRegenerating, isGeneratingMode]);
 
   useEffect(() => {
     let interval;
@@ -354,7 +369,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
     }
   };
 
-  const generationTriggered = useRef(false);
+
   const viewRecorded = useRef(false);
 
   useEffect(() => {
@@ -545,8 +560,8 @@ function CharacterDetailContent({ params: paramsPromise }) {
         // 모든 데이터(이미지 히스토리 포함) 로딩 완료 후 로딩 상태 해제
         setLoading(false);
         // 새로고침 시 무한 자동 생성을 막기 위해, isGeneratingMode일 때만 1회 실행
-        if (isGeneratingMode && !generationTriggered.current) {
-          generationTriggered.current = true;
+        if (isGeneratingMode && !generatingSet.has(data.id)) {
+          generatingSet.add(data.id);
 
           if (generatingMode === "all" || generatingMode === "true") {
             triggerImageGeneration(data.id).then(() => {
@@ -1334,38 +1349,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
                   </span>
                 </div>
               )}
-              {isWorldRegenerating && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: "rgba(15, 17, 26, 0.7)",
-                    zIndex: 49,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: "16px",
-                    backdropFilter: "blur(4px)",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: "12px",
-                    }}
-                  >
-                    <div className="spinner"></div>
-                    <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>
-                      세계관 이미지 생성 중...
-                    </span>
-                  </div>
-                </div>
-              )}
+
               {loading && !cachedCharacter && (
                 <div style={{
                   position: "absolute",
@@ -1380,9 +1364,9 @@ function CharacterDetailContent({ params: paramsPromise }) {
                   <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>캐릭터 조회중...</span>
                 </div>
               )}
-              {isRegenerating && activeNav === "character" && (
+              {isRegenerating && (
                 <div style={{
-                  position: "absolute",
+                  position: "fixed",
                   top: 0, left: 0, right: 0, bottom: 0,
                   backgroundColor: "rgba(15, 17, 26, 0.7)",
                   zIndex: 49,
@@ -1405,9 +1389,9 @@ function CharacterDetailContent({ params: paramsPromise }) {
                   </div>
                 </div>
               )}
-              {isWorldRegenerating && activeNav === "world" && (
+              {isWorldRegenerating && (
                 <div style={{
-                  position: "absolute",
+                  position: "fixed",
                   top: 0, left: 0, right: 0, bottom: 0,
                   backgroundColor: "rgba(15, 17, 26, 0.7)",
                   zIndex: 49,
