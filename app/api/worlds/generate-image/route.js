@@ -100,7 +100,7 @@ export async function POST(request) {
         
         if (openaiData?.error?.message) {
           lastErrorMsg = openaiData.error.message;
-응답 에러:`, lastErrorMsg);
+
         }
       } catch (err) {
         lastErrorMsg = err.message;
