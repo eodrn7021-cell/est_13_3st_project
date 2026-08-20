@@ -105,15 +105,15 @@ const CharactersContent = () => {
         let filteredQ = q;
         if (raceFilter) filteredQ = filteredQ.eq('race', raceFilter);
 
-        if (genderFilter) {
-          const genders = genderFilter
+        if (raceFilter) {
+          const races = raceFilter
             .split(',')
-            .map((g) => g.trim())
+            .map((r) => r.trim())
             .filter(Boolean);
-          if (genders.length > 1) {
-            filteredQ = filteredQ.in('gender', genders);
-          } else if (genders.length === 1) {
-            filteredQ = filteredQ.eq('gender', genders[0]);
+          if (races.length > 1) {
+            filteredQ = filteredQ.in('race', races);
+          } else if (races.length === 1) {
+            filteredQ = filteredQ.eq('race', races[0]);
           }
         }
 
@@ -136,7 +136,6 @@ const CharactersContent = () => {
       const { data, error } = await applyFilters(baseQuery);
 
       if (error) {
-        console.error('Supabase Error:', error);
         const fallbackBaseQuery = supabase
           .from('characters')
           .select('*, worlds(*), character_likes(count)');
@@ -163,7 +162,8 @@ const CharactersContent = () => {
       } else {
         const rawData = data || [];
 
-        const sortedData = [...rawData].sort((a, b) => {
+        const filteredData = rawData.filter((item) => item.image_url);
+        const sortedData = [...filteredData].sort((a, b) => {
           const likesA = a.character_likes?.[0]?.count || a.like_count || 0;
           const likesB = b.character_likes?.[0]?.count || b.like_count || 0;
           const viewsA = a.view_count || 0;
@@ -263,12 +263,18 @@ const CharactersContent = () => {
         return { ...item, matchCount };
       })
       .filter((item) => item.matchCount > 0)
-      .sort((a, b) => b.matchCount - a.matchCount);
+      .sort((a, b) => {
+        // 1순위: 일치하는 태그 개수가 많은 순서 (내림차순)
+        if (b.matchCount !== a.matchCount) {
+          return b.matchCount - a.matchCount;
+        }
+        // 2순위: 태그 개수가 같다면 캐릭터 이름 가나다순(오름차순) 정렬
+        return (a.name || '').localeCompare(b.name || '', 'ko');
+      });
   };
 
   const displayList = processDisplayList();
 
-  // ★ [수정] 고정값 4 대신 반응형 상태값(columnCount)을 전달
   const finalDisplayList = reorderForColumnLayout(displayList, columnCount);
 
   const sortedByLikes = [...displayList].sort((a, b) => {
@@ -410,7 +416,7 @@ const CharactersContent = () => {
             <div className={styles.card_grid_container}>
               {isLoading ? (
                 <div className={styles.card_grid}>
-                  {Array.from({ length: 20 }).map((_, index) => (
+                  {Array.from({ length: 16 }).map((_, index) => (
                     <div key={index} className={styles.skeleton_card} />
                   ))}
                 </div>
