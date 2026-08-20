@@ -129,7 +129,7 @@ export async function POST(request) {
         
         if (openaiData?.error?.message) {
           lastErrorMsg = openaiData.error.message;
-          console.warn(`OpenAI 재생성 모델 (${modelName}) 응답 에러:`, lastErrorMsg);
+
         }
       } catch (err) {
         lastErrorMsg = err.message;
@@ -174,11 +174,9 @@ export async function POST(request) {
             publicUrl = publicUrlObj.publicUrl;
           }
         } else if (uploadErr) {
-          console.warn("Supabase 스토리지 업로드 실패 경고:", uploadErr.message);
         }
       }
     } catch (storageErr) {
-      console.warn("스토리지 업로드 중 오류 발생, 원본 URL 사용:", storageErr);
     }
 
     const insertPayload = {
@@ -197,9 +195,7 @@ export async function POST(request) {
       .select();
 
     if (histErr) {
-      console.error("character_images 히스토리 저장 실패:", histErr.message);
     } else {
-      console.log("character_images DB 저장 성공:", histRes);
     }
 
     return NextResponse.json({
@@ -207,7 +203,6 @@ export async function POST(request) {
       imageUrl: publicUrl,
     });
   } catch (err) {
-    console.error("이미지 재생성 API 처리 중 예외 발생:", err);
     return NextResponse.json(
       { error: "이미지 재생성 처리 중 예외가 발생했습니다." },
       { status: 500 }

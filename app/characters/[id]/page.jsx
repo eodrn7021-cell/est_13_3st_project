@@ -12,6 +12,7 @@ import CharacterDetail from "@/components/character/CharacterDetail/CharacterDet
 import Button from "@/components/common/Button/Button";
 import LoginModal from "@/components/auth/LoginModal/LoginModal";
 import ConfirmModal from "@/components/common/Modal/ConfirmModal";
+import Toast from "@/components/common/Toast/Toast";
 import HelpModal from "@/components/character/HelpModal/HelpModal";
 import { createClient } from "@/lib/supabase/client";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
@@ -40,8 +41,37 @@ function CharacterDetailContent({ params: paramsPromise }) {
   const [generatingMode] = useState(searchParams.get("generating"));
   const [isGeneratingMode] = useState(Boolean(generatingMode));
 
+  const [toastMessage, setToastMessage] = useState("");
+  const showToast = (message) => setToastMessage(message);
+
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    confirmText: "확인",
+    cancelText: "취소",
+    onConfirm: null,
+    onCancel: null,
+  });
+
+  const closeConfirmModal = () => setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+
+  const promptLogin = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: "알림",
+      message: "로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?",
+      confirmText: "로그인",
+      cancelText: "취소",
+      onConfirm: () => {
+        closeConfirmModal();
+        setIsLoginModalOpen(true);
+      },
+      onCancel: closeConfirmModal,
+    });
+  };
+
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   const [isLiked, setIsLiked] = useState(() => Boolean(cachedCharacter?.initialIsLiked));
@@ -60,8 +90,45 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
   const [character, setCharacter] = useState(() => cachedCharacter);
   const [loading, setLoading] = useState(!cachedCharacter);
+  const [notFound, setNotFound] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [charProgress, setCharProgress] = useState(0);
   const [isWorldRegenerating, setIsWorldRegenerating] = useState(false);
+  const [worldProgress, setWorldProgress] = useState(0);
+
+  useEffect(() => {
+    let interval;
+    if (isRegenerating) {
+      setCharProgress(0);
+      interval = setInterval(() => {
+        setCharProgress((prev) => {
+          if (prev < 90) return prev + Math.floor(Math.random() * 5) + 1;
+          return 90;
+        });
+      }, 300);
+    } else {
+      setCharProgress(100);
+      setTimeout(() => setCharProgress(0), 500);
+    }
+    return () => clearInterval(interval);
+  }, [isRegenerating]);
+
+  useEffect(() => {
+    let interval;
+    if (isWorldRegenerating) {
+      setWorldProgress(0);
+      interval = setInterval(() => {
+        setWorldProgress((prev) => {
+          if (prev < 90) return prev + Math.floor(Math.random() * 5) + 1;
+          return 90;
+        });
+      }, 300);
+    } else {
+      setWorldProgress(100);
+      setTimeout(() => setWorldProgress(0), 500);
+    }
+    return () => clearInterval(interval);
+  }, [isWorldRegenerating]);
   const [dbImageHistory, setDbImageHistory] = useState(() => cachedDbImageHistory);
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -95,7 +162,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
         cachedDbImageHistory = json?.images || [];
       }
     } catch (err) {
-      console.warn("이미지 히스토리 조회 오류:", err);
     }
   };
 
@@ -108,7 +174,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
         setDbWorldImageHistory(json?.images || []);
       }
     } catch (err) {
-      console.warn("세계관 이미지 히스토리 조회 오류:", err);
     }
   };
 
@@ -124,8 +189,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
       const result = await res.json();
 
       if (!res.ok || result.error) {
-        console.error("이미지 생성 중 오류:", result.error);
-        alert(result.error || "이미지 생성 중 오류가 발생했습니다.");
+        showToast(result.error || "이미지 생성 중 오류가 발생했습니다.");
         setIsRegenerating(false);
         return;
       }
@@ -150,12 +214,11 @@ function CharacterDetailContent({ params: paramsPromise }) {
           }));
         }
       } catch (saveErr) {
-        console.error("자동 대표 이미지 저장 중 오류:", saveErr);
       }
 
       await fetchImageHistory(charId || id);
     } catch (err) {
-      console.error("자동 이미지 생성 요청 오류:", err);
+      showToast("이미지 생성 중 서버 연결 오류가 발생했습니다.");
     } finally {
       setIsRegenerating(false);
     }
@@ -173,7 +236,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
       const result = await res.json();
 
       if (!res.ok || result.error) {
-        console.error("세계관 이미지 생성 중 오류:", result.error);
+        showToast(result.error || "세계관 이미지 생성 중 오류가 발생했습니다.");
         setIsWorldRegenerating(false);
         return;
       }
@@ -201,10 +264,9 @@ function CharacterDetailContent({ params: paramsPromise }) {
           await fetchWorldImageHistory(worldId);
         }
       } catch (saveErr) {
-        console.error("세계관 메인 이미지 저장 중 오류:", saveErr);
       }
     } catch (err) {
-      console.error("세계관 이미지 생성 요청 오류:", err);
+      showToast("세계관 이미지 생성 중 서버 연결 오류가 발생했습니다.");
     } finally {
       setIsWorldRegenerating(false);
     }
@@ -224,7 +286,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
     if (activeNav === "world") {
       const targetImage = selectedWorldImage || character?.worlds?.image_url;
       if (!targetImage || !character?.world_id) {
-        alert("저장할 세계관 이미지가 선택되지 않았습니다.");
+        showToast("저장할 세계관 이미지가 선택되지 않았습니다.");
         return;
       }
 
@@ -240,7 +302,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
         const result = await res.json();
         if (!res.ok || result.error) {
-          alert(result.error || "대표 이미지 저장 실패");
+          showToast(result.error || "대표 이미지 저장 실패");
           return;
         }
 
@@ -253,15 +315,14 @@ function CharacterDetailContent({ params: paramsPromise }) {
             : prev,
         );
         await fetchWorldImageHistory(character.world_id);
-        alert("선택한 이미지가 세계관 대표 이미지로 지정 및 저장되었습니다!");
+        showToast("선택한 이미지가 세계관 대표 이미지로 지정 및 저장되었습니다!");
       } catch (err) {
-        console.error("세계관 대표 이미지 저장 오류:", err);
-        alert("세계관 대표 이미지 저장 중 오류가 발생했습니다.");
+        showToast("세계관 대표 이미지 저장 중 오류가 발생했습니다.");
       }
     } else {
       const targetImage = selectedImage || character?.image_url;
       if (!targetImage || !id) {
-        alert("저장할 이미지가 선택되지 않았습니다.");
+        showToast("저장할 이미지가 선택되지 않았습니다.");
         return;
       }
 
@@ -277,7 +338,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
         const result = await res.json();
         if (!res.ok || result.error) {
-          alert(result.error || "대표 이미지 저장 실패");
+          showToast(result.error || "대표 이미지 저장 실패");
           return;
         }
 
@@ -286,10 +347,9 @@ function CharacterDetailContent({ params: paramsPromise }) {
           image_url: targetImage,
         }));
         await fetchImageHistory(id);
-        alert("선택한 이미지가 캐릭터 대표 이미지로 지정 및 저장되었습니다!");
+        showToast("선택한 이미지가 캐릭터 대표 이미지로 지정 및 저장되었습니다!");
       } catch (err) {
-        console.error("대표 이미지 저장 오류:", err);
-        alert("대표 이미지 저장 중 오류가 발생했습니다.");
+        showToast("대표 이미지 저장 중 오류가 발생했습니다.");
       }
     }
   };
@@ -304,12 +364,18 @@ function CharacterDetailContent({ params: paramsPromise }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ characterId: id }),
-      }).catch((err) => console.error("조회수 증가 호출 실패:", err));
+      }).catch((err) => {});
     }
     // 캐시가 없거나 다른 캐릭터를 처음 진입할 때만 초기화
     if (!cachedCharacter || cachedCharacter.id !== id) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(true);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDbImageHistory([]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDbWorldImageHistory([]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setWorldCharacters([]);
     }
     setSelectedImage(null);
     setSelectedWorldImage(null);
@@ -337,7 +403,13 @@ function CharacterDetailContent({ params: paramsPromise }) {
         .from("characters")
         .select("*, worlds(*)")
         .eq("id", id)
-        .single();
+        .maybeSingle();
+
+      if (!data) {
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
 
       if (data) {
         // 작성자 프로필, 좋아요 수, 로그인한 유저의 좋아요/북마크 상태 병렬 조회
@@ -387,6 +459,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
         setLikes(likesCount || 0);
         setLoading(false);
 
+        
         // 현재 접속 중인 유저가 존재하고, 그 유저의 ID가 캐릭터의 creator_id와 같을 때만 소유자로 판단
         const ownerCheck = Boolean(user && data.creator_id === user.id);
         setIsOwner(ownerCheck);
@@ -423,12 +496,11 @@ function CharacterDetailContent({ params: paramsPromise }) {
             setIsWorldLiked(Boolean(wLikeData));
             setIsWorldBookmarked(Boolean(wBookmarkData));
           } catch (wErr) {
-            console.error("세계관 좋아요/북마크 조회 오류:", wErr);
           }
         }
 
-        // 생성창이 아닐 때만 해당 세계관의 다른 캐릭터들 조회
-        if (!isGeneratingMode && data.world_id) {
+        // 해당 세계관의 다른 캐릭터들 조회 (생성 중에도 기존 세계관 캐릭터 목록을 볼 수 있게 함)
+        if (data.world_id) {
           const { data: chars } = await supabase
             .from("characters")
             .select("id, name")
@@ -451,7 +523,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
             }
           }
         } catch (commentErr) {
-          console.error("코멘트 조회 오류:", commentErr);
         }
 
         // 세계관 코멘트 조회
@@ -465,12 +536,14 @@ function CharacterDetailContent({ params: paramsPromise }) {
               }
             }
           } catch (wCommentErr) {
-            console.error("세계관 코멘트 조회 오류:", wCommentErr);
           }
           await fetchWorldImageHistory(data.world_id);
         }
 
         await fetchImageHistory(data.id);
+
+        // 모든 데이터(이미지 히스토리 포함) 로딩 완료 후 로딩 상태 해제
+        setLoading(false);
         // 새로고침 시 무한 자동 생성을 막기 위해, isGeneratingMode일 때만 1회 실행
         if (isGeneratingMode && !generationTriggered.current) {
           generationTriggered.current = true;
@@ -510,7 +583,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
   const handleLikeToggle = async () => {
     if (!currentUser) {
-      setIsConfirmModalOpen(true);
+      promptLogin();
       return;
     }
     if (isLiking || !id) return;
@@ -553,7 +626,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
               }
             : prev,
         );
-        alert(result.error || "좋아요 처리 중 오류가 발생했습니다.");
+        showToast(result.error || "좋아요 처리 중 오류가 발생했습니다.");
         return;
       }
 
@@ -569,7 +642,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
           : prev,
       );
     } catch (err) {
-      console.error("좋아요 처리 중 예외 발생:", err);
       setIsLiked(prevIsLiked);
       setLikes(prevLikes);
       setCharacter((prev) =>
@@ -587,7 +659,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
   };
 
   const handleLoginConfirm = () => {
-    setIsConfirmModalOpen(false);
+    closeConfirmModal();
     router.push("/login");
   };
 
@@ -595,16 +667,15 @@ function CharacterDetailContent({ params: paramsPromise }) {
     try {
       if (typeof window !== "undefined") {
         await navigator.clipboard.writeText(window.location.href);
-        alert("캐릭터 링크가 클립보드에 복사되었습니다.");
+        showToast("캐릭터 링크가 클립보드에 복사되었습니다.");
       }
     } catch (err) {
-      console.error("공유 링크 복사 실패:", err);
     }
   };
 
   const handleAddComment = async (content) => {
     if (!currentUser) {
-      setIsConfirmModalOpen(true);
+      promptLogin();
       return;
     }
     if (isSubmittingComment || !content?.trim() || !id) return;
@@ -620,15 +691,14 @@ function CharacterDetailContent({ params: paramsPromise }) {
       const result = await res.json();
 
       if (!res.ok || !result.success) {
-        alert(result.error || "코멘트 등록 중 오류가 발생했습니다.");
+        showToast(result.error || "코멘트 등록 중 오류가 발생했습니다.");
         return;
       }
 
       // 새 코멘트를 목록 맨 앞에 추가
       setComments((prev) => [result.comment, ...prev]);
     } catch (err) {
-      console.error("코멘트 등록 예외:", err);
-      alert("코멘트 등록 중 오류가 발생했습니다.");
+      showToast("코멘트 등록 중 오류가 발생했습니다.");
     } finally {
       setIsSubmittingComment(false);
     }
@@ -636,7 +706,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
   const handleAddWorldComment = async (content) => {
     if (!currentUser) {
-      setIsConfirmModalOpen(true);
+      promptLogin();
       return;
     }
     const targetWorldId = character?.world_id;
@@ -653,14 +723,13 @@ function CharacterDetailContent({ params: paramsPromise }) {
       const result = await res.json();
 
       if (!res.ok || !result.success) {
-        alert(result.error || "코멘트 등록 중 오류가 발생했습니다.");
+        showToast(result.error || "코멘트 등록 중 오류가 발생했습니다.");
         return;
       }
 
       setWorldComments((prev) => [result.comment, ...prev]);
     } catch (err) {
-      console.error("세계관 코멘트 등록 예외:", err);
-      alert("코멘트 등록 중 오류가 발생했습니다.");
+      showToast("코멘트 등록 중 오류가 발생했습니다.");
     } finally {
       setIsSubmittingWorldComment(false);
     }
@@ -668,7 +737,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
   const handleBookmarkToggle = async () => {
     if (!currentUser) {
-      setIsConfirmModalOpen(true);
+      promptLogin();
       return;
     }
     if (isBookmarking || !id) return;
@@ -706,7 +775,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
               }
             : prev,
         );
-        alert(result.error || "북마크 처리 중 오류가 발생했습니다.");
+        showToast(result.error || "북마크 처리 중 오류가 발생했습니다.");
         return;
       }
 
@@ -720,7 +789,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
           : prev,
       );
     } catch (err) {
-      console.error("북마크 처리 중 예외 발생:", err);
       setIsBookmarked(prevIsBookmarked);
       setCharacter((prev) =>
         prev
@@ -737,7 +805,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
   const handleWorldLikeToggle = async () => {
     if (!currentUser) {
-      setIsConfirmModalOpen(true);
+      promptLogin();
       return;
     }
     const targetWorldId = character?.world_id;
@@ -762,14 +830,13 @@ function CharacterDetailContent({ params: paramsPromise }) {
       if (!res.ok || !result.success) {
         setIsWorldLiked(prevIsLiked);
         setWorldLikes(prevLikes);
-        alert(result.error || "좋아요 처리 중 오류가 발생했습니다.");
+        showToast(result.error || "좋아요 처리 중 오류가 발생했습니다.");
         return;
       }
 
       setIsWorldLiked(result.isLiked);
       setWorldLikes(result.likes);
     } catch (err) {
-      console.error("세계관 좋아요 처리 중 예외 발생:", err);
       setIsWorldLiked(prevIsLiked);
       setWorldLikes(prevLikes);
     } finally {
@@ -779,7 +846,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
   const handleWorldBookmarkToggle = async () => {
     if (!currentUser) {
-      setIsConfirmModalOpen(true);
+      promptLogin();
       return;
     }
     const targetWorldId = character?.world_id;
@@ -801,13 +868,12 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
       if (!res.ok || !result.success) {
         setIsWorldBookmarked(prevIsBookmarked);
-        alert(result.error || "북마크 처리 중 오류가 발생했습니다.");
+        showToast(result.error || "북마크 처리 중 오류가 발생했습니다.");
         return;
       }
 
       setIsWorldBookmarked(result.isBookmarked);
     } catch (err) {
-      console.error("세계관 북마크 처리 중 예외 발생:", err);
       setIsWorldBookmarked(prevIsBookmarked);
     } finally {
       setIsWorldBookmarking(false);
@@ -940,6 +1006,40 @@ function CharacterDetailContent({ params: paramsPromise }) {
                 />
               </div>
             ))}
+            {loading ? (
+              Array.from({ length: 4 }).map((_, idx) => (
+                <div
+                  key={`skeleton-${idx}`}
+                  className={sidebarStyles.thumbBox}
+                  style={{
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ color: "rgba(255,255,255,0.2)", fontSize: "24px" }}>image</span>
+                </div>
+              ))
+            ) : (
+              imageHistory.map((imgSrc, idx) => (
+                <div
+                  key={imgSrc}
+                  className={sidebarStyles.thumbBox}
+                  onClick={() => {
+                    if (activeNav === "world") {
+                      setSelectedWorldImage(imgSrc);
+                    } else {
+                      setSelectedImage(imgSrc);
+                    }
+                  }}
+                  style={{ cursor: "pointer" }}
+                >
+                  <Image src={imgSrc} alt={`생성 이미지 ${idx + 1}`} fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: 'cover' }} />
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
@@ -948,30 +1048,39 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = async () => {
-    if (!confirm("정말 이 캐릭터를 삭제하시겠습니까?\n삭제된 캐릭터는 복구할 수 없습니다.")) return;
-    setIsDeleting(true);
-    try {
-      const res = await fetch("/api/characters/delete", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ characterId: id }),
-      });
-      const result = await res.json();
-      if (!res.ok || !result.success) {
-        alert(result.error || "삭제에 실패했습니다.");
-        setIsDeleting(false);
-        return;
-      }
-      alert("캐릭터가 성공적으로 삭제되었습니다.");
-      // 모듈 단위 캐시 무효화
-      cachedCharacter = null;
-      router.push("/");
-    } catch (err) {
-      console.error("삭제 중 오류:", err);
-      alert("삭제 중 오류가 발생했습니다.");
-      setIsDeleting(false);
-    }
+  const handleDelete = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: "캐릭터 삭제",
+      message: "정말 이 캐릭터를 삭제하시겠습니까?\n삭제된 캐릭터는 복구할 수 없습니다.",
+      confirmText: "삭제",
+      cancelText: "취소",
+      onConfirm: async () => {
+        closeConfirmModal();
+        setIsDeleting(true);
+        try {
+          const res = await fetch("/api/characters/delete", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ characterId: id }),
+          });
+          const result = await res.json();
+          if (!res.ok || !result.success) {
+            showToast(result.error || "삭제에 실패했습니다.");
+            setIsDeleting(false);
+            return;
+          }
+          showToast("캐릭터가 성공적으로 삭제되었습니다.");
+          // 모듈 단위 캐시 무효화
+          cachedCharacter = null;
+          router.push("/");
+        } catch (err) {
+          showToast("삭제 중 오류가 발생했습니다.");
+          setIsDeleting(false);
+        }
+      },
+      onCancel: closeConfirmModal,
+    });
   };
 
   const handleEdit = () => {
@@ -1189,6 +1298,17 @@ function CharacterDetailContent({ params: paramsPromise }) {
           }}
         >
           {loading && !character ? (
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", position: "relative" }}>
+          {notFound ? (
+            <div style={{ padding: "100px 40px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "24px" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "64px", color: "rgba(255,255,255,0.2)" }}>search_off</span>
+              <span className="kr_h2" style={{ color: "var(--color-text-primary, #fff)" }}>존재하지 않는 캐릭터입니다.</span>
+              <span className="kr_body" style={{ color: "rgba(255, 255, 255, 0.6)" }}>URL을 다시 확인하시거나, 이미 삭제된 캐릭터일 수 있습니다.</span>
+              <Button onClick={() => router.push("/")} variant="primary" style={{ marginTop: "16px" }}>
+                메인으로 돌아가기
+              </Button>
+            </div>
+          ) : loading && !character ? (
             <div style={{ padding: "40px", textAlign: "center" }}>
               <span className="kr_body_b">캐릭터 정보 불러오는 중...</span>
             </div>
@@ -1243,6 +1363,65 @@ function CharacterDetailContent({ params: paramsPromise }) {
                     <div className="spinner"></div>
                     <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>
                       세계관 이미지 생성 중...
+                <div style={{
+                  position: "absolute",
+                  top: 0, left: 0, right: 0, bottom: 0,
+                  backgroundColor: "#0f111a",
+                  zIndex: 50,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "16px"
+                }}>
+                  <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>캐릭터 조회중...</span>
+                </div>
+              )}
+              {isRegenerating && activeNav === "character" && (
+                <div style={{
+                  position: "absolute",
+                  top: 0, left: 0, right: 0, bottom: 0,
+                  backgroundColor: "rgba(15, 17, 26, 0.7)",
+                  zIndex: 49,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "16px",
+                  backdropFilter: "blur(4px)"
+                }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", width: "80%", maxWidth: "300px" }}>
+                    <div className="spinner"></div>
+                    <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>캐릭터 이미지 생성 중...</span>
+                    <div style={{ width: "100%", height: "8px", backgroundColor: "rgba(255,255,255,0.2)", borderRadius: "4px", overflow: "hidden" }}>
+                      <div style={{ width: `${charProgress}%`, height: "100%", backgroundColor: "white", transition: "width 0.3s ease" }} />
+                    </div>
+                    <span style={{ fontSize: "14px", fontWeight: "bold", color: "white" }}>{charProgress}%</span>
+                    <span style={{ fontSize: "13px", color: "rgba(255, 255, 255, 0.7)", textAlign: "center", marginTop: "4px" }}>
+                      AI 이미지 생성으로 인해 약 15~30초 정도 소요될 수 있습니다.
+                    </span>
+                  </div>
+                </div>
+              )}
+              {isWorldRegenerating && activeNav === "world" && (
+                <div style={{
+                  position: "absolute",
+                  top: 0, left: 0, right: 0, bottom: 0,
+                  backgroundColor: "rgba(15, 17, 26, 0.7)",
+                  zIndex: 49,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "16px",
+                  backdropFilter: "blur(4px)"
+                }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", width: "80%", maxWidth: "300px" }}>
+                    <div className="spinner"></div>
+                    <span className={`kr_body_b ${createStyles.generatingOverlayText}`}>세계관 이미지 생성 중...</span>
+                    <div style={{ width: "100%", height: "8px", backgroundColor: "rgba(255,255,255,0.2)", borderRadius: "4px", overflow: "hidden" }}>
+                      <div style={{ width: `${worldProgress}%`, height: "100%", backgroundColor: "white", transition: "width 0.3s ease" }} />
+                    </div>
+                    <span style={{ fontSize: "14px", fontWeight: "bold", color: "white" }}>{worldProgress}%</span>
+                    <span style={{ fontSize: "13px", color: "rgba(255, 255, 255, 0.7)", textAlign: "center", marginTop: "4px" }}>
+                      AI 이미지 생성으로 인해 약 15~30초 정도 소요될 수 있습니다.
                     </span>
                   </div>
                 </div>
@@ -1358,15 +1537,17 @@ function CharacterDetailContent({ params: paramsPromise }) {
         </div>
       </main>
 
-      {/* 로그인 확인 모달 */}
       <ConfirmModal
-        isOpen={isConfirmModalOpen}
-        message="로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?"
-        confirmText="로그인"
-        cancelText="취소"
-        onCancel={() => setIsConfirmModalOpen(false)}
-        onConfirm={handleLoginConfirm}
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        cancelText={confirmModal.cancelText}
+        onCancel={confirmModal.onCancel}
+        onConfirm={confirmModal.onConfirm}
       />
+
+      <Toast message={toastMessage} onClose={() => setToastMessage("")} />
 
       {/* 로그인 모달 */}
       <LoginModal

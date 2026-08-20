@@ -23,7 +23,6 @@ const PopularStories = () => {
         .limit(4);
 
       if (error) {
-        console.error("인기 스토리 조회 실패:", error);
         setErrorMessage("데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
         setIsLoading(false);
         return;
@@ -50,11 +49,7 @@ const PopularStories = () => {
       <div className={styles.popular_stories_header}>
         <h2 className="kr_body_b">인기 스토리</h2>
 
-        {/* 추후 캐릭터 목록의 좋아요순 정렬과 연결 */}
-        <Link
-          href="/characters?sort=popular"
-          className={`kr_caption ${styles.popular_stories_more}`}
-        >
+        <Link href="/characters?sort=views" className={`kr_caption ${styles.popular_stories_more}`}>
           더보기
           <span
             className={`material-symbols-rounded ${styles.popular_stories_more_icon}`}

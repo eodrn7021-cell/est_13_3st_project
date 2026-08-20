@@ -11,6 +11,8 @@ import CharacterForm from "@/components/character/CharacterForm/CharacterForm";
 import WorldSelectModal from "@/components/character/WorldSelectModal/WorldSelectModal";
 import HelpModal from "@/components/character/HelpModal/HelpModal";
 import CreateMobileMenu from "@/components/character/CreateMobileMenu/CreateMobileMenu";
+import Toast from "@/components/common/Toast/Toast";
+import ConfirmModal from "@/components/common/Modal/ConfirmModal";
 import { createClient } from "@/lib/supabase/client";
 import sidebarStyles from "@/components/layout/Sidebar/Sidebar.module.scss";
 import createStyles from "./create.module.scss";
@@ -26,8 +28,32 @@ function HelpOutlineIcon() {
 export default function CreateCharacterPage({ worldData, characterListData }) {
   const router = useRouter();
 
+  const [toastMessage, setToastMessage] = useState("");
+  const showToast = (message) => setToastMessage(message);
+
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: null,
+  });
+
+  const closeConfirmModal = () => setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+
+  const [isHydrated, setIsHydrated] = useState(false);
   // 세계관 모달 및 선택 상태
   const [isModalOpen, setIsModalOpen] = useState(true);
+
+  useEffect(() => {
+    setIsHydrated(true);
+    // URL에 worldId와 charId가 있으면 즉시 모달을 닫아 깜빡임 방지
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("worldId") && params.get("charId")) {
+        setIsModalOpen(false);
+      }
+    }
+  }, []);
   const [userWorlds, setUserWorlds] = useState([]);
   const [selectedWorld, setSelectedWorld] = useState(null);
   const [existingWorldId, setExistingWorldId] = useState(null);
@@ -47,6 +73,25 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   const [isCharCheckDone, setIsCharCheckDone] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let interval;
+    if (isSubmitting) {
+      setProgress(0);
+      interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev < 90) return prev + Math.floor(Math.random() * 5) + 1;
+          return 90;
+        });
+      }, 300);
+    } else {
+      setProgress(100);
+      setTimeout(() => setProgress(0), 500);
+    }
+    return () => clearInterval(interval);
+  }, [isSubmitting]);
 
   const isAllCheckDone = isWorldCheckDone && isCharCheckDone;
 
@@ -161,7 +206,6 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
           }
         }
       } catch (err) {
-        console.warn("세계관 목록 조회 오류:", err);
       }
     };
 
@@ -208,7 +252,6 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.warn("세계관 캐릭터 목록 조회 실패:", error);
       } else if (charsData) {
         setExistingWorldCharacters(charsData);
         // 기존 세계관을 선택했으므로 캐릭터 탭이 열리도록 설정
@@ -216,7 +259,6 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         setIsCharacterOpen(true);
       }
     } catch (err) {
-      console.warn("세계관 캐릭터 목록 조회 중 예외 발생:", err);
     }
   };
 
@@ -381,9 +423,15 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   // '취소' 버튼 클릭 시 ➔ 신규 캐릭터 작성 모드로 복귀
   const handleCancelEditOrView = () => {
-    if (confirm("작성 및 수정 중인 내용이 저장되지 않을 수 있습니다.\n이전 페이지로 돌아가시겠습니까?")) {
-      router.back();
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: "확인",
+      message: "작성 및 수정 중인 내용이 저장되지 않을 수 있습니다.\n이전 페이지로 돌아가시겠습니까?",
+      onConfirm: () => {
+        closeConfirmModal();
+        router.back();
+      },
+    });
   };
 
   // '수정' 버튼 클릭 시 ➔ 편집 모드로 전환
@@ -395,7 +443,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   // '수정 정보 저장' 버튼 클릭 시 ➔ 캐릭터 DB 정보만 수정 저장
   const handleUpdateOnly = async () => {
     if (!isAllCheckDone) {
-      alert("모든 체크리스트를 채워주세요.");
+      showToast("모든 체크리스트를 채워주세요.");
       return;
     }
     if (!selectedCharObj || isSubmitting) return;
@@ -412,6 +460,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
       return;
     }
 
+    setSubmitMessage("수정된 데이터를 저장하는 중...");
     setIsSubmitting(true);
 
     try {
@@ -426,15 +475,14 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
       const result = await res.json();
       if (!res.ok || result.error) {
-        alert(result.error || "캐릭터 수정 중 오류가 발생했습니다.");
+        showToast(result.error || "캐릭터 수정 중 오류가 발생했습니다.");
         setIsSubmitting(false);
         return;
       }
 
       router.push(`/characters/${selectedCharObj.id}`);
     } catch (err) {
-      console.error("캐릭터 수정 중 에러:", err);
-      alert("서버 연결 처리 중 오류가 발생했습니다.");
+      showToast("서버 연결 처리 중 오류가 발생했습니다.");
       setIsSubmitting(false);
     }
   };
@@ -442,10 +490,11 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   // '수정 후 이미지 재생성' 버튼 클릭 시 ➔ DB 수정 + DALL-E 신규 이미지 생성 & 스토리지/히스토리 누적 저장
   const handleUpdateAndRegenerate = async () => {
     if (!isAllCheckDone) {
-      alert("모든 체크리스트를 채워주세요.");
+      showToast("모든 체크리스트를 채워주세요.");
       return;
     }
     if (!selectedCharObj || isSubmitting) return;
+    setSubmitMessage("데이터 저장 및 이미지 생성 준비 중...");
     setIsSubmitting(true);
 
     try {
@@ -466,7 +515,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
         const updateResult = await updateRes.json();
         if (!updateRes.ok || updateResult.error) {
-          alert(updateResult.error || "수정 중 오류가 발생했습니다.");
+          showToast(updateResult.error || "수정 중 오류가 발생했습니다.");
           setIsSubmitting(false);
           return;
         }
@@ -475,14 +524,14 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
       // 2. 상세 페이지로 이동하여 비동기로 이미지 재생성 (상세 페이지의 isGeneratingMode가 처리함)
       router.push(`/characters/${selectedCharObj.id}?generating=${activeNav}`);
     } catch (err) {
-      console.error("수정 후 이미지 재생성 중 에러:", err);
-      alert("서버 처리 중 오류가 발생했습니다.");
+      showToast("서버 처리 중 오류가 발생했습니다.");
       setIsSubmitting(false);
     }
   };
 
   const handleSubmit = async (data) => {
     if (isSubmitting) return;
+    setSubmitMessage("데이터 저장 및 이미지 생성 준비 중...");
     setIsSubmitting(true);
 
     try {
@@ -505,16 +554,14 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
       const result = await res.json();
 
       if (!res.ok || result.error) {
-        console.error("서버 처리 오류:", result.error);
-        alert(result.error || "캐릭터 생성 중 오류가 발생했습니다.");
+        showToast(result.error || "캐릭터 생성 중 오류가 발생했습니다.");
         setIsSubmitting(false);
         return;
       }
 
       router.push(`/characters/${result.characterId}?generating=all`);
     } catch (err) {
-      console.error("서버 요청 중 예외 발생:", err);
-      alert("서버 연결 처리 중 오류가 발생했습니다.");
+      showToast("서버 연결 처리 중 오류가 발생했습니다.");
       setIsSubmitting(false);
     }
   };
@@ -522,7 +569,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   const handleSaveClick = (e) => {
     if (e) e.preventDefault();
     if (!isAllCheckDone) {
-      alert("모든 체크리스트를 채워주세요.");
+      showToast("모든 체크리스트를 채워주세요.");
       return;
     }
     handleSubmit(formData);
@@ -701,16 +748,25 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
           flexDirection: "column",
           gap: "16px"
         }}>
-          <div style={{
-            width: "40px",
-            height: "40px",
-            border: "4px solid rgba(255, 255, 255, 0.3)",
-            borderTop: "4px solid white",
-            borderRadius: "50%",
-            animation: "spin 1s linear infinite"
-          }} />
-          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-          <p className={`kr_body_b ${createStyles.generatingOverlayText}`} style={{ fontSize: "18px" }}>데이터 저장 중...</p>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", width: "300px" }}>
+            <div style={{
+              width: "40px",
+              height: "40px",
+              border: "4px solid rgba(255, 255, 255, 0.3)",
+              borderTop: "4px solid white",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite"
+            }} />
+            <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+            <p className={`kr_body_b ${createStyles.generatingOverlayText}`} style={{ fontSize: "18px", margin: 0 }}>{submitMessage}</p>
+            <div style={{ width: "100%", height: "8px", backgroundColor: "rgba(255,255,255,0.2)", borderRadius: "4px", overflow: "hidden" }}>
+              <div style={{ width: `${progress}%`, height: "100%", backgroundColor: "white", transition: "width 0.3s ease" }} />
+            </div>
+            <span style={{ fontSize: "14px", fontWeight: "bold" }}>{progress}%</span>
+            <span style={{ fontSize: "13px", color: "rgba(255, 255, 255, 0.7)", textAlign: "center", marginTop: "4px" }}>
+              데이터베이스 저장 및 이미지 생성 작업으로 인해<br/>약 15~30초 정도 소요될 수 있습니다.
+            </span>
+          </div>
         </div>
       )}
 
@@ -851,14 +907,16 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         </div>
       </div>
 
-      {/* 세계관 선택 모달 */}
-      <WorldSelectModal
-        isOpen={isModalOpen}
-        worlds={userWorlds}
-        onSelectNewWorld={handleSelectNewWorld}
-        onSelectExistingWorld={handleSelectExistingWorld}
-        onClose={() => router.back()}
-      />
+      {/* 세계관 선택 모달 (수정 모드 진입 시 깜빡임 방지용 지연 렌더링) */}
+      {isHydrated && (
+        <WorldSelectModal
+          isOpen={isModalOpen}
+          worlds={userWorlds}
+          onSelectNewWorld={handleSelectNewWorld}
+          onSelectExistingWorld={handleSelectExistingWorld}
+          onClose={() => router.back()}
+        />
+      )}
 
       {/* 도움말 모달 */}
       <HelpModal
@@ -870,6 +928,15 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
       <div className={createStyles.desktopFooterWrapper}>
         <Footer />
       </div>
+      
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={closeConfirmModal}
+      />
+      <Toast message={toastMessage} onClose={() => setToastMessage("")} />
     </div>
   );
 }

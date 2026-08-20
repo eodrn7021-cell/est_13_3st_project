@@ -77,7 +77,6 @@ const TagModal = ({ isOpen, onClose }) => {
       const error = results.find((result) => result.error)?.error;
 
       if (error) {
-        console.error("태그 목록 조회 실패:", error);
         setIsLoading(false);
         return;
       }

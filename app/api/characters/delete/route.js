@@ -48,13 +48,11 @@ export async function DELETE(req) {
       .eq("id", characterId);
 
     if (deleteError) {
-      console.error("캐릭터 삭제 중 오류:", deleteError);
       return NextResponse.json({ error: "캐릭터 삭제에 실패했습니다." }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("캐릭터 삭제 예외 발생:", err);
     return NextResponse.json({ error: "서버 오류가 발생했습니다." }, { status: 500 });
   }
 }
