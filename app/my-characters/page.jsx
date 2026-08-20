@@ -153,13 +153,6 @@ const MyCharactersPage = () => {
           error: userError,
         } = await supabase.auth.getUser();
 
-        console.log("Supabase getUser 결과:", {
-          user,
-          userId: user?.id,
-          userEmail: user?.email,
-          error: userError,
-        });
-
         if (userError) {
           throw userError;
         }
@@ -172,8 +165,6 @@ const MyCharactersPage = () => {
 
           return;
         }
-
-        console.log("현재 로그인 사용자 UUID:", user.id);
 
         /* ====================================
            2. 현재 사용자 캐릭터 조회
@@ -195,8 +186,6 @@ const MyCharactersPage = () => {
         if (characterError) {
           throw characterError;
         }
-
-        console.log("현재 사용자의 캐릭터:", characterData);
 
         /* ====================================
            3. 현재 사용자의 캐릭터 ID 추출
@@ -223,8 +212,6 @@ const MyCharactersPage = () => {
 
           visibilityData = data ?? [];
         }
-
-        console.log("캐릭터 공개 설정:", visibilityData);
 
         /* ====================================
            5. visibility Map 생성
@@ -257,8 +244,6 @@ const MyCharactersPage = () => {
           trashCharacterIds = (trashData ?? []).map((item) => item.character_id);
         }
 
-        console.log("현재 사용자의 휴지통 캐릭터:", trashCharacterIds);
-
         /* ====================================
            7. 휴지통에 있는 캐릭터 제외
         ==================================== */
@@ -283,8 +268,6 @@ const MyCharactersPage = () => {
           return formatCharacter(character, index, visibility);
         });
 
-        console.log("화면용 캐릭터:", formattedCharacters);
-
         setCharacters(formattedCharacters);
 
         /* ====================================
@@ -302,8 +285,6 @@ const MyCharactersPage = () => {
         if (bookmarkError) {
           throw bookmarkError;
         }
-
-        console.log("현재 사용자의 즐겨찾기:", bookmarkData);
 
         /* ====================================
            10. 즐겨찾기 ID Set 생성
@@ -484,8 +465,6 @@ const MyCharactersPage = () => {
           return next;
         });
 
-        console.log("즐겨찾기 해제:", characterId);
-
         return;
       }
 
@@ -509,8 +488,6 @@ const MyCharactersPage = () => {
 
         return next;
       });
-
-      console.log("즐겨찾기 추가:", characterId);
     } catch (error) {
       console.error("즐겨찾기 처리 실패:", error);
 

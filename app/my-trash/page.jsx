@@ -134,8 +134,6 @@ const MyTrashPage = () => {
           return;
         }
 
-        console.log("휴지통 현재 사용자 UUID:", user.id);
-
         /* ----------------------------------------
            2. 현재 사용자의 휴지통 조회
         ---------------------------------------- */
@@ -148,8 +146,6 @@ const MyTrashPage = () => {
         if (trashError) {
           throw trashError;
         }
-
-        console.log("휴지통 데이터:", trashData);
 
         /* ----------------------------------------
            휴지통이 비어있는 경우
@@ -182,8 +178,6 @@ const MyTrashPage = () => {
         if (characterError) {
           throw characterError;
         }
-
-        console.log("휴지통 캐릭터:", characterData);
 
         /* ----------------------------------------
            5. 화면용 데이터 변환
@@ -318,9 +312,6 @@ const MyTrashPage = () => {
 
         return;
       }
-
-      console.log("영구 삭제 캐릭터:", characterId);
-      console.log("영구 삭제 사용자:", user.id);
 
       /* ----------------------------------------
          2. 내 즐겨찾기에서 제거

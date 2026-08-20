@@ -147,8 +147,6 @@ const FavoritesPage = () => {
           throw bookmarkError;
         }
 
-        console.log("현재 사용자의 북마크:", bookmarkData);
-
         /* ====================================
            북마크가 없는 경우
         ==================================== */
@@ -177,8 +175,6 @@ const FavoritesPage = () => {
         if (characterError) {
           throw characterError;
         }
-
-        console.log("북마크 캐릭터:", characterData);
 
         /* ====================================
            5. bookmark 순서를 유지하면서
@@ -210,8 +206,6 @@ const FavoritesPage = () => {
             };
           })
           .filter(Boolean);
-
-        console.log("화면용 북마크 캐릭터:", formattedCharacters);
 
         setFavoriteCharacters(formattedCharacters);
       } catch (error) {
