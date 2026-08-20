@@ -125,12 +125,6 @@ const RecentPage = () => {
           error: userError,
         } = await supabase.auth.getUser();
 
-        console.log("최근 생성 사용자:", {
-          user,
-          userId: user?.id,
-          error: userError,
-        });
-
         if (userError) {
           throw userError;
         }
@@ -142,8 +136,6 @@ const RecentPage = () => {
 
           return;
         }
-
-        console.log("최근 생성 현재 사용자 UUID:", user.id);
 
         /* ====================================
            2. 현재 사용자의 캐릭터 조회
@@ -161,8 +153,6 @@ const RecentPage = () => {
         if (characterError) {
           throw characterError;
         }
-
-        console.log("최근 생성 전체 캐릭터:", characterData);
 
         /* ====================================
            3. 캐릭터 ID 추출
@@ -218,8 +208,6 @@ const RecentPage = () => {
           trashCharacterIds = (trashData ?? []).map((item) => item.character_id);
         }
 
-        console.log("최근 생성 휴지통 캐릭터:", trashCharacterIds);
-
         /* ====================================
            7. 휴지통 캐릭터 제외
         ==================================== */
@@ -243,8 +231,6 @@ const RecentPage = () => {
 
           return formatCharacter(character, index, visibility);
         });
-
-        console.log("최근 생성 화면용 캐릭터:", formattedCharacters);
 
         setCharacters(formattedCharacters);
 

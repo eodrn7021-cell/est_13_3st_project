@@ -131,13 +131,6 @@ const MyPage = () => {
           error: userError,
         } = await supabase.auth.getUser();
 
-        console.log("마이페이지 Supabase 사용자:", {
-          user,
-          userId: user?.id,
-          userEmail: user?.email,
-          error: userError,
-        });
-
         if (userError) {
           throw userError;
         }
@@ -153,8 +146,6 @@ const MyPage = () => {
 
           return;
         }
-
-        console.log("마이페이지 현재 사용자 UUID:", user.id);
 
         /* ====================================
            2. 사용자 이름 확인
@@ -189,8 +180,6 @@ const MyPage = () => {
           throw characterError;
         }
 
-        console.log("마이페이지 전체 캐릭터:", characterData);
-
         const allCharacters = characterData ?? [];
 
         /* ====================================
@@ -219,8 +208,6 @@ const MyPage = () => {
           trashCharacterIds = (trashData ?? []).map((item) => item.character_id);
         }
 
-        console.log("마이페이지 휴지통 캐릭터:", trashCharacterIds);
-
         /* ====================================
            6. 실제 활성 캐릭터만 추출
         ==================================== */
@@ -228,8 +215,6 @@ const MyPage = () => {
         const activeCharacters = allCharacters.filter(
           (character) => !trashCharacterIds.includes(character.id),
         );
-
-        console.log("마이페이지 활성 캐릭터:", activeCharacters);
 
         /* ====================================
            7. 내 캐릭터 수
@@ -266,8 +251,6 @@ const MyPage = () => {
           visibilityData = data ?? [];
         }
 
-        console.log("마이페이지 캐릭터 공개 설정:", visibilityData);
-
         /* ====================================
            visibility Map
         ==================================== */
@@ -295,8 +278,6 @@ const MyPage = () => {
           throw bookmarkError;
         }
 
-        console.log("마이페이지 전체 북마크:", bookmarkData);
-
         /* ====================================
            내 캐릭터 중 휴지통에 있는 캐릭터의
            북마크만 통계에서 제외
@@ -311,8 +292,6 @@ const MyPage = () => {
 
         setBookmarkCount(activeBookmarkCount);
 
-        console.log("마이페이지 북마크 수:", activeBookmarkCount);
-
         /* ====================================
            11. 최근 생성한 캐릭터 3개
 
@@ -323,8 +302,6 @@ const MyPage = () => {
         const recentCharacterData = [...activeCharacters]
           .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
           .slice(0, 3);
-
-        console.log("마이페이지 최근 생성 원본:", recentCharacterData);
 
         /* ====================================
            12. 화면용 데이터 변환
@@ -337,8 +314,6 @@ const MyPage = () => {
 
           return formatCharacter(character, index, visibility);
         });
-
-        console.log("마이페이지 최근 캐릭터:", formattedRecentCharacters);
 
         setRecentCharacters(formattedRecentCharacters);
       } catch (error) {
