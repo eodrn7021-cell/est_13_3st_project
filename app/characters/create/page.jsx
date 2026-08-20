@@ -74,6 +74,19 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   const [isCharCheckDone, setIsCharCheckDone] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
+
+  // 생성 중 이탈 방지
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isSubmitting) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isSubmitting]);
+
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
