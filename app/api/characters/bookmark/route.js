@@ -46,7 +46,6 @@ export async function POST(request) {
       .maybeSingle();
 
     if (checkError) {
-      console.error("북마크 상태 확인 오류:", checkError);
       return NextResponse.json(
         { error: "북마크 상태 확인 중 오류가 발생했습니다." },
         { status: 500 }
@@ -63,7 +62,6 @@ export async function POST(request) {
         .eq("id", existingBookmark.id);
 
       if (deleteError) {
-        console.error("북마크 취소 실패:", deleteError);
         return NextResponse.json(
           { error: "북마크 취소 중 오류가 발생했습니다." },
           { status: 500 }
@@ -79,7 +77,6 @@ export async function POST(request) {
         });
 
       if (insertError) {
-        console.error("북마크 등록 실패:", insertError);
         return NextResponse.json(
           { error: "북마크 등록 중 오류가 발생했습니다." },
           { status: 500 }
@@ -93,7 +90,6 @@ export async function POST(request) {
       isBookmarked,
     });
   } catch (err) {
-    console.error("북마크 토글 예외 처리:", err);
     return NextResponse.json(
       { error: "북마크 처리 중 오류가 발생했습니다." },
       { status: 500 }

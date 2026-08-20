@@ -56,7 +56,6 @@ export default function CharacterForm({
         if (themesData) setThemeOptions(themesData.map((item) => ({ id: item.id, label: item.name, value: item.name })));
         if (genresData) setGenreOptions(genresData.map((item) => ({ id: item.id, label: item.name, value: item.name })));
       } catch (error) {
-        console.error("Error fetching options:", error);
       }
     };
 
@@ -211,7 +210,6 @@ export default function CharacterForm({
         }
       }
     } catch (error) {
-      console.error("자동 생성 오류:", error);
       // 예외 발생 시 이전 값 복원
       if (fieldName === "relationships") {
         handleRelationshipChange(activeRelTabId, previousValue);

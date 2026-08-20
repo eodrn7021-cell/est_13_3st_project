@@ -19,7 +19,6 @@ export async function POST(req) {
       .single();
 
     if (fetchError || !character) {
-      console.error("캐릭터 조회수 조회 실패:", fetchError);
       return NextResponse.json({ error: "캐릭터를 찾을 수 없습니다." }, { status: 404 });
     }
 
@@ -31,13 +30,11 @@ export async function POST(req) {
       .eq("id", characterId);
 
     if (updateError) {
-      console.error("캐릭터 조회수 업데이트 실패:", updateError);
       return NextResponse.json({ error: "조회수 업데이트에 실패했습니다." }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, view_count: currentViewCount + 1 });
   } catch (err) {
-    console.error("조회수 증가 API 오류:", err);
     return NextResponse.json({ error: "서버 처리 중 오류가 발생했습니다." }, { status: 500 });
   }
 }

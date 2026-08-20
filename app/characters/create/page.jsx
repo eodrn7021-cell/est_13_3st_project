@@ -205,7 +205,6 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
           }
         }
       } catch (err) {
-        console.warn("세계관 목록 조회 오류:", err);
       }
     };
 
@@ -252,7 +251,6 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.warn("세계관 캐릭터 목록 조회 실패:", error);
       } else if (charsData) {
         setExistingWorldCharacters(charsData);
         // 기존 세계관을 선택했으므로 캐릭터 탭이 열리도록 설정
@@ -260,7 +258,6 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         setIsCharacterOpen(true);
       }
     } catch (err) {
-      console.warn("세계관 캐릭터 목록 조회 중 예외 발생:", err);
     }
   };
 
@@ -483,7 +480,6 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
       router.push(`/characters/${selectedCharObj.id}`);
     } catch (err) {
-      console.error("캐릭터 수정 중 에러:", err);
       showToast("서버 연결 처리 중 오류가 발생했습니다.");
       setIsSubmitting(false);
     }
@@ -525,7 +521,6 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
       // 2. 상세 페이지로 이동하여 비동기로 이미지 재생성 (상세 페이지의 isGeneratingMode가 처리함)
       router.push(`/characters/${selectedCharObj.id}?generating=${activeNav}`);
     } catch (err) {
-      console.error("수정 후 이미지 재생성 중 에러:", err);
       showToast("서버 처리 중 오류가 발생했습니다.");
       setIsSubmitting(false);
     }
@@ -555,7 +550,6 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
       const result = await res.json();
 
       if (!res.ok || result.error) {
-        console.error("서버 처리 오류:", result.error);
         showToast(result.error || "캐릭터 생성 중 오류가 발생했습니다.");
         setIsSubmitting(false);
         return;
@@ -563,7 +557,6 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
       router.push(`/characters/${result.characterId}?generating=all`);
     } catch (err) {
-      console.error("서버 요청 중 예외 발생:", err);
       showToast("서버 연결 처리 중 오류가 발생했습니다.");
       setIsSubmitting(false);
     }

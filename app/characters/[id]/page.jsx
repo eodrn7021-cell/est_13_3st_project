@@ -160,7 +160,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
         cachedDbImageHistory = json?.images || [];
       }
     } catch (err) {
-      console.warn("이미지 히스토리 조회 오류:", err);
     }
   };
 
@@ -173,7 +172,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
         setDbWorldImageHistory(json?.images || []);
       }
     } catch (err) {
-      console.warn("세계관 이미지 히스토리 조회 오류:", err);
     }
   };
 
@@ -189,7 +187,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
       const result = await res.json();
 
       if (!res.ok || result.error) {
-        console.error("이미지 생성 중 오류:", result.error);
         showToast(result.error || "이미지 생성 중 오류가 발생했습니다.");
         setIsRegenerating(false);
         return;
@@ -215,12 +212,10 @@ function CharacterDetailContent({ params: paramsPromise }) {
           }));
         }
       } catch (saveErr) {
-        console.error("자동 대표 이미지 저장 중 오류:", saveErr);
       }
 
       await fetchImageHistory(charId || id);
     } catch (err) {
-      console.error("자동 이미지 생성 요청 오류:", err);
       showToast("이미지 생성 중 서버 연결 오류가 발생했습니다.");
     } finally {
       setIsRegenerating(false);
@@ -239,7 +234,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
       const result = await res.json();
 
       if (!res.ok || result.error) {
-        console.error("세계관 이미지 생성 중 오류:", result.error);
         showToast(result.error || "세계관 이미지 생성 중 오류가 발생했습니다.");
         setIsWorldRegenerating(false);
         return;
@@ -264,10 +258,8 @@ function CharacterDetailContent({ params: paramsPromise }) {
            await fetchWorldImageHistory(worldId);
         }
       } catch (saveErr) {
-        console.error("세계관 메인 이미지 저장 중 오류:", saveErr);
       }
     } catch (err) {
-      console.error("세계관 이미지 생성 요청 오류:", err);
       showToast("세계관 이미지 생성 중 서버 연결 오류가 발생했습니다.");
     } finally {
       setIsWorldRegenerating(false);
@@ -315,7 +307,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
         await fetchWorldImageHistory(character.world_id);
         showToast("선택한 이미지가 세계관 대표 이미지로 지정 및 저장되었습니다!");
       } catch (err) {
-        console.error("세계관 대표 이미지 저장 오류:", err);
         showToast("세계관 대표 이미지 저장 중 오류가 발생했습니다.");
       }
     } else {
@@ -348,7 +339,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
         await fetchImageHistory(id);
         showToast("선택한 이미지가 캐릭터 대표 이미지로 지정 및 저장되었습니다!");
       } catch (err) {
-        console.error("대표 이미지 저장 오류:", err);
         showToast("대표 이미지 저장 중 오류가 발생했습니다.");
       }
     }
@@ -364,7 +354,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ characterId: id }),
-      }).catch((err) => console.error("조회수 증가 호출 실패:", err));
+      }).catch((err) =>);
     }
     // 캐시가 없거나 다른 캐릭터를 처음 진입할 때만 초기화
     if (!cachedCharacter || cachedCharacter.id !== id) {
@@ -461,7 +451,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
             setIsWorldLiked(Boolean(wLikeData));
             setIsWorldBookmarked(Boolean(wBookmarkData));
           } catch (wErr) {
-            console.error("세계관 좋아요/북마크 조회 오류:", wErr);
           }
         }
 
@@ -489,7 +478,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
             }
           }
         } catch (commentErr) {
-          console.error("코멘트 조회 오류:", commentErr);
         }
 
         // 세계관 코멘트 조회
@@ -503,7 +491,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
               }
             }
           } catch (wCommentErr) {
-            console.error("세계관 코멘트 조회 오류:", wCommentErr);
           }
           await fetchWorldImageHistory(data.world_id);
         }
@@ -610,7 +597,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
           : prev
       );
     } catch (err) {
-      console.error("좋아요 처리 중 예외 발생:", err);
       setIsLiked(prevIsLiked);
       setLikes(prevLikes);
       setCharacter((prev) =>
@@ -639,7 +625,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
         showToast("캐릭터 링크가 클립보드에 복사되었습니다.");
       }
     } catch (err) {
-      console.error("공유 링크 복사 실패:", err);
     }
   };
 
@@ -668,7 +653,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
       // 새 코멘트를 목록 맨 앞에 추가
       setComments((prev) => [result.comment, ...prev]);
     } catch (err) {
-      console.error("코멘트 등록 예외:", err);
       showToast("코멘트 등록 중 오류가 발생했습니다.");
     } finally {
       setIsSubmittingComment(false);
@@ -700,7 +684,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
       setWorldComments((prev) => [result.comment, ...prev]);
     } catch (err) {
-      console.error("세계관 코멘트 등록 예외:", err);
       showToast("코멘트 등록 중 오류가 발생했습니다.");
     } finally {
       setIsSubmittingWorldComment(false);
@@ -761,7 +744,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
           : prev
       );
     } catch (err) {
-      console.error("북마크 처리 중 예외 발생:", err);
       setIsBookmarked(prevIsBookmarked);
       setCharacter((prev) =>
         prev
@@ -810,7 +792,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
       setIsWorldLiked(result.isLiked);
       setWorldLikes(result.likes);
     } catch (err) {
-      console.error("세계관 좋아요 처리 중 예외 발생:", err);
       setIsWorldLiked(prevIsLiked);
       setWorldLikes(prevLikes);
     } finally {
@@ -848,7 +829,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
       setIsWorldBookmarked(result.isBookmarked);
     } catch (err) {
-      console.error("세계관 북마크 처리 중 예외 발생:", err);
       setIsWorldBookmarked(prevIsBookmarked);
     } finally {
       setIsWorldBookmarking(false);
@@ -1007,7 +987,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
           cachedCharacter = null;
           router.push("/");
         } catch (err) {
-          console.error("삭제 중 오류:", err);
           showToast("삭제 중 오류가 발생했습니다.");
           setIsDeleting(false);
         }
@@ -1350,7 +1329,6 @@ function CharacterDetailContent({ params: paramsPromise }) {
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onSuccess={(user) => {
-          console.log("로그인 성공:", user);
           window.location.reload();
         }}
       />

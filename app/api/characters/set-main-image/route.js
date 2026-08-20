@@ -66,7 +66,6 @@ export async function POST(request) {
       .eq("id", characterId);
 
     if (charErr) {
-      console.error("characters table image_url update failed:", charErr);
       return NextResponse.json(
         { error: "캐릭터 대표 이미지 업데이트 실패: " + charErr.message },
         { status: 500 }
@@ -79,7 +78,6 @@ export async function POST(request) {
       imageUrl,
     });
   } catch (err) {
-    console.error("대표 이미지 저장 처리 예외:", err);
     return NextResponse.json(
       { error: "대표 이미지 저장 중 오류가 발생했습니다." },
       { status: 500 }

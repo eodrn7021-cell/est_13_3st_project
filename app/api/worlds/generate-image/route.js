@@ -100,7 +100,7 @@ export async function POST(request) {
         
         if (openaiData?.error?.message) {
           lastErrorMsg = openaiData.error.message;
-          console.warn(`OpenAI 모델 (${modelName}) 응답 에러:`, lastErrorMsg);
+응답 에러:`, lastErrorMsg);
         }
       } catch (err) {
         lastErrorMsg = err.message;
@@ -146,7 +146,6 @@ export async function POST(request) {
             publicUrl = publicUrlObj.publicUrl;
           }
         } else if (uploadErr) {
-          console.warn("Supabase 스토리지 업로드 실패 경고:", uploadErr.message);
           return NextResponse.json(
             { error: `스토리지 업로드 실패: ${uploadErr.message}. (Storage Policy를 확인해주세요)` },
             { status: 500 }
@@ -154,7 +153,6 @@ export async function POST(request) {
         }
       }
     } catch (err) {
-      console.error("이미지 업로드 중 오류 발생:", err);
     }
 
     // 4. world_images 히스토리 DB 테이블에 인서트
@@ -174,7 +172,6 @@ export async function POST(request) {
       .select();
 
     if (histErr) {
-      console.error("world_images DB 인서트 실패:", histErr.message);
     }
 
     return NextResponse.json({
@@ -182,7 +179,6 @@ export async function POST(request) {
       imageUrl: publicUrl,
     });
   } catch (err) {
-    console.error("세계관 이미지 생성 API 처리 중 예외 발생:", err);
     return NextResponse.json(
       { error: "이미지 생성 처리 중 예외가 발생했습니다." },
       { status: 500 }

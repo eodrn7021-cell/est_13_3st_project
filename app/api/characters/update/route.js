@@ -48,7 +48,6 @@ export async function POST(request) {
       .single();
 
     if (charError) {
-      console.error("캐릭터 정보 수정 실패:", charError);
       return NextResponse.json(
         { error: "캐릭터 수정 중 오류가 발생했습니다: " + charError.message },
         { status: 500 }
@@ -98,7 +97,6 @@ export async function POST(request) {
           .insert(relationsToInsert);
         
         if (relError) {
-          console.error("캐릭터 관계 정보 저장 실패:", relError);
         }
       }
     }
@@ -108,7 +106,6 @@ export async function POST(request) {
       characterId: updatedChar.id,
     });
   } catch (err) {
-    console.error("캐릭터 수정 처리 예외 발생:", err);
     return NextResponse.json(
       { error: "캐릭터 수정 처리 중 오류가 발생했습니다." },
       { status: 500 }
