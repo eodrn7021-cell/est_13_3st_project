@@ -354,7 +354,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ characterId: id }),
-      }).catch((err) =>);
+      }).catch((err) => {});
     }
     // 캐시가 없거나 다른 캐릭터를 처음 진입할 때만 초기화
     if (!cachedCharacter || cachedCharacter.id !== id) {

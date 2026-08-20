@@ -73,6 +73,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   const [isCharCheckDone, setIsCharCheckDone] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -459,6 +460,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
       return;
     }
 
+    setSubmitMessage("수정된 데이터를 저장하는 중...");
     setIsSubmitting(true);
 
     try {
@@ -492,6 +494,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
       return;
     }
     if (!selectedCharObj || isSubmitting) return;
+    setSubmitMessage("데이터 저장 및 이미지 생성 준비 중...");
     setIsSubmitting(true);
 
     try {
@@ -528,6 +531,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
   const handleSubmit = async (data) => {
     if (isSubmitting) return;
+    setSubmitMessage("데이터 저장 및 이미지 생성 준비 중...");
     setIsSubmitting(true);
 
     try {
@@ -754,7 +758,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
               animation: "spin 1s linear infinite"
             }} />
             <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-            <p className={`kr_body_b ${createStyles.generatingOverlayText}`} style={{ fontSize: "18px", margin: 0 }}>데이터 저장 및 이미지 생성 준비 중...</p>
+            <p className={`kr_body_b ${createStyles.generatingOverlayText}`} style={{ fontSize: "18px", margin: 0 }}>{submitMessage}</p>
             <div style={{ width: "100%", height: "8px", backgroundColor: "rgba(255,255,255,0.2)", borderRadius: "4px", overflow: "hidden" }}>
               <div style={{ width: `${progress}%`, height: "100%", backgroundColor: "white", transition: "width 0.3s ease" }} />
             </div>

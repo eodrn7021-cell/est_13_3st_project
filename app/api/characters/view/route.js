@@ -11,30 +11,18 @@ export async function POST(req) {
 
     const supabase = await createClient();
 
-    // 1. 현재 조회수 가져오기
-    const { data: character, error: fetchError } = await supabase
-      .from("characters")
-      .select("view_count")
-      .eq("id", characterId)
-      .single();
-
-    if (fetchError || !character) {
-      return NextResponse.json({ error: "캐릭터를 찾을 수 없습니다." }, { status: 404 });
-    }
-
-    // 2. 조회수 1 증가 (기존 값이 null이면 0으로 간주)
-    const currentViewCount = character.view_count || 0;
+    // 1. 현재 접속한 유저의 권한을 무시하고 조회수를 1 올리는 RPC 함수 호출
     const { error: updateError } = await supabase
-      .from("characters")
-      .update({ view_count: currentViewCount + 1 })
-      .eq("id", characterId);
+      .rpc('increment_view_count', { target_id: characterId });
 
     if (updateError) {
+      console.error("RPC Error:", updateError);
       return NextResponse.json({ error: "조회수 업데이트에 실패했습니다." }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, view_count: currentViewCount + 1 });
+    return NextResponse.json({ success: true });
   } catch (err) {
+    console.error("Catch Error:", err);
     return NextResponse.json({ error: "서버 처리 중 오류가 발생했습니다." }, { status: 500 });
   }
 }
