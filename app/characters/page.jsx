@@ -97,96 +97,89 @@ const CharactersContent = () => {
     const fetchCharacters = async () => {
       setIsLoading(true);
 
-      const baseQuery = supabase
+      // 데이터베이스 에러 방지를 위해 전체 데이터를 불러오가
+      const { data, error } = await supabase
         .from('characters')
-        .select('*, worlds!inner(*), character_likes(count)');
-
-      const applyFilters = (q) => {
-        let filteredQ = q;
-        if (raceFilter) filteredQ = filteredQ.eq('race', raceFilter);
-
-        if (genderFilter) {
-          const genders = genderFilter
-            .split(',')
-            .map((g) => g.trim())
-            .filter(Boolean);
-          if (genders.length > 1) {
-            filteredQ = filteredQ.in('gender', genders);
-          } else if (genders.length === 1) {
-            filteredQ = filteredQ.eq('gender', genders[0]);
-          }
-        }
-
-        if (genreFilter) {
-          filteredQ = filteredQ.eq('worlds.genre', genreFilter);
-        }
-        if (themeFilter) {
-          filteredQ = filteredQ.or(`theme.eq.${themeFilter},worlds.theme.eq.${themeFilter}`);
-        }
-
-        if (searchQuery.trim()) {
-          const keyword = `%${searchQuery.trim()}%`;
-          filteredQ = filteredQ.or(
-            `name.ilike.${keyword},race.ilike.${keyword},job_role.ilike.${keyword},background_story.ilike.${keyword},personality.ilike.${keyword}`,
-          );
-        }
-        return filteredQ;
-      };
-
-      const { data, error } = await applyFilters(baseQuery);
+        .select('*, worlds(*), character_likes(count)');
 
       if (error) {
-        console.error('Supabase Error:', error);
-        const fallbackBaseQuery = supabase
-          .from('characters')
-          .select('*, worlds(*), character_likes(count)');
-
-        const fallbackQuery = applyFilters(fallbackBaseQuery);
-        const { data: fallbackData, error: fallbackError } = await fallbackQuery;
-
-        if (fallbackError) {
-          setCharacters([]);
-          setIsLoading(false);
-          return;
-        }
-
-        const rawFallback = fallbackData || [];
-        const filtered = rawFallback.filter((item) => {
-          const matchGenre =
-            !genreFilter || item.worlds?.genre === genreFilter || item.genre === genreFilter;
-          const matchTheme =
-            !themeFilter || item.worlds?.theme === themeFilter || item.theme === themeFilter;
-          return matchGenre && matchTheme;
-        });
-
-        setCharacters(filtered);
-      } else {
-        const rawData = data || [];
-
-        const sortedData = [...rawData].sort((a, b) => {
-          const likesA = a.character_likes?.[0]?.count || a.like_count || 0;
-          const likesB = b.character_likes?.[0]?.count || b.like_count || 0;
-          const viewsA = a.view_count || 0;
-          const viewsB = b.view_count || 0;
-          const timeA = new Date(a.created_at || 0).getTime();
-          const timeB = new Date(b.created_at || 0).getTime();
-
-          if (actualSort === '추천순') {
-            if (likesB !== likesA) return likesB - likesA;
-            return viewsB - viewsA;
-          } else if (actualSort === '인기순') {
-            if (viewsB !== viewsA) return viewsB - viewsA;
-            return likesB - likesA;
-          } else {
-            // 기본값은 최신순 정렬
-            if (timeB !== timeA) return timeB - timeA;
-            return viewsB - viewsA;
-          }
-        });
-
-        setCharacters(sortedData);
+        console.error('Supabase fetch error:', error);
+        setCharacters([]);
+        setIsLoading(false);
+        return;
       }
 
+      const rawData = data || [];
+
+      // URL에 들어온 모든 필터(종족, 테마, 성별, 장르) 값을 하나의 배열로 통합
+      const selectedFilters = [];
+      if (raceFilter) raceFilter.split(',').forEach((v) => selectedFilters.push(v.trim()));
+      if (themeFilter) themeFilter.split(',').forEach((v) => selectedFilters.push(v.trim()));
+      if (genderFilter) genderFilter.split(',').forEach((v) => selectedFilters.push(v.trim()));
+      if (genreFilter) genreFilter.split(',').forEach((v) => selectedFilters.push(v.trim()));
+
+      // 자바스크립트 필터링: 선택된 태그 중 단 1개라도 일치하면 통과 (OR 조건)
+      const filteredData = rawData.filter((item) => {
+        // 이미지 유효성 체크
+        if (!item.image_url) return false;
+
+        // 검색어가 있는 경우 검색어 체크
+        if (searchQuery.trim()) {
+          const keyword = searchQuery.trim().toLowerCase();
+          const targetText = [
+            item.name,
+            item.race,
+            item.job_role,
+            item.background_story,
+            item.personality,
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+
+          if (!targetText.includes(keyword)) return false;
+        }
+
+        // 선택된 필터가 없다면 모두 통과
+        if (selectedFilters.length === 0) return true;
+
+        // 캐릭터가 가진 속성/태그 목록
+        const itemAttributes = [
+          item.race,
+          item.gender,
+          item.theme,
+          item.genre,
+          item.worlds?.genre,
+          item.worlds?.theme,
+          item.job_role,
+        ].filter(Boolean);
+
+        // 선택된 필터 중 하나라도 포함되는지 확인
+        return selectedFilters.some((filter) => itemAttributes.includes(filter));
+      });
+
+      // 정렬 처리 (추천순, 인기순, 최신순)
+      const sortedData = [...filteredData].sort((a, b) => {
+        const likesA = a.character_likes?.[0]?.count || a.like_count || 0;
+        const likesB = b.character_likes?.[0]?.count || b.like_count || 0;
+        const viewsA = a.view_count || 0;
+        const viewsB = b.view_count || 0;
+        const timeA = new Date(a.created_at || 0).getTime();
+        const timeB = new Date(b.created_at || 0).getTime();
+
+        if (actualSort === '추천순') {
+          if (likesB !== likesA) return likesB - likesA;
+          return viewsB - viewsA;
+        } else if (actualSort === '인기순') {
+          if (viewsB !== viewsA) return viewsB - viewsA;
+          return likesB - likesA;
+        } else {
+          if (timeB !== timeA) return timeB - timeA;
+          return viewsB - viewsA;
+        }
+      });
+
+      setCharacters(sortedData);
       setIsLoading(false);
     };
 
@@ -263,12 +256,18 @@ const CharactersContent = () => {
         return { ...item, matchCount };
       })
       .filter((item) => item.matchCount > 0)
-      .sort((a, b) => b.matchCount - a.matchCount);
+      .sort((a, b) => {
+        // 1순위: 일치하는 태그 개수가 많은 순서 (내림차순)
+        if (b.matchCount !== a.matchCount) {
+          return b.matchCount - a.matchCount;
+        }
+        // 2순위: 태그 개수가 같다면 캐릭터 이름 가나다순(오름차순) 정렬
+        return (a.name || '').localeCompare(b.name || '', 'ko');
+      });
   };
 
   const displayList = processDisplayList();
 
-  // ★ [수정] 고정값 4 대신 반응형 상태값(columnCount)을 전달
   const finalDisplayList = reorderForColumnLayout(displayList, columnCount);
 
   const sortedByLikes = [...displayList].sort((a, b) => {
@@ -410,7 +409,7 @@ const CharactersContent = () => {
             <div className={styles.card_grid_container}>
               {isLoading ? (
                 <div className={styles.card_grid}>
-                  {Array.from({ length: 20 }).map((_, index) => (
+                  {Array.from({ length: 16 }).map((_, index) => (
                     <div key={index} className={styles.skeleton_card} />
                   ))}
                 </div>
