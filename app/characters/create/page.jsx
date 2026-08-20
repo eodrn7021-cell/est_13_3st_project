@@ -25,6 +25,8 @@ function HelpOutlineIcon() {
   );
 }
 
+const isValidInput = (val) => Boolean(val && val.trim() !== "" && val !== "AI가 내용을 생성하고 있습니다...");
+
 export default function CreateCharacterPage({ worldData, characterListData }) {
   const router = useRouter();
 
@@ -74,6 +76,12 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
   const [isCharCheckDone, setIsCharCheckDone] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
+
+  // 기존 캐릭터 선택 및 수정 모드 상태
+  const [selectedCharObj, setSelectedCharObj] = useState(null);
+  const [isReadOnlyChar, setIsReadOnlyChar] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedCharacterId, setSelectedCharacterId] = useState("draft_new_character");
 
   // 생성 중 이탈 방지
   useEffect(() => {
@@ -154,7 +162,7 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
                 setInitialFormValues(filled);
                 setFormData((prev) => ({ ...prev, ...filled }));
-                setIsWorldCheckDone(Boolean(filled.title?.trim() && filled.theme?.trim() && filled.genre?.trim()));
+                setIsWorldCheckDone(isValidInput(filled.title) && isValidInput(filled.theme) && isValidInput(filled.genre));
 
                 // 캐릭터 목록 조회
                 const { data: charsData } = await supabase
@@ -202,16 +210,16 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
                     setInitialFormValues(filledChar);
                     setFormData(filledChar);
 
-                    setIsCharCheckDone(Boolean(
-                      filledChar.name?.trim() &&
-                      filledChar.race?.trim() &&
-                      filledChar.gender?.trim() &&
-                      filledChar.age?.trim() &&
-                      filledChar.job_role?.trim() &&
-                      filledChar.background_story?.trim() &&
-                      filledChar.appearance?.trim() &&
-                      filledChar.personality?.trim()
-                    ));
+                    setIsCharCheckDone(
+                      isValidInput(filledChar.name) &&
+                      isValidInput(filledChar.race) &&
+                      isValidInput(filledChar.gender) &&
+                      isValidInput(filledChar.age) &&
+                      isValidInput(filledChar.job_role) &&
+                      isValidInput(filledChar.background_story) &&
+                      isValidInput(filledChar.appearance) &&
+                      isValidInput(filledChar.personality)
+                    );
                   }
                 }
               }
@@ -253,7 +261,8 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
 
     setInitialFormValues(filled);
     setFormData((prev) => ({ ...prev, ...filled }));
-    setIsWorldCheckDone(Boolean(filled.title?.trim() && filled.theme?.trim() && filled.genre?.trim()));
+    const isWorldComplete = isValidInput(filled.title) && isValidInput(filled.theme) && isValidInput(filled.genre);
+    setIsWorldCheckDone(isWorldComplete);
 
     // 해당 세계관에 속한 기존 캐릭터 목록 조회
     try {
@@ -274,12 +283,6 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
     } catch (err) {
     }
   };
-
-  // 기존 캐릭터 선택 및 수정 모드 상태
-  const [selectedCharObj, setSelectedCharObj] = useState(null);
-  const [isReadOnlyChar, setIsReadOnlyChar] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [selectedCharacterId, setSelectedCharacterId] = useState("draft_new_character");
 
   const worldTitle =
     selectedWorld?.name ||
@@ -326,23 +329,18 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
       });
     }
 
-    const isWorldComplete = Boolean(
-      updatedData.title?.trim() &&
-      updatedData.theme?.trim() &&
-      updatedData.genre?.trim()
-    );
+    const isWorldComplete = isValidInput(updatedData.title) && isValidInput(updatedData.theme) && isValidInput(updatedData.genre);
     setIsWorldCheckDone(isWorldComplete);
 
-    const isCharComplete = Boolean(
-      updatedData.name?.trim() &&
-      updatedData.race?.trim() &&
-      updatedData.gender?.trim() &&
-      updatedData.age?.trim() &&
-      updatedData.job_role?.trim() &&
-      updatedData.background_story?.trim() &&
-      updatedData.appearance?.trim() &&
-      updatedData.personality?.trim()
-    );
+    const isCharComplete = 
+      isValidInput(updatedData.name) &&
+      isValidInput(updatedData.race) &&
+      isValidInput(updatedData.gender) &&
+      isValidInput(updatedData.age) &&
+      isValidInput(updatedData.job_role) &&
+      isValidInput(updatedData.background_story) &&
+      isValidInput(updatedData.appearance) &&
+      isValidInput(updatedData.personality);
     setIsCharCheckDone(isCharComplete);
   };
 
@@ -374,16 +372,15 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
       setInitialFormValues((prev) => ({ ...prev, ...restoreCharValues }));
       setFormData(restoreCharValues);
 
-      const isCharComplete = Boolean(
-        restoreCharValues.name?.trim() &&
-        restoreCharValues.race?.trim() &&
-        restoreCharValues.gender?.trim() &&
-        restoreCharValues.age?.trim() &&
-        restoreCharValues.job_role?.trim() &&
-        restoreCharValues.background_story?.trim() &&
-        restoreCharValues.appearance?.trim() &&
-        restoreCharValues.personality?.trim()
-      );
+      const isCharComplete = 
+        isValidInput(restoreCharValues.name) &&
+        isValidInput(restoreCharValues.race) &&
+        isValidInput(restoreCharValues.gender) &&
+        isValidInput(restoreCharValues.age) &&
+        isValidInput(restoreCharValues.job_role) &&
+        isValidInput(restoreCharValues.background_story) &&
+        isValidInput(restoreCharValues.appearance) &&
+        isValidInput(restoreCharValues.personality);
       setIsCharCheckDone(isCharComplete);
     } else {
       // 기존 캐릭터 선택 ➔ 폼에 데이터 바인딩 및 비활성화 (Read-only)
@@ -419,16 +416,15 @@ export default function CreateCharacterPage({ worldData, characterListData }) {
         setInitialFormValues((prev) => ({ ...prev, ...filledChar }));
         setFormData(filledChar);
 
-        const isCharComplete = Boolean(
-          filledChar.name?.trim() &&
-          filledChar.race?.trim() &&
-          filledChar.gender?.trim() &&
-          filledChar.age?.trim() &&
-          filledChar.job_role?.trim() &&
-          filledChar.background_story?.trim() &&
-          filledChar.appearance?.trim() &&
-          filledChar.personality?.trim()
-        );
+        const isCharComplete = 
+          isValidInput(filledChar.name) &&
+          isValidInput(filledChar.race) &&
+          isValidInput(filledChar.gender) &&
+          isValidInput(filledChar.age) &&
+          isValidInput(filledChar.job_role) &&
+          isValidInput(filledChar.background_story) &&
+          isValidInput(filledChar.appearance) &&
+          isValidInput(filledChar.personality);
         setIsCharCheckDone(isCharComplete);
       }
     }
