@@ -103,7 +103,6 @@ const CharactersContent = () => {
         .select('*, worlds(*), character_likes(count)');
 
       if (error) {
-        console.error('Supabase fetch error:', error);
         setCharacters([]);
         setIsLoading(false);
         return;
