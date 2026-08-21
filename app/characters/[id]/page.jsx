@@ -169,7 +169,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
     const targetId = charId || id;
     if (!targetId) return;
     try {
-      const res = await fetch(`/api/characters/images?characterId=${targetId}`);
+      const res = await fetch(`/api/characters/images?characterId=${targetId}&t=${Date.now()}`);
       if (res.ok) {
         const json = await res.json();
         // 현재 캐릭터 ID에 해당하는 DB 히스토리로 정확히 갱신 (없으면 빈 배열)
@@ -183,7 +183,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
   const fetchWorldImageHistory = async (worldId) => {
     if (!worldId) return;
     try {
-      const res = await fetch(`/api/worlds/images?worldId=${worldId}`);
+      const res = await fetch(`/api/worlds/images?worldId=${worldId}&t=${Date.now()}`);
       if (res.ok) {
         const json = await res.json();
         setDbWorldImageHistory(json?.images || []);
