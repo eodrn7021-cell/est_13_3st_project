@@ -970,28 +970,7 @@ function CharacterDetailContent({ params: paramsPromise }) {
         <div className={sidebarStyles.usedImagesSection}>
           <div className={sidebarStyles.usedImagesTitle}>사용된 이미지</div>
           <div className={sidebarStyles.imageGrid}>
-            {imageHistory.map((imgSrc, idx) => (
-              <div
-                key={imgSrc}
-                className={sidebarStyles.thumbBox}
-                onClick={() => {
-                  if (activeNav === "world") {
-                    setSelectedWorldImage(imgSrc);
-                  } else {
-                    setSelectedImage(imgSrc);
-                  }
-                }}
-                style={{ cursor: "pointer" }}
-              >
-                <Image
-                  src={imgSrc}
-                  alt={`생성 이미지 ${idx + 1}`}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  style={{ objectFit: "cover" }}
-                />
-              </div>
-            ))}
+
             {loading ? (
               Array.from({ length: 4 }).map((_, idx) => (
                 <div

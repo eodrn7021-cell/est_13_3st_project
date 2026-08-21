@@ -162,8 +162,8 @@ export async function POST(request) {
       }
 
       if (imgBuffer) {
-        const imgHash = crypto.createHash("sha256").update(Buffer.from(imgBuffer)).digest("hex").substring(0, 16);
-        const fileName = `character_${characterId}_${imgHash}.png`;
+        const promptHash = crypto.createHash("sha256").update(promptText).digest("hex").substring(0, 16);
+        const fileName = `character_${characterId}_${promptHash}.png`;
 
         const { data: uploadData, error: uploadErr } = await supabase.storage
           .from("character-images")
