@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import crypto from "crypto";
 
 async function getSupabaseServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -161,7 +162,8 @@ export async function POST(request) {
       }
 
       if (imgBuffer) {
-        const fileName = `character_${characterId}_${Date.now()}.png`;
+        const imgHash = crypto.createHash("sha256").update(Buffer.from(imgBuffer)).digest("hex").substring(0, 16);
+        const fileName = `character_${characterId}_${imgHash}.png`;
 
         const { data: uploadData, error: uploadErr } = await supabase.storage
           .from("character-images")
