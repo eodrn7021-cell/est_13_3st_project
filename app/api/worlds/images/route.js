@@ -32,10 +32,12 @@ export async function GET(request) {
       return NextResponse.json({ images: [], error: error.message });
     }
 
-    const images = data 
-      ? data.map((item) => item.image_url).filter((url) => url && url.trim() !== "") 
-      : [];
-    return NextResponse.json({ images });
+    const uniqueImages = Array.from(new Set(
+      data 
+        ? data.map((item) => item.image_url).filter((url) => url && url.trim() !== "") 
+        : []
+    ));
+    return NextResponse.json({ images: uniqueImages });
   } catch (err) {
     return NextResponse.json({ images: [], error: err.message });
   }

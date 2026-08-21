@@ -189,26 +189,7 @@ export async function POST(request) {
       .update({ is_main: false })
       .eq("character_id", Number(characterId));
 
-    const insertPayload = {
-      character_id: Number(characterId),
-      image_url: publicUrl,
-      is_main: true,
-    };
-
-    if (realUserId) {
-      insertPayload.user_id = realUserId;
-    }
-
-    const { data: histRes, error: histErr } = await supabase
-      .from("character_images")
-      .insert(insertPayload)
-      .select();
-
-    if (histErr) {
-    } else {
-    }
-
-    // 6. characters 테이블의 image_url도 업데이트
+    // 6. characters 테이블의 image_url 업데이트 (만약 DB에 트리거가 있다면 여기서 history가 자동 생성됨)
     await supabase
       .from("characters")
       .update({
@@ -216,6 +197,36 @@ export async function POST(request) {
         updated_at: new Date().toISOString(),
       })
       .eq("id", Number(characterId));
+
+    // 7. DB 트리거로 인해 history가 자동 생성되었는지 확인
+    const { data: existingImg } = await supabase
+      .from("character_images")
+      .select("id")
+      .eq("character_id", Number(characterId))
+      .eq("image_url", publicUrl);
+
+    if (existingImg && existingImg.length > 0) {
+      // 이미 생성되었다면 중복 생성을 막고 is_main 상태만 true로 설정
+      await supabase
+        .from("character_images")
+        .update({ is_main: true })
+        .eq("id", existingImg[0].id);
+    } else {
+      // 트리거가 없어서 생성되지 않았다면 직접 인서트
+      const insertPayload = {
+        character_id: Number(characterId),
+        image_url: publicUrl,
+        is_main: true,
+      };
+
+      if (realUserId) {
+        insertPayload.user_id = realUserId;
+      }
+
+      await supabase
+        .from("character_images")
+        .insert(insertPayload);
+    }
 
     return NextResponse.json({
       success: true,
