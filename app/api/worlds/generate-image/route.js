@@ -155,11 +155,16 @@ export async function POST(request) {
     } catch (err) {
     }
 
-    // 4. world_images 히스토리 DB 테이블에 인서트
+    // 4. world_images 히스토리 DB 테이블에 인서트 전, 기존 메인 이미지들 false 처리
+    await supabase
+      .from("world_images")
+      .update({ is_main: false })
+      .eq("world_id", Number(worldId));
+
     const insertPayload = {
       world_id: Number(worldId),
       image_url: publicUrl,
-      is_main: false,
+      is_main: true,
     };
 
     if (realUserId) {
@@ -173,6 +178,15 @@ export async function POST(request) {
 
     if (histErr) {
     }
+
+    // 5. worlds 테이블의 image_url도 업데이트
+    await supabase
+      .from("worlds")
+      .update({
+        image_url: publicUrl,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", Number(worldId));
 
     return NextResponse.json({
       success: true,
