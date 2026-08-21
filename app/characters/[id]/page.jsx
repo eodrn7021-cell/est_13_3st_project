@@ -211,26 +211,11 @@ function CharacterDetailContent({ params: paramsPromise }) {
 
       setSelectedImage(result.imageUrl);
 
-      // 이미지가 생성되면 자동으로 메인 이미지로 저장
-      try {
-        const saveRes = await fetch("/api/characters/set-main-image", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            characterId: charId || id,
-            imageUrl: result.imageUrl,
-          }),
-        });
-        const saveResult = await saveRes.json();
-        if (saveRes.ok && !saveResult.error) {
-          setCharacter((prev) => ({
-            ...prev,
-            image_url: result.imageUrl,
-          }));
-        }
-      } catch (saveErr) {
-      }
-
+      // 서버 API(generate-image)에서 자동으로 메인 이미지 처리를 완료함
+      setCharacter((prev) => ({
+        ...prev,
+        image_url: result.imageUrl,
+      }));
       await fetchImageHistory(charId || id);
     } catch (err) {
       showToast("이미지 생성 중 서버 연결 오류가 발생했습니다.");
@@ -256,30 +241,16 @@ function CharacterDetailContent({ params: paramsPromise }) {
         return;
       }
 
-      // 이미지가 생성되면 자동으로 메인 이미지로 저장
-      try {
-        const saveRes = await fetch("/api/worlds/set-main-image", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            worldId: worldId,
-            imageUrl: result.imageUrl,
-          }),
-        });
-
-        if (saveRes.ok) {
-          setCharacter((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  worlds: prev.worlds ? { ...prev.worlds, image_url: result.imageUrl } : null,
-                }
-              : prev,
-          );
-          await fetchWorldImageHistory(worldId);
-        }
-      } catch (saveErr) {
-      }
+      // 서버 API(generate-image)에서 자동으로 메인 이미지 처리를 완료함
+      setCharacter((prev) =>
+        prev
+          ? {
+              ...prev,
+              worlds: prev.worlds ? { ...prev.worlds, image_url: result.imageUrl } : null,
+            }
+          : prev,
+      );
+      await fetchWorldImageHistory(worldId);
     } catch (err) {
       showToast("세계관 이미지 생성 중 서버 연결 오류가 발생했습니다.");
     } finally {

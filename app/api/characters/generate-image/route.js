@@ -183,11 +183,16 @@ export async function POST(request) {
     } catch (err) {
     }
 
-    // 5. character_images 히스토리 DB 테이블에 인서트
+    // 5. character_images 히스토리 DB 테이블에 인서트 전, 기존 메인 이미지들 false 처리
+    await supabase
+      .from("character_images")
+      .update({ is_main: false })
+      .eq("character_id", Number(characterId));
+
     const insertPayload = {
       character_id: Number(characterId),
       image_url: publicUrl,
-      is_main: false,
+      is_main: true,
     };
 
     if (realUserId) {
@@ -202,6 +207,15 @@ export async function POST(request) {
     if (histErr) {
     } else {
     }
+
+    // 6. characters 테이블의 image_url도 업데이트
+    await supabase
+      .from("characters")
+      .update({
+        image_url: publicUrl,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", Number(characterId));
 
     return NextResponse.json({
       success: true,
